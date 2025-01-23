@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "CRXJS React Vite Example",
+  "version": "1.0.0",
+  "action": { "default_popup": "index.html" },
+  "host_permissions": ["<all_urls>"],
+  "content_scripts":[
+    {
+      "js":["src/content.tsx"],
+      "matches":["<all_urls>"]
+    }
+  ],
+  "permissions": [
+      "activeTab",
+      "scripting",
+      "tabs"
+  ],
+  "background": {
+    "service_worker": "src/background.ts",
+    "type": "module"
+  }
+
+}
