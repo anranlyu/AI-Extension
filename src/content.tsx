@@ -22,15 +22,12 @@ const parseHtml = (selector: string): string => {
   return doc.body.innerText.replace(/\s+/g, ' ').trim();
 };
 
-// chrome.runtime.onMessage.addListener((message) => {
-//   if (message.type === 'SUMMARY') {
-//     console.log('Received summarized text:', message.summary);
-
-//     // Example: Display the summary in an alert (or update the DOM)
-//     alert(`Summarized Text:\n${message.summary}`);
-//   }
-// });
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.type === 'SUMMARY') {
+    console.log('Received summarized text:', message.summary);
+  }
+});
 
 const extractedText = parseHtml('body');
 // chrome.runtime.sendMessage({ type: 'EXTRACTED_TEXT', text: extractedText });
-console.log(extractedText);
+chrome.runtime.sendMessage({ type: 'EXTRACTED_TEXT', text: extractedText });

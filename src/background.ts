@@ -13,42 +13,53 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
   }
 });
 
-// chrome.runtime.onMessage.addListener((message, send, sendResponse) => {
-//   if (message.type === 'EXTRACTED_TEXT' && send) {
-//     const textToSummarize = message.text;
 
-//     fetch('http://127.0.0.1:11434/api/generate', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({
-//         model: "deepseek-r1:7b", // Replace with your model name
-//         prompt: `Summarize the following text:\n\n${textToSummarize}`,
-//         stream: false, // Get the response as a single JSON object
-//       }),
-//     })
-//       .then((response) => response.json())
-//       .then((data) => {
-//         const summary = data.response; // Extract summary from the response
-//         console.log('Summarized Text:', summary);
+const generateSummary = async (message:string) => {
+  try {
 
-//         // Send the summary back to the content script
-//         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-//           if (tabs[0]?.id) {
-//             chrome.tabs.sendMessage(tabs[0].id, { type: 'SUMMARY', summary });
-//           }
-//         });
+    const response = await fetch('http://localhost:11434/api/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: "deepseek-r1:1.5b", // Replace with your model name
+        prompt: `Summarize the following content from the webpage:${message} `,
+        stream: false,
+      })
+    });
+  
+    if (!response.ok) {
+      throw new Error(`HTTP error! status:${response.status}`);
+    }
+  
+    const json = await response.json();
+    sendSummaryToContentScript(json.response);
+    
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message); // Access error.message safely
+    } else {
+      throw new Error('An unknown error occurred');
+    }
+  }
 
-//         sendResponse({ success: true });
-//       })
-//       .catch((error) => {
-//         console.error('Error communicating with Ollama:', error);
-//         sendResponse({ success: false, error: error.message });
-//       });
+}
 
-//     // Return true to indicate asynchronous response
-//     return true;
-//   }
-// });
+const sendSummaryToContentScript = (summary: string) => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs[0]?.id) {
+      chrome.tabs.sendMessage(tabs[0].id, { type: 'SUMMARY', summary });
+    }
+  })
+}
+
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.type === 'EXTRACTED_TEXT') {
+    const textToSummarize = message.text;
+    generateSummary(textToSummarize);
+
+  }
+});
+
 
