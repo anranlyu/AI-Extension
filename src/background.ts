@@ -1,4 +1,5 @@
-import getSummaryFromOllama from "./service/getSummaryFromOllama";
+import getSummaryFromDeepseek from "./service/getSummaryFromDeepseek";
+
 
 
 const sendSummaryToContentScript = (summary: string) => {
@@ -12,7 +13,7 @@ const sendSummaryToContentScript = (summary: string) => {
 chrome.runtime.onMessage.addListener(async (message) => {
   if (message.type === 'EXTRACTED_TEXT') {
     const textToSummarize = message.text;
-    const summarizedText = await getSummaryFromOllama(textToSummarize);
+    const summarizedText = await getSummaryFromDeepseek(textToSummarize);
     sendSummaryToContentScript(summarizedText);
 
   }
