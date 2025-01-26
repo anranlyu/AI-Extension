@@ -12,7 +12,19 @@ const replaceSelectedText = (newText: string): void => {
   if (selection && selection.rangeCount > 0) {
     const range = selection.getRangeAt(0);
     range.deleteContents();
-    range.insertNode(document.createTextNode(newText));
+
+    const lines = newText.split('\n');
+
+    const fragment = document.createDocumentFragment();
+
+    lines.forEach((line, index) => {
+      fragment.appendChild(document.createTextNode(line));
+      if (index < lines.length) {
+        fragment.appendChild(document.createElement('br'));
+      }
+    });
+
+    range.insertNode(fragment);
     selection.removeAllRanges();
   }
 };
