@@ -1,13 +1,24 @@
 import OpenAI from "openai";
 import { Prompt } from "../assets/Prompt";
-import { apiKey } from "../assets/API_KEY";
 
-const openai = new OpenAI({
-    baseURL: 'https://api.deepseek.com',
-    apiKey: apiKey
-})
 
-const getSummaryFromDeepseek = async(message:string) => {
+
+const getSummaryFromDeepseek = async (message: string) => {
+
+
+    const getOpenAi = async (): Promise<OpenAI> => {
+        const { apiKey } = await chrome.storage.local.get(['apiKey']); 
+
+        return new OpenAI({
+            baseURL: 'https://api.deepseek.com',
+            apiKey: apiKey || '', 
+        });
+    };
+
+    const openai = await getOpenAi();
+    
+    
+
     const completion = await openai.chat.completions.create({
         messages: [{ role: "system", content: Prompt + message }],
         model: "deepseek-chat",

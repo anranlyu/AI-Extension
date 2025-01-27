@@ -1,5 +1,5 @@
 
-import getSummaryFromDeepseek from "../service/getSummaryFromDeepseek";
+import getSummaryFromDeepseek from "../service/getSimplifiedTextFromDeepseek";
 import { Message } from "../service/type";
 
 
@@ -12,14 +12,20 @@ const sendTextToContentScript = (simplifiedText: string) => {
   })
 }
 
-chrome.runtime.onMessage.addListener(async (message:Message) => {
-  if (message.type === 'selected_text') {
-    const selectedText = message.text;
-    const simplifiedText = await getSummaryFromDeepseek(selectedText);
-    console.log(`Got simplified text in background:${simplifiedText}`)
-    sendTextToContentScript(simplifiedText);
 
+chrome.runtime.onMessage.addListener(async (message: Message) => {
+  if (message.type === 'selected_text') {
+    chrome.storage.local.get(['simplifyTextEnabled'], async (result) => {
+      const simplifyTextEnabled = result.simplifyTextEnabled || false;
+
+      if (simplifyTextEnabled) {
+        const selectedText = message.text;
+        const simplifiedText = await getSummaryFromDeepseek(selectedText);
+        console.log(`Got simplified text in background:${simplifiedText}`); // Todo: Delete after devolopment
+        sendTextToContentScript(simplifiedText);
+      } else {
+        console.log('Simplify Text toggle is OFF. Skipping text simplification.');
+      }
+    });
   }
 });
-
-

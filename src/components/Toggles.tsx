@@ -6,6 +6,21 @@ const Toggles: React.FC = () => {
   const [dyslexiaFontEnabled, setDyslexiaFontEnabled] =
     useState<boolean>(false);
 
+  const refreshStates = () => {
+    chrome.storage.local.get(
+      ['simplifyTextEnabled', 'dyslexiaFontEnabled'],
+      (result) => {
+        const simplifyTextEnabled = result.simplifyTextEnabled || false;
+        const dyslexiaFontEnabled = result.dyslexiaFontEnabled || false;
+        if (simplifyTextEnabled) setSimplifyTextEnabled(true);
+        if (dyslexiaFontEnabled) setDyslexiaFontEnabled(true);
+      }
+    );
+  };
+
+  // initialize the states
+  refreshStates();
+
   const handleSimplifyTextToggle = () => {
     const newState = !simplifyTextEnabled;
     setSimplifyTextEnabled(newState);
