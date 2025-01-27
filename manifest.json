@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "CRXJS React Vite Example",
+  "name": "Simplifier",
   "version": "1.0.0",
-  "action": { "default_popup": "index.html" },
+  "action": { "default_popup": "popup.html" },
   "host_permissions": ["<all_urls>"],
   "content_scripts":[
     {
@@ -13,7 +13,8 @@
   "permissions": [
       "activeTab",
       "scripting",
-      "tabs"
+      "tabs",
+      "storage"
   ],
   "background": {
     "service_worker": "src/background/background.ts",
