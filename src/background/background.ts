@@ -29,3 +29,14 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
     });
   }
 });
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type === 'get_dyslexia_font_enabled') {
+
+    chrome.storage.local.get(['dyslexiaFontEnabled'], (result) => {
+      sendResponse({ dyslexiaFontEnabled: result.dyslexiaFontEnabled });
+    });
+
+    return true;
+  }
+});

@@ -19,6 +19,12 @@
   "background": {
     "service_worker": "src/background/background.ts",
     "type": "module"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["fonts/OpenDyslexicMono-Regular.otf"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 
 }

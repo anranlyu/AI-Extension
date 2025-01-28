@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const Toggles: React.FC = () => {
   const [simplifyTextEnabled, setSimplifyTextEnabled] =
@@ -6,20 +6,15 @@ const Toggles: React.FC = () => {
   const [dyslexiaFontEnabled, setDyslexiaFontEnabled] =
     useState<boolean>(false);
 
-  const refreshStates = () => {
+  useEffect(() => {
     chrome.storage.local.get(
       ['simplifyTextEnabled', 'dyslexiaFontEnabled'],
       (result) => {
-        const simplifyTextEnabled = result.simplifyTextEnabled || false;
-        const dyslexiaFontEnabled = result.dyslexiaFontEnabled || false;
-        if (simplifyTextEnabled) setSimplifyTextEnabled(true);
-        if (dyslexiaFontEnabled) setDyslexiaFontEnabled(true);
+        setSimplifyTextEnabled(result.simplifyTextEnabled || false);
+        setDyslexiaFontEnabled(result.dyslexiaFontEnabled || false);
       }
     );
-  };
-
-  // initialize the states
-  refreshStates();
+  }, []);
 
   const handleSimplifyTextToggle = () => {
     const newState = !simplifyTextEnabled;
@@ -36,6 +31,14 @@ const Toggles: React.FC = () => {
     // Save the state to local storage
     chrome.storage.local.set({ dyslexiaFontEnabled: newState }, () => {
       console.log('Dyslexia-friendly font function state saved:', newState);
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0].id) {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            type: 'update_dyslexia_font',
+            dyslexiaFontEnabled: newState,
+          });
+        }
+      });
     });
   };
 

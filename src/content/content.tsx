@@ -2,6 +2,38 @@ import { Message } from '../service/type';
 
 console.log('content has been injected');
 
+const injectDyslexiaFont = () => {
+  const style = document.createElement('style');
+  const fontUrl = chrome.runtime.getURL('fonts/OpenDyslexicMono-Regular.otf');
+  style.textContent = `
+    @font-face {
+      font-family: 'OpenDyslexic';
+      src: url('${fontUrl}') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
+  `;
+  document.head.appendChild(style);
+};
+
+const removeDyslexiaFontFromPage = () => {
+  document.body.style.fontFamily = '';
+};
+
+const applyDyslexiaFontToPage = () => {
+  document.body.style.fontFamily = 'OpenDyslexic, sans-serif';
+};
+
+chrome.runtime.sendMessage(
+  { type: 'get_dyslexia_font_enabled' },
+  (response) => {
+    if (response && response.dyslexiaFontEnabled) {
+      injectDyslexiaFont();
+      applyDyslexiaFontToPage();
+    }
+  }
+);
+
 const getSelectedText = (): string | null => {
   const selection = window.getSelection();
   return selection && selection.rangeCount > 0 ? selection.toString() : null;
@@ -41,7 +73,16 @@ document.addEventListener('mouseup', () => {
 
 chrome.runtime.onMessage.addListener((message: Message) => {
   if (message.type === 'simplified_text') {
-    console.log('Received simplified text:', message.text);
+    console.log('Received processed text:', message.text);
     replaceSelectedText(message.text);
+  }
+
+  if (message.type === 'update_dyslexia_font') {
+    if (message.dyslexiaFontEnabled) {
+      injectDyslexiaFont();
+      applyDyslexiaFontToPage();
+    } else {
+      removeDyslexiaFontFromPage();
+    }
   }
 });
