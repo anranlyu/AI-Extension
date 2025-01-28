@@ -5,6 +5,7 @@ console.log('content has been injected');
 const injectDyslexiaFont = () => {
   const style = document.createElement('style');
   const fontUrl = chrome.runtime.getURL('fonts/OpenDyslexicMono-Regular.otf');
+  style.setAttribute('data-dyslexia-font', 'true');
   style.textContent = `
     @font-face {
       font-family: 'OpenDyslexic';
@@ -12,16 +13,19 @@ const injectDyslexiaFont = () => {
       font-weight: normal;
       font-style: normal;
     }
+
+    * {
+      font-family: 'OpenDyslexic' !important;
+    }
   `;
   document.head.appendChild(style);
 };
 
 const removeDyslexiaFontFromPage = () => {
-  document.body.style.fontFamily = '';
-};
-
-const applyDyslexiaFontToPage = () => {
-  document.body.style.fontFamily = 'OpenDyslexic, sans-serif';
+  const styleElement = document.querySelector('style[data-dyslexia-font]');
+  if (styleElement) {
+    styleElement.remove();
+  }
 };
 
 chrome.runtime.sendMessage(
@@ -29,7 +33,6 @@ chrome.runtime.sendMessage(
   (response) => {
     if (response && response.dyslexiaFontEnabled) {
       injectDyslexiaFont();
-      applyDyslexiaFontToPage();
     }
   }
 );
@@ -80,7 +83,6 @@ chrome.runtime.onMessage.addListener((message: Message) => {
   if (message.type === 'update_dyslexia_font') {
     if (message.dyslexiaFontEnabled) {
       injectDyslexiaFont();
-      applyDyslexiaFontToPage();
     } else {
       removeDyslexiaFontFromPage();
     }
