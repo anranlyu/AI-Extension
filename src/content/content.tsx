@@ -21,6 +21,33 @@ const injectDyslexiaFont = () => {
   document.head.appendChild(style);
 };
 
+const injectHighlightStyles = () => {
+  const style = document.createElement('style');
+  style.textContent = `
+    .replaced-text {
+      background-color: #e3f2fd; /* Light blue background */
+      padding: 2px 4px;
+      border-radius: 3px;
+      border: 1px solid #90caf9; /* Light blue border */
+    }
+
+    .highlight-animation {
+      animation: highlight-fade 2s ease-out;
+    }
+
+    @keyframes highlight-fade {
+      0% {
+        background-color: #fff176; /* Bright yellow for initial highlight */
+      }
+      100% {
+        background-color: #e3f2fd; /* Back to light blue */
+      }
+    }
+  `;
+  document.head.appendChild(style);
+};
+injectHighlightStyles();
+
 const removeDyslexiaFontFromPage = () => {
   const styleElement = document.querySelector('style[data-dyslexia-font]');
   if (styleElement) {
@@ -53,14 +80,38 @@ const replaceSelectedText = (newText: string): void => {
     const fragment = document.createDocumentFragment();
 
     lines.forEach((line, index) => {
-      fragment.appendChild(document.createTextNode(line));
-      if (index < lines.length) {
+      // Create a span to wrap the new text
+      const span = document.createElement('span');
+      span.textContent = line;
+
+      // Add a class to style the replaced text
+      span.classList.add('replaced-text');
+
+      // Add a tooltip to inform the user
+      span.title = 'This text has been simplified or replaced.';
+
+      fragment.appendChild(span);
+
+      if (index < lines.length - 1) {
         fragment.appendChild(document.createElement('br'));
       }
     });
 
     range.insertNode(fragment);
     selection.removeAllRanges();
+
+    // Add a temporary animation to draw attention
+    const replacedTextElements = document.querySelectorAll('.replaced-text');
+    replacedTextElements.forEach((element) => {
+      element.classList.add('highlight-animation');
+    });
+
+    // Remove the animation after a short delay
+    setTimeout(() => {
+      replacedTextElements.forEach((element) => {
+        element.classList.remove('highlight-animation');
+      });
+    }, 2000); // Animation lasts for 2 seconds
   }
 };
 
