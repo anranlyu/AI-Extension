@@ -67,12 +67,6 @@ const LLMSelector: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           Save
         </button>
       </form>
-      <button
-        onClick={onClose}
-        className="mt-2 px-3 py-2 bg-gray-400 text-black rounded-md hover:bg-gray-500"
-      >
-        Cancel
-      </button>
     </div>
   );
 };

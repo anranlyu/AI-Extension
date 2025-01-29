@@ -1,10 +1,37 @@
 import React, { useEffect, useState } from 'react';
 
-const Toggles: React.FC<{ hasLLMConfig: boolean }> = ({ hasLLMConfig }) => {
+const Toggles: React.FC = () => {
   const [simplifyTextEnabled, setSimplifyTextEnabled] =
     useState<boolean>(false);
   const [dyslexiaFontEnabled, setDyslexiaFontEnabled] =
     useState<boolean>(false);
+
+  const [hasLLMConfig, setHasLLMConfig] = useState(false);
+  useEffect(() => {
+    const updateLLMConfig = () => {
+      chrome.storage.local.get(['llm', 'apiKey'], (result) => {
+        setHasLLMConfig(!!result.llm && !!result.apiKey);
+      });
+    };
+
+    // Initial check
+    updateLLMConfig();
+
+    // Listen for storage changes
+    const handleStorageChange = (changes: {
+      [key: string]: chrome.storage.StorageChange;
+    }) => {
+      if ('llm' in changes || 'apiKey' in changes) {
+        updateLLMConfig();
+      }
+    };
+
+    chrome.storage.onChanged.addListener(handleStorageChange);
+
+    return () => {
+      chrome.storage.onChanged.removeListener(handleStorageChange);
+    };
+  }, []);
 
   useEffect(() => {
     chrome.storage.local.get(
