@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-const LLMSelector: React.FC = () => {
+const LLMSelector: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [selectedLLM, setSelectedLLM] = useState<string>('deepseek'); // Default to DeepSeek
   const [apiKey, setApiKey] = useState<string>('');
+
+  useEffect(() => {
+    chrome.storage.local.get(['llm', 'apiKey'], (result) => {
+      if (result.llm) setSelectedLLM(result.llm);
+      if (result.apiKey) setApiKey(result.apiKey);
+    });
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     chrome.storage.local.set({ llm: selectedLLM, apiKey }, () => {
       console.log('LLM and API key saved to local storage');
+      onClose();
     });
   };
 
@@ -59,6 +67,12 @@ const LLMSelector: React.FC = () => {
           Save
         </button>
       </form>
+      <button
+        onClick={onClose}
+        className="mt-2 px-3 py-2 bg-gray-400 text-black rounded-md hover:bg-gray-500"
+      >
+        Cancel
+      </button>
     </div>
   );
 };

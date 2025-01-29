@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const Toggles: React.FC = () => {
+const Toggles: React.FC<{ hasLLMConfig: boolean }> = ({ hasLLMConfig }) => {
   const [simplifyTextEnabled, setSimplifyTextEnabled] =
     useState<boolean>(false);
   const [dyslexiaFontEnabled, setDyslexiaFontEnabled] =
@@ -17,6 +17,10 @@ const Toggles: React.FC = () => {
   }, []);
 
   const handleSimplifyTextToggle = () => {
+    if (!hasLLMConfig) {
+      alert('API Key and LLM must be configured before enabling this feature.');
+      return;
+    }
     const newState = !simplifyTextEnabled;
     setSimplifyTextEnabled(newState);
     // Save the state to local storage
