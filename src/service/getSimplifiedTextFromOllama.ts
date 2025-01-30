@@ -1,4 +1,4 @@
-const getSummaryFromOllama = async (message:string):Promise<string> => {
+const getSummaryFromOllama = async (message: string): Promise<string> => {
   try {
 
     const response = await fetch('http://localhost:11434/api/generate', {
@@ -12,14 +12,14 @@ const getSummaryFromOllama = async (message:string):Promise<string> => {
         stream: false,
       })
     });
-  
+
     if (!response.ok) {
       throw new Error(`HTTP error! status:${response.status}`);
     }
-  
+
     const json = await response.json();
     return json.response;
-    
+
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(error.message); // Access error.message safely
