@@ -39,4 +39,15 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
     return true;
   }
+
+  if (message.type === 'update_read_mode') {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0].id) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          type: 'update_read_mode',
+          readModeEnabled: message.readModeEnabled,
+        });
+      }
+    });
+  }
 });

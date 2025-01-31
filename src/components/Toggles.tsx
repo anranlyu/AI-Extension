@@ -5,8 +5,9 @@ const Toggles: React.FC = () => {
     useState<boolean>(false);
   const [dyslexiaFontEnabled, setDyslexiaFontEnabled] =
     useState<boolean>(false);
-
   const [hasLLMConfig, setHasLLMConfig] = useState(false);
+  const [readModeEnabled, setReadModeEnabled] = useState<boolean>(false);
+
   useEffect(() => {
     const updateLLMConfig = () => {
       chrome.storage.local.get(['llm', 'apiKey'], (result) => {
@@ -35,13 +36,30 @@ const Toggles: React.FC = () => {
 
   useEffect(() => {
     chrome.storage.local.get(
-      ['simplifyTextEnabled', 'dyslexiaFontEnabled'],
+      ['simplifyTextEnabled', 'dyslexiaFontEnabled', 'readModeEnabled'],
       (result) => {
         setSimplifyTextEnabled(result.simplifyTextEnabled || false);
         setDyslexiaFontEnabled(result.dyslexiaFontEnabled || false);
+        setReadModeEnabled(result.readModeEnabled || false);
       }
     );
   }, []);
+
+  const handleReadModeToggle = () => {
+    const newState = !readModeEnabled;
+    setReadModeEnabled(newState);
+    chrome.storage.local.set({ readModeEnabled: newState }, () => {
+      console.log('Read Mode state saved:', newState);
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0].id) {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            type: 'update_read_mode',
+            readModeEnabled: newState,
+          });
+        }
+      });
+    });
+  };
 
   const handleSimplifyTextToggle = () => {
     if (!hasLLMConfig) {
@@ -104,6 +122,23 @@ const Toggles: React.FC = () => {
           <div
             className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ${
               dyslexiaFontEnabled ? 'translate-x-6' : 'translate-x-0'
+            }`}
+          ></div>
+        </button>
+      </div>
+
+      {/* Read Mode Toggle */}
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-gray-700">Read Mode</span>
+        <button
+          onClick={handleReadModeToggle}
+          className={`relative w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none ${
+            readModeEnabled ? 'bg-blue-600' : 'bg-gray-300'
+          }`}
+        >
+          <div
+            className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ${
+              readModeEnabled ? 'translate-x-6' : 'translate-x-0'
             }`}
           ></div>
         </button>
