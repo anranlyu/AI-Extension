@@ -1,5 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { Message } from '../service/type';
-import { enableReadMode, disableReadMode } from './readMode';
+import {
+  enableReadMode,
+  disableReadMode,
+  displayProcessedText,
+} from './readMode';
 import { injectDyslexiaFont, removeDyslexiaFontFromPage } from './dyslexiaFont';
 import { injectHighlightStyles } from './highlightStyles';
 import { getSelectedText, replaceSelectedText } from './textSelection';
@@ -8,37 +13,42 @@ console.log('content has been injected');
 
 injectHighlightStyles();
 
-chrome.runtime.onMessage.addListener((message: Message) => {
-  if (message.type === 'update_read_mode') {
-    if (message.readModeEnabled) {
-      enableReadMode();
-    } else {
-      disableReadMode();
-    }
+const handleRuntimeMessage = (message: Message) => {
+  switch (message.type) {
+    case 'update_read_mode':
+      message.readModeEnabled ? enableReadMode() : disableReadMode();
+      break;
+    case 'simplified_text':
+      console.log('Received processed text:', message.text);
+      replaceSelectedText(message.text);
+      break;
+    case 'update_dyslexia_font':
+      message.dyslexiaFontEnabled
+        ? injectDyslexiaFont()
+        : removeDyslexiaFontFromPage();
+      break;
+    case 'readMode_text':
+      displayProcessedText(message.text);
+      break;
+    default:
+      console.warn(`Unknown message type: ${message.type}`);
   }
+};
 
-  if (message.type === 'simplified_text') {
-    console.log('Received processed text:', message.text);
-    replaceSelectedText(message.text);
-  }
+chrome.runtime.onMessage.addListener(handleRuntimeMessage);
 
-  if (message.type === 'update_dyslexia_font') {
-    if (message.dyslexiaFontEnabled) {
-      injectDyslexiaFont();
-    } else {
-      removeDyslexiaFontFromPage();
+const checkDyslexiaFontEnabled = () => {
+  chrome.runtime.sendMessage(
+    { type: 'get_dyslexia_font_enabled' },
+    (response) => {
+      if (response?.dyslexiaFontEnabled) {
+        injectDyslexiaFont();
+      }
     }
-  }
-});
+  );
+};
 
-chrome.runtime.sendMessage(
-  { type: 'get_dyslexia_font_enabled' },
-  (response) => {
-    if (response && response.dyslexiaFontEnabled) {
-      injectDyslexiaFont();
-    }
-  }
-);
+checkDyslexiaFontEnabled();
 
 document.addEventListener('mouseup', () => {
   const selectedText = getSelectedText();

@@ -1,13 +1,19 @@
-let originalBodyHTML: string | null = null; // Store the original HTML of the page
+let originalBodyHTML: string | null = null;
 
-export const enableReadMode = () => {
-  // Save the original HTML of the page
-  originalBodyHTML = document.body.innerHTML;
+// Extract relevant text from specific elements
+const extractRelevantText = (): string => {
+  const relevantElements = document.querySelectorAll('article, main, section, p, h1, h2, h3, h4, h5, h6');
+  let extractedText = '';
 
-  // Extract all text content from the page
-  const textContent = document.body.innerText;
+  relevantElements.forEach((element) => {
+    extractedText += element.textContent + '\n';
+  });
 
-  // Create a clean container for the text
+  return extractedText.trim();
+};
+
+// Display processed text from LLM in the read mode container
+export const displayProcessedText = (processedText: string) => {
   const readModeContainer = document.createElement('div');
   readModeContainer.id = 'read-mode-container';
   readModeContainer.style.cssText = `
@@ -21,12 +27,26 @@ export const enableReadMode = () => {
     background-color: #f9f9f9;
   `;
 
-  // Add the extracted text to the container
-  readModeContainer.textContent = textContent;
+  // Add the processed text to the container
+  readModeContainer.innerHTML = processedText;
 
-  // Clear the body and append the clean container
+  // Clear the body and append the read mode container
   document.body.innerHTML = '';
   document.body.appendChild(readModeContainer);
+};
+
+export const enableReadMode = () => {
+  // Save the original HTML of the page
+  originalBodyHTML = document.body.innerHTML;
+
+  // Extract relevant text
+  const extractedText = extractRelevantText();
+  console.log('extrat text:'+extractedText)
+
+  // Send the extracted text to the background script for LLM processing
+  chrome.runtime.sendMessage(
+    { type: 'process_text_for_read_mode', text: extractedText }
+  );
 };
 
 export const disableReadMode = () => {

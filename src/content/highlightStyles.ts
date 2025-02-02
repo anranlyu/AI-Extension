@@ -1,11 +1,17 @@
 export const injectHighlightStyles = () => {
+  if (document.querySelector('style[data-highlight-styles]')) {
+    console.log('Highlight styles already injected.');
+    return;
+  }
+
   const style = document.createElement('style');
+  style.setAttribute('data-highlight-styles', 'true');
   style.textContent = `
     .replaced-text {
-      background-color: #e3f2fd; /* Light blue background */
+      background-color: #e3f2fd;
       padding: 2px 4px;
       border-radius: 3px;
-      border: 1px solid #90caf9; /* Light blue border */
+      border: 1px solid #90caf9;
     }
 
     .highlight-animation {
@@ -14,10 +20,10 @@ export const injectHighlightStyles = () => {
 
     @keyframes highlight-fade {
       0% {
-        background-color: #fff176; /* Bright yellow for initial highlight */
+        background-color: #fff176;
       }
       100% {
-        background-color: #e3f2fd; /* Back to light blue */
+        background-color: #e3f2fd;
       }
     }
   `;

@@ -1,9 +1,12 @@
 import OpenAI from "openai";
-import { Prompt } from "../assets/Prompt";
 
 
+interface props {
+    prompt: string,
+    text: string
+}
 
-const getSummaryFromDeepseek = async (message: string) => {
+const getTextFromDeepseek = async ({prompt, text}:props) => {
 
 
     const getOpenAi = async (): Promise<OpenAI> => {
@@ -20,14 +23,14 @@ const getSummaryFromDeepseek = async (message: string) => {
     
 
     const completion = await openai.chat.completions.create({
-        messages: [{ role: "system", content: Prompt + message }],
+        messages: [{ role: "system", content: prompt + text }],
         model: "deepseek-chat",
     });
 
-    const text = completion.choices[0].message.content;
-    return text || "got nothing from deepseek";
+    const newText = completion.choices[0].message.content;
+    return newText || "got nothing from deepseek";
 
 
 }
 
-export default getSummaryFromDeepseek;
+export default getTextFromDeepseek;
