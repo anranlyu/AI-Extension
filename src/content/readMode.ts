@@ -54,7 +54,7 @@ export const displayProcessedText = (title: string, author: string, content: str
       absolute top-6 right-8 px-4 py-2 bg-red-600 text-white rounded-md
       hover:bg-red-700 transition duration-200 shadow-lg
     `;
-    closeButton.onclick = () => overlay?.remove();
+    closeButton.onclick = disableReadMode;
 
     const articleContainer = document.createElement('div');
     articleContainer.className = 'max-w-3xl bg-gray-800 p-6 rounded-lg shadow-lg';

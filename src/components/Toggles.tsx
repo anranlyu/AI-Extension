@@ -1,29 +1,59 @@
 import React, { useEffect, useState } from 'react';
 
 const Toggles: React.FC = () => {
-  const [simplifyTextEnabled, setSimplifyTextEnabled] =
-    useState<boolean>(false);
-  const [dyslexiaFontEnabled, setDyslexiaFontEnabled] =
-    useState<boolean>(false);
+  const [simplifyTextEnabled, setSimplifyTextEnabled] = useState(false);
+  const [dyslexiaFontEnabled, setDyslexiaFontEnabled] = useState(false);
+  const [readModeEnabled, setReadModeEnabled] = useState(false);
   const [hasLLMConfig, setHasLLMConfig] = useState(false);
-  const [readModeEnabled, setReadModeEnabled] = useState<boolean>(false);
+
+  // Utility functions for applying Tailwind classes
+  const toggleButtonClass = (enabled: boolean) =>
+    `relative w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none ${
+      enabled ? 'bg-blue-600' : 'bg-gray-300'
+    }`;
+  const toggleDotClass = (enabled: boolean) =>
+    `absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ${
+      enabled ? 'translate-x-6' : 'translate-x-0'
+    }`;
+
+  // Helper to read from Chrome storage once, then sync component state
+  const syncFromStorage = () => {
+    chrome.storage.local.get(
+      [
+        'llm',
+        'apiKey',
+        'simplifyTextEnabled',
+        'dyslexiaFontEnabled',
+        'readModeEnabled',
+      ],
+      (res) => {
+        setHasLLMConfig(!!res.llm && !!res.apiKey);
+        setSimplifyTextEnabled(!!res.simplifyTextEnabled);
+        setDyslexiaFontEnabled(!!res.dyslexiaFontEnabled);
+        setReadModeEnabled(!!res.readModeEnabled);
+      }
+    );
+  };
 
   useEffect(() => {
-    const updateLLMConfig = () => {
-      chrome.storage.local.get(['llm', 'apiKey'], (result) => {
-        setHasLLMConfig(!!result.llm && !!result.apiKey);
-      });
-    };
+    // Initial sync
+    syncFromStorage();
 
-    // Initial check
-    updateLLMConfig();
-
-    // Listen for storage changes
+    // Listen for any changes in Chrome storage
     const handleStorageChange = (changes: {
       [key: string]: chrome.storage.StorageChange;
     }) => {
       if ('llm' in changes || 'apiKey' in changes) {
-        updateLLMConfig();
+        // If llm or apiKey changed, reevaluate hasLLMConfig
+        const newLLM = changes.llm?.newValue;
+        const newApiKey = changes.apiKey?.newValue;
+        setHasLLMConfig(!!newLLM && !!newApiKey);
+      }
+      if ('simplifyTextEnabled' in changes) {
+        setSimplifyTextEnabled(changes.simplifyTextEnabled.newValue);
+      }
+      if ('dyslexiaFontEnabled' in changes) {
+        setDyslexiaFontEnabled(changes.dyslexiaFontEnabled.newValue);
       }
       if ('readModeEnabled' in changes) {
         setReadModeEnabled(changes.readModeEnabled.newValue);
@@ -33,28 +63,19 @@ const Toggles: React.FC = () => {
     chrome.storage.onChanged.addListener(handleStorageChange);
 
     return () => {
+      // Clean up the listener on unmount
       chrome.storage.onChanged.removeListener(handleStorageChange);
     };
   }, []);
 
-  useEffect(() => {
-    chrome.storage.local.get(
-      ['simplifyTextEnabled', 'dyslexiaFontEnabled', 'readModeEnabled'],
-      (result) => {
-        setSimplifyTextEnabled(result.simplifyTextEnabled || false);
-        setDyslexiaFontEnabled(result.dyslexiaFontEnabled || false);
-        setReadModeEnabled(result.readModeEnabled || false);
-      }
-    );
-  }, []);
-
+  // --- Handlers ---
   const handleReadModeToggle = () => {
     const newState = !readModeEnabled;
     setReadModeEnabled(newState);
     chrome.storage.local.set({ readModeEnabled: newState }, () => {
       console.log('Read Mode state saved:', newState);
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs[0].id) {
+        if (tabs.length && tabs[0].id) {
           chrome.tabs.sendMessage(tabs[0].id, {
             type: 'update_read_mode',
             readModeEnabled: newState,
@@ -71,7 +92,6 @@ const Toggles: React.FC = () => {
     }
     const newState = !simplifyTextEnabled;
     setSimplifyTextEnabled(newState);
-    // Save the state to local storage
     chrome.storage.local.set({ simplifyTextEnabled: newState }, () => {
       console.log('Simplify text function state saved:', newState);
     });
@@ -80,11 +100,10 @@ const Toggles: React.FC = () => {
   const handleDyslexiaFontToggle = () => {
     const newState = !dyslexiaFontEnabled;
     setDyslexiaFontEnabled(newState);
-    // Save the state to local storage
     chrome.storage.local.set({ dyslexiaFontEnabled: newState }, () => {
       console.log('Dyslexia-friendly font function state saved:', newState);
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs[0].id) {
+        if (tabs.length && tabs[0].id) {
           chrome.tabs.sendMessage(tabs[0].id, {
             type: 'update_dyslexia_font',
             dyslexiaFontEnabled: newState,
@@ -94,6 +113,7 @@ const Toggles: React.FC = () => {
     });
   };
 
+  // --- Render ---
   return (
     <div className="p-4 bg-gray-100 rounded-lg shadow-md space-y-4 w-xs">
       {/* Simplify Text Toggle */}
@@ -101,15 +121,9 @@ const Toggles: React.FC = () => {
         <span className="text-sm font-medium text-gray-700">Simplify Text</span>
         <button
           onClick={handleSimplifyTextToggle}
-          className={`relative w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none ${
-            simplifyTextEnabled ? 'bg-blue-600' : 'bg-gray-300'
-          }`}
+          className={toggleButtonClass(simplifyTextEnabled)}
         >
-          <div
-            className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ${
-              simplifyTextEnabled ? 'translate-x-6' : 'translate-x-0'
-            }`}
-          ></div>
+          <div className={toggleDotClass(simplifyTextEnabled)} />
         </button>
       </div>
 
@@ -118,15 +132,9 @@ const Toggles: React.FC = () => {
         <span className="text-sm font-medium text-gray-700">Dyslexia Font</span>
         <button
           onClick={handleDyslexiaFontToggle}
-          className={`relative w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none ${
-            dyslexiaFontEnabled ? 'bg-blue-600' : 'bg-gray-300'
-          }`}
+          className={toggleButtonClass(dyslexiaFontEnabled)}
         >
-          <div
-            className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ${
-              dyslexiaFontEnabled ? 'translate-x-6' : 'translate-x-0'
-            }`}
-          ></div>
+          <div className={toggleDotClass(dyslexiaFontEnabled)} />
         </button>
       </div>
 
@@ -135,15 +143,9 @@ const Toggles: React.FC = () => {
         <span className="text-sm font-medium text-gray-700">Read Mode</span>
         <button
           onClick={handleReadModeToggle}
-          className={`relative w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none ${
-            readModeEnabled ? 'bg-blue-600' : 'bg-gray-300'
-          }`}
+          className={toggleButtonClass(readModeEnabled)}
         >
-          <div
-            className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ${
-              readModeEnabled ? 'translate-x-6' : 'translate-x-0'
-            }`}
-          ></div>
+          <div className={toggleDotClass(readModeEnabled)} />
         </button>
       </div>
     </div>
