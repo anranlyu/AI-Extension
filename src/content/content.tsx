@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+import './content.css';
+import { getSelectedText, replaceSelectedText } from './textSelection';
 import { Message } from '../service/type';
-import {
-  enableReadMode,
-  disableReadMode,
-  displayProcessedText,
-} from './readMode';
 import { injectDyslexiaFont, removeDyslexiaFontFromPage } from './dyslexiaFont';
 import { injectHighlightStyles } from './highlightStyles';
-import { getSelectedText, replaceSelectedText } from './textSelection';
+import {
+  disableReadMode,
+  // displayProcessedText,
+  enableReadMode,
+} from './readMode';
 
 console.log('content has been injected');
 
@@ -28,7 +29,7 @@ const handleRuntimeMessage = (message: Message) => {
         : removeDyslexiaFontFromPage();
       break;
     case 'readMode_text':
-      displayProcessedText(message.text);
+      // displayProcessedText(message.text);
       break;
     default:
       console.warn(`Unknown message type: ${message.type}`);

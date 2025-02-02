@@ -1,58 +1,86 @@
-let originalBodyHTML: string | null = null;
+import { isProbablyReaderable, Readability } from "@mozilla/readability";
 
-// Extract relevant text from specific elements
-const extractRelevantText = (): string => {
-  const relevantElements = document.querySelectorAll('article, main, section, p, h1, h2, h3, h4, h5, h6');
-  let extractedText = '';
-
-  relevantElements.forEach((element) => {
-    extractedText += element.textContent + '\n';
-  });
-
-  return extractedText.trim();
+const isPageReadable = () => {
+  return isProbablyReaderable(document);
 };
 
-// Display processed text from LLM in the read mode container
-export const displayProcessedText = (processedText: string) => {
-  const readModeContainer = document.createElement('div');
-  readModeContainer.id = 'read-mode-container';
-  readModeContainer.style.cssText = `
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: 'Arial', sans-serif;
-    font-size: 18px;
-    line-height: 1.6;
-    color: #333;
-    background-color: #f9f9f9;
-  `;
+const extractReadableContent = () => {
+  if (!isPageReadable()) {
+    console.warn('This page is not suitable for Read Mode.');
+    return null;
+  }
 
-  // Add the processed text to the container
-  readModeContainer.innerHTML = processedText;
+  const article = new Readability(document.cloneNode(true) as Document).parse();
+  if (!article) return null;
 
-  // Clear the body and append the read mode container
-  document.body.innerHTML = '';
-  document.body.appendChild(readModeContainer);
+  return {
+    title: article.title || 'Untitled',
+    content: article.content || '',
+    excerpt: article.excerpt || '',
+    author: article.byline || 'Unknown',
+  };
 };
 
-export const enableReadMode = () => {
-  // Save the original HTML of the page
-  originalBodyHTML = document.body.innerHTML;
+// Function to enable Read Mode
+export const enableReadMode = async () => {
+  const extractedData = extractReadableContent();
+  if (!extractedData) {
+    console.warn('No readable content found.');
+    return;
+  }
 
-  // Extract relevant text
-  const extractedText = extractRelevantText();
-  console.log('extrat text:'+extractedText)
-
-  // Send the extracted text to the background script for LLM processing
-  chrome.runtime.sendMessage(
-    { type: 'process_text_for_read_mode', text: extractedText }
-  );
+  // chrome.runtime.sendMessage(
+  //   { type: 'process_read_mode_text', text: extractedText },
+  // );
+  displayProcessedText(extractedData.title, extractedData.author, extractedData.content);
+  chrome.storage.local.set({ readModeEnabled: true });
 };
 
-export const disableReadMode = () => {
-  if (originalBodyHTML) {
-    // Restore the original HTML of the page
-    document.body.innerHTML = originalBodyHTML;
-    originalBodyHTML = null;
+// Function to display the processed text in an overlay
+export const displayProcessedText = (title: string, author: string, content: string) => {
+  let overlay = document.getElementById('read-mode-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'read-mode-overlay';
+    overlay.className = `
+      fixed inset-0 bg-gray-900 bg-opacity-95 text-white 
+      z-[99999] flex flex-col items-center justify-start
+      p-8 overflow-y-auto
+    `;
+
+    const closeButton = document.createElement('button');
+    closeButton.innerText = 'Close';
+    closeButton.className = `
+      absolute top-6 right-8 px-4 py-2 bg-red-600 text-white rounded-md
+      hover:bg-red-700 transition duration-200 shadow-lg
+    `;
+    closeButton.onclick = () => overlay?.remove();
+
+    const articleContainer = document.createElement('div');
+    articleContainer.className = 'max-w-3xl bg-gray-800 p-6 rounded-lg shadow-lg';
+
+    articleContainer.innerHTML = `
+      <h1 class="text-2xl font-bold mb-2">${title}</h1>
+      <p class="text-sm italic text-gray-300 mb-4">${author}</p>
+      <div class="text-lg leading-relaxed">${content}</div>
+    `;
+
+    overlay.appendChild(closeButton);
+    overlay.appendChild(articleContainer);
+    document.body.appendChild(overlay);
   }
 };
+
+// Function to disable Read Mode
+export const disableReadMode = () => {
+  document.getElementById('read-mode-overlay')?.remove();
+  chrome.storage.local.set({ readModeEnabled: false });
+};
+
+// Listen for messages
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.type === 'update_read_mode') {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    message.readModeEnabled ? enableReadMode() : disableReadMode();
+  }
+});

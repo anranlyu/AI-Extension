@@ -25,6 +25,9 @@ const Toggles: React.FC = () => {
       if ('llm' in changes || 'apiKey' in changes) {
         updateLLMConfig();
       }
+      if ('readModeEnabled' in changes) {
+        setReadModeEnabled(changes.readModeEnabled.newValue);
+      }
     };
 
     chrome.storage.onChanged.addListener(handleStorageChange);
