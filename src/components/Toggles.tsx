@@ -4,16 +4,15 @@ const Toggles: React.FC = () => {
   const [simplifyTextEnabled, setSimplifyTextEnabled] = useState(false);
   const [dyslexiaFontEnabled, setDyslexiaFontEnabled] = useState(false);
   const [readModeEnabled, setReadModeEnabled] = useState(false);
+  const [TTSenabled, setTTSEnabled] = useState(false);
   const [hasLLMConfig, setHasLLMConfig] = useState(false);
 
   // Utility functions for applying Tailwind classes
   const toggleButtonClass = (enabled: boolean) =>
-    `relative w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none ${
-      enabled ? 'bg-blue-600' : 'bg-gray-300'
+    `relative w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none ${enabled ? 'bg-blue-600' : 'bg-gray-300'
     }`;
   const toggleDotClass = (enabled: boolean) =>
-    `absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ${
-      enabled ? 'translate-x-6' : 'translate-x-0'
+    `absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ${enabled ? 'translate-x-6' : 'translate-x-0'
     }`;
 
   // Helper to read from Chrome storage once, then sync component state
@@ -69,6 +68,12 @@ const Toggles: React.FC = () => {
   }, []);
 
   // --- Handlers ---
+  const handleTTSToggle = () => {
+    const newState = !TTSenabled;
+    setTTSEnabled(newState);
+    chrome.storage.local.set({ TTSenabled: newState });
+  }
+
   const handleReadModeToggle = () => {
     const newState = !readModeEnabled;
     chrome.storage.local.set({ readModeEnabled: newState });
@@ -124,6 +129,18 @@ const Toggles: React.FC = () => {
           <div className={toggleDotClass(readModeEnabled)} />
         </button>
       </div>
+
+      {/* TTS Toggle*/}
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-gray-700">Text to Speech</span>
+        <button
+          onClick={handleTTSToggle}
+          className={toggleButtonClass(TTSenabled)}
+        >
+          <div className={toggleDotClass(TTSenabled)} />
+        </button>
+      </div>
+
     </div>
   );
 };
