@@ -16,12 +16,12 @@ injectHighlightStyles();
 
 const handleRuntimeMessage = (message: Message) => {
   switch (message.type) {
-    case 'update_read_mode':
-      message.readModeEnabled ? enableReadMode() : disableReadMode();
-      break;
     case 'simplified_text':
       console.log('Received processed text:', message.text);
       replaceSelectedText(message.text);
+      break;
+    case 'update_read_mode':
+      message.readModeEnabled ? enableReadMode() : disableReadMode();
       break;
     case 'update_dyslexia_font':
       message.dyslexiaFontEnabled
@@ -38,18 +38,14 @@ const handleRuntimeMessage = (message: Message) => {
 
 chrome.runtime.onMessage.addListener(handleRuntimeMessage);
 
-const checkDyslexiaFontEnabled = () => {
-  chrome.runtime.sendMessage(
-    { type: 'get_dyslexia_font_enabled' },
-    (response) => {
-      if (response?.dyslexiaFontEnabled) {
-        injectDyslexiaFont();
-      }
-    }
-  );
-};
-
-checkDyslexiaFontEnabled();
+chrome.runtime.sendMessage({ type: 'get_initial_state' }, (response) => {
+  if (response?.readModeEnabled) {
+    enableReadMode();
+  }
+  if (response?.dyslexiaFontEnabled) {
+    injectDyslexiaFont();
+  }
+});
 
 document.addEventListener('mouseup', () => {
   const selectedText = getSelectedText();

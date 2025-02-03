@@ -71,18 +71,7 @@ const Toggles: React.FC = () => {
   // --- Handlers ---
   const handleReadModeToggle = () => {
     const newState = !readModeEnabled;
-    setReadModeEnabled(newState);
-    chrome.storage.local.set({ readModeEnabled: newState }, () => {
-      console.log('Read Mode state saved:', newState);
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs.length && tabs[0].id) {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            type: 'update_read_mode',
-            readModeEnabled: newState,
-          });
-        }
-      });
-    });
+    chrome.storage.local.set({ readModeEnabled: newState });
   };
 
   const handleSimplifyTextToggle = () => {
@@ -92,28 +81,15 @@ const Toggles: React.FC = () => {
     }
     const newState = !simplifyTextEnabled;
     setSimplifyTextEnabled(newState);
-    chrome.storage.local.set({ simplifyTextEnabled: newState }, () => {
-      console.log('Simplify text function state saved:', newState);
-    });
+    chrome.storage.local.set({ simplifyTextEnabled: newState });
   };
 
   const handleDyslexiaFontToggle = () => {
     const newState = !dyslexiaFontEnabled;
     setDyslexiaFontEnabled(newState);
-    chrome.storage.local.set({ dyslexiaFontEnabled: newState }, () => {
-      console.log('Dyslexia-friendly font function state saved:', newState);
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs.length && tabs[0].id) {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            type: 'update_dyslexia_font',
-            dyslexiaFontEnabled: newState,
-          });
-        }
-      });
-    });
+    chrome.storage.local.set({ dyslexiaFontEnabled: newState });
   };
 
-  // --- Render ---
   return (
     <div className="p-4 bg-gray-100 rounded-lg shadow-md space-y-4 w-xs">
       {/* Simplify Text Toggle */}

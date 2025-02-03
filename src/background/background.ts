@@ -42,24 +42,41 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message.type === 'get_dyslexia_font_enabled') {
 
-    chrome.storage.local.get(['dyslexiaFontEnabled'], (result) => {
-      sendResponse({ dyslexiaFontEnabled: result.dyslexiaFontEnabled });
-    });
-
-    return true;
-  }
-
-  if (message.type === 'update_read_mode') {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0].id) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          type: 'update_read_mode',
-          readModeEnabled: message.readModeEnabled,
-        });
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local') {
+    chrome.tabs.query({}, (tabs) => {
+      for (const tab of tabs) {
+        if (tab.id) {
+          if (changes.readModeEnabled) {
+            chrome.tabs.sendMessage(tab.id, {
+              type: 'update_read_mode',
+              readModeEnabled: changes.readModeEnabled.newValue,
+            });
+          }
+          if (changes.dyslexiaFontEnabled) {
+            chrome.tabs.sendMessage(tab.id, {
+              type: 'update_dyslexia_font',
+              dyslexiaFontEnabled: changes.dyslexiaFontEnabled.newValue,
+            });
+          }
+          if (changes.simplifyTextEnabled) {
+            chrome.tabs.sendMessage(tab.id, {
+              type: 'update_simplify_text',
+              simplifyTextEnabled: changes.simplifyTextEnabled.newValue,
+            });
+          }
+        }
       }
     });
+  }
+});
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type === 'get_initial_state') {
+    chrome.storage.local.get(['readModeEnabled', 'dyslexiaFontEnabled'], (data) => {
+      sendResponse(data);
+    });
+    return true; // Required for async sendResponse
   }
 });

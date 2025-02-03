@@ -6,7 +6,9 @@ interface props {
     text: string
 }
 
-const getTextFromDeepseek = async ({prompt, text}:props) => {
+const getTextFromDeepseek = async ({ prompt, text }: props) => {
+    
+    console.log('getTextFromDS got called')
 
 
     const getOpenAi = async (): Promise<OpenAI> => {
