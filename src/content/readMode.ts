@@ -10,7 +10,14 @@ const extractReadableContent = () => {
     return null;
   }
 
-  const article = new Readability(document.cloneNode(true) as Document).parse();
+  // Instead of cloning the entire document,
+  // create a new HTML document and copy the current content.
+  const clonedDocument = document.implementation.createHTMLDocument(document.title);
+  // Copy the entire HTML content from the current document.
+  clonedDocument.documentElement.innerHTML = document.documentElement.innerHTML;
+
+
+  const article = new Readability(clonedDocument).parse();
   if (!article) return null;
 
   return {

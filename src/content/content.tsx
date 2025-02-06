@@ -23,6 +23,12 @@ const handleRuntimeMessage = (message: Message) => {
     case 'update_read_mode':
       message.readModeEnabled ? enableReadMode() : disableReadMode();
       break;
+    case "update_simplify_text": // <-- New case to handle "update_simplify_text"
+      console.log("Received updated simplify text:", message.text);
+      // Add whatever behavior you want when receiving this message.
+      // For example, you might update the UI or simply replace the selected text:
+      replaceSelectedText(message.text);
+      break;
     case 'update_dyslexia_font':
       message.dyslexiaFontEnabled
         ? injectDyslexiaFont()
