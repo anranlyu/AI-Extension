@@ -24,12 +24,14 @@ const Toggles: React.FC = () => {
         'simplifyTextEnabled',
         'dyslexiaFontEnabled',
         'readModeEnabled',
+        'TTSenabled',
       ],
       (res) => {
         setHasLLMConfig(!!res.llm && !!res.apiKey);
         setSimplifyTextEnabled(!!res.simplifyTextEnabled);
         setDyslexiaFontEnabled(!!res.dyslexiaFontEnabled);
         setReadModeEnabled(!!res.readModeEnabled);
+        setTTSEnabled(!!res.TTSenabled);
       }
     );
   };
@@ -56,6 +58,9 @@ const Toggles: React.FC = () => {
       }
       if ('readModeEnabled' in changes) {
         setReadModeEnabled(changes.readModeEnabled.newValue);
+      }
+      if ('TTSenabled' in changes) {
+        setTTSEnabled(changes.TTSenabled.newValue);
       }
     };
 
