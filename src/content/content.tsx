@@ -9,12 +9,14 @@ import {
   // displayProcessedText,
   enableReadMode,
 } from './readMode';
+import { readPage, stopRead } from './TTSreadPage';
 
 console.log('content has been injected');
 
 injectHighlightStyles();
 
 const handleRuntimeMessage = (message: Message) => {
+  console.log("Received message in content.ts:", message);
   switch (message.type) {
     case 'simplified_text':
       console.log('Received processed text:', message.text);
@@ -29,7 +31,9 @@ const handleRuntimeMessage = (message: Message) => {
         : removeDyslexiaFontFromPage();
       break;
     case 'readMode_text':
-      // displayProcessedText(message.text);
+    // displayProcessedText(message.text);
+    case 'update_TTS':
+      message.TTSenabled ? readPage() : stopRead();
       break;
     default:
       console.warn(`Unknown message type: ${message.type}`);
@@ -44,6 +48,9 @@ chrome.runtime.sendMessage({ type: 'get_initial_state' }, (response) => {
   }
   if (response?.dyslexiaFontEnabled) {
     injectDyslexiaFont();
+  }
+  if (response?.TTSenabled) {
+    readPage();
   }
 });
 
