@@ -5,10 +5,10 @@ import { Message } from "../service/type";
 
 
 
-const sendTextToContentScript = (type:string, simplifiedText: string) => {
+const sendTextToContentScript = (type: string, simplifiedText: string) => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs[0]?.id) {
-      chrome.tabs.sendMessage(tabs[0].id, { type: type, text:simplifiedText });
+      chrome.tabs.sendMessage(tabs[0].id, { type: type, text: simplifiedText });
     }
   })
 }
@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
 
       if (simplifyTextEnabled) {
         const selectedText = message.text;
-        const simplifiedText = await getTextFromDeepseek({ prompt:Prompt, text:selectedText });
+        const simplifiedText = await getTextFromDeepseek({ prompt: Prompt, text: selectedText });
         console.log(`Got simplified text in background:${simplifiedText}`); // Todo: Delete after devolopment
         sendTextToContentScript('simplified_text', simplifiedText);
       } else {
@@ -30,17 +30,45 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
     });
   }
 
-    if (message.type === 'process_text_for_read_mode') {
+  if (message.type === 'process_text_for_read_mode') {
     const processedText = await getTextFromDeepseek({
       prompt: readModePrompt,
       text: message.text,
     })
-    
+
     if (processedText) {
       sendTextToContentScript('readMode_text', processedText);
     }
   }
+  // Text-to-Speech
+  if (message.type === 'tts_read_page') {
+    chrome.storage.local.get(['TTSenabled'], (result) => {
+      const TTSenabled = result.TTSenabled || false;
+
+      if (TTSenabled) {
+        console.log('Requesting content script to read the whole page.');
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs[0]?.id) {
+            chrome.tabs.sendMessage(tabs[0].id, { type: 'tts_read_page' });
+          }
+        });
+      } else {
+        console.log('TTS toggle is OFF. Skipping full-page reading.');
+      }
+    });
+  }
+
+  // Stop TTS
+  if (message.type === 'tts_stop') {
+    console.log('Stopping TTS.');
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]?.id) {
+        chrome.tabs.sendMessage(tabs[0].id, { type: 'tts_stop' });
+      }
+    });
+  }
 });
+
 
 
 chrome.storage.onChanged.addListener((changes, area) => {
@@ -48,6 +76,12 @@ chrome.storage.onChanged.addListener((changes, area) => {
     chrome.tabs.query({}, (tabs) => {
       for (const tab of tabs) {
         if (tab.id) {
+          if (changes.TTSenabled) {
+            chrome.tabs.sendMessage(tab.id, {
+              type: 'update_TTS',
+              TTSenabled: changes.TTSenabled.newValue,
+            });
+          }
           if (changes.readModeEnabled) {
             chrome.tabs.sendMessage(tab.id, {
               type: 'update_read_mode',
@@ -80,3 +114,4 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return true; // Required for async sendResponse
   }
 });
+
