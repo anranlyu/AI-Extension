@@ -1,46 +1,59 @@
-
-import { Prompt, readModePrompt } from "../assets/Prompt";
+import { Prompt, readModePrompt, translatePrompt } from "../assets/Prompt";
 import getTextFromDeepseek from "../service/getTextFromDeepseek";
+import getTranslationFromGPT from "../service/getTranslationFromGPT";
 import { Message } from "../service/type";
 
 
-
-const sendTextToContentScript = (type:string, simplifiedText: string) => {
+const sendTextToContentScript = (type: string, text: string) => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs[0]?.id) {
-      chrome.tabs.sendMessage(tabs[0].id, { type: type, text:simplifiedText });
+      chrome.tabs.sendMessage(tabs[0].id, { type, text });
     }
-  })
-}
+  });
+};
 
+chrome.runtime.onMessage.addListener(
+  async (message: Message, _sender, sendResponse) => {
+    // For testing, override simplification to perform translation.
+    console.log("Background onMessage received whoooo dis:", message);
+    if (message.type === 'selected_text') {
+      chrome.storage.local.get(['translateEnabled'], async (result) => {
+        const translateEnabled = result.translateEnabled || false;
+        if (translateEnabled) {
+          const selectedText = message.text;
+          // Use translatePrompt to instruct translation.
 
-chrome.runtime.onMessage.addListener(async (message: Message) => {
-  if (message.type === 'selected_text') {
-    chrome.storage.local.get(['simplifyTextEnabled'], async (result) => {
-      const simplifyTextEnabled = result.simplifyTextEnabled || false;
-
-      if (simplifyTextEnabled) {
-        const selectedText = message.text;
-        const simplifiedText = await getTextFromDeepseek({ prompt:Prompt, text:selectedText });
-        console.log(`Got simplified text in background:${simplifiedText}`); // Todo: Delete after devolopment
-        sendTextToContentScript('simplified_text', simplifiedText);
-      } else {
-        console.log('Simplify Text toggle is OFF. Skipping text simplification.');
+          console.log('check if we reach this line before GPT');
+          const translatedText = await getTranslationFromGPT({
+            prompt: translatePrompt,
+            text: selectedText,
+          });
+          console.log(`Got translated text in background: ${translatedText}`);
+          sendTextToContentScript('translated_text', translatedText);
+        } else {
+          console.log('Translation toggle is OFF. Skipping text translation.');
+        }
+        sendResponse(); // Notify sender that response handling is complete.
+      });
+      return true; // Keep the messaging channel open.
+    }
+    // Handle read mode processing separately.
+    else if (message.type === 'process_text_for_read_mode') {
+      const processedText = await getTextFromDeepseek({
+        prompt: readModePrompt,
+        text: message.text,
+      });
+      if (processedText) {
+        sendTextToContentScript('readMode_text', processedText);
       }
-    });
-  }
-
-    if (message.type === 'process_text_for_read_mode') {
-    const processedText = await getTextFromDeepseek({
-      prompt: readModePrompt,
-      text: message.text,
-    })
-    
-    if (processedText) {
-      sendTextToContentScript('readMode_text', processedText);
+      sendResponse();
+      return true;
+    } else {
+      sendResponse();
     }
   }
-});
+);
+
 
 
 chrome.storage.onChanged.addListener((changes, area) => {
@@ -66,6 +79,12 @@ chrome.storage.onChanged.addListener((changes, area) => {
               simplifyTextEnabled: changes.simplifyTextEnabled.newValue,
             });
           }
+          if (changes.translateEnabled) {
+            chrome.tabs.sendMessage(tab.id, {
+              type: 'update_translate_mode',
+              translateEnabled: changes.translateEnabled.newValue,
+            });
+          }
         }
       }
     });
@@ -74,7 +93,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === 'get_initial_state') {
-    chrome.storage.local.get(['readModeEnabled', 'dyslexiaFontEnabled'], (data) => {
+    chrome.storage.local.get(['readModeEnabled', 'dyslexiaFontEnabled', "translateEnabled"], (data) => {
       sendResponse(data);
     });
     return true; // Required for async sendResponse

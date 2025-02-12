@@ -9,10 +9,13 @@ import {
   // displayProcessedText,
   enableReadMode,
 } from './readMode';
+import "./translate"
+import { buildRealtimeURL } from 'openai/src/beta/realtime/internal-base.js';
 
 console.log('content has been injected');
 
 injectHighlightStyles();
+
 
 const handleRuntimeMessage = (message: Message) => {
   switch (message.type) {
@@ -23,12 +26,6 @@ const handleRuntimeMessage = (message: Message) => {
     case 'update_read_mode':
       message.readModeEnabled ? enableReadMode() : disableReadMode();
       break;
-    case "update_simplify_text": // <-- New case to handle "update_simplify_text"
-      console.log("Received updated simplify text:", message.text);
-      // Add whatever behavior you want when receiving this message.
-      // For example, you might update the UI or simply replace the selected text:
-      replaceSelectedText(message.text);
-      break;
     case 'update_dyslexia_font':
       message.dyslexiaFontEnabled
         ? injectDyslexiaFont()
@@ -36,6 +33,10 @@ const handleRuntimeMessage = (message: Message) => {
       break;
     case 'readMode_text':
       // displayProcessedText(message.text);
+      break;
+    case "update_translate_mode":
+      console.log("Received update_translate_mode:", message.translateEnabled)
+      // should update UI to translation in progress or something
       break;
     default:
       console.warn(`Unknown message type: ${message.type}`);

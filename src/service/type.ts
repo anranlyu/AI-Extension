@@ -3,4 +3,5 @@ export interface Message {
   text: string;
   dyslexiaFontEnabled: boolean;
   readModeEnabled: boolean;
+  translateEnabled: boolean;
 }

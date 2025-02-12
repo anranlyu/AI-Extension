@@ -4,7 +4,9 @@ const Toggles: React.FC = () => {
   const [simplifyTextEnabled, setSimplifyTextEnabled] = useState(false);
   const [dyslexiaFontEnabled, setDyslexiaFontEnabled] = useState(false);
   const [readModeEnabled, setReadModeEnabled] = useState(false);
+  const [translateEnabled, setTranslateEnabled] = useState(false);
   const [hasLLMConfig, setHasLLMConfig] = useState(false);
+  const [targetLanguage, setTargetLanguage] = useState('es'); // Default target language = Spanish
 
   // Utility functions for applying Tailwind classes
   const toggleButtonClass = (enabled: boolean) =>
@@ -25,18 +27,22 @@ const Toggles: React.FC = () => {
         'simplifyTextEnabled',
         'dyslexiaFontEnabled',
         'readModeEnabled',
+        'translateEnabled',
+        'targetLanguage',
       ],
       (res) => {
         setHasLLMConfig(!!res.llm && !!res.apiKey);
         setSimplifyTextEnabled(!!res.simplifyTextEnabled);
         setDyslexiaFontEnabled(!!res.dyslexiaFontEnabled);
         setReadModeEnabled(!!res.readModeEnabled);
+        setTranslateEnabled(!!res.translateEnabled);
+        setTargetLanguage(res.targetLanguage || 'es'); // default to 'es' if not available
       }
     );
   };
 
   useEffect(() => {
-    // Initial sync
+    // Initial sync with storage
     syncFromStorage();
 
     // Listen for any changes in Chrome storage
@@ -44,7 +50,6 @@ const Toggles: React.FC = () => {
       [key: string]: chrome.storage.StorageChange;
     }) => {
       if ('llm' in changes || 'apiKey' in changes) {
-        // If llm or apiKey changed, reevaluate hasLLMConfig
         const newLLM = changes.llm?.newValue;
         const newApiKey = changes.apiKey?.newValue;
         setHasLLMConfig(!!newLLM && !!newApiKey);
@@ -57,6 +62,12 @@ const Toggles: React.FC = () => {
       }
       if ('readModeEnabled' in changes) {
         setReadModeEnabled(changes.readModeEnabled.newValue);
+      }
+      if ('translateEnabled' in changes) {
+        setTranslateEnabled(changes.translateEnabled.newValue);
+      }
+      if ('targetLanguage' in changes) {
+        setTargetLanguage(changes.targetLanguage.newValue);
       }
     };
 
@@ -90,15 +101,25 @@ const Toggles: React.FC = () => {
     chrome.storage.local.set({ dyslexiaFontEnabled: newState });
   };
 
+  const handleTranslateToggle = () => {
+    const newState = !translateEnabled;
+    setTranslateEnabled(newState);
+    chrome.storage.local.set({ translateEnabled: newState });
+    chrome.runtime.sendMessage({ type: "update_translate_mode", translateEnabled: newState });
+  };
+
+  const handleTargetLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLang = event.target.value;
+    setTargetLanguage(newLang);
+    chrome.storage.local.set({ targetLanguage: newLang });
+  };
+
   return (
     <div className="p-4 bg-gray-100 rounded-lg shadow-md space-y-4 w-xs">
       {/* Simplify Text Toggle */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-gray-700">Simplify Text</span>
-        <button
-          onClick={handleSimplifyTextToggle}
-          className={toggleButtonClass(simplifyTextEnabled)}
-        >
+        <button onClick={handleSimplifyTextToggle} className={toggleButtonClass(simplifyTextEnabled)}>
           <div className={toggleDotClass(simplifyTextEnabled)} />
         </button>
       </div>
@@ -106,10 +127,7 @@ const Toggles: React.FC = () => {
       {/* Dyslexia-Friendly Font Toggle */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-gray-700">Dyslexia Font</span>
-        <button
-          onClick={handleDyslexiaFontToggle}
-          className={toggleButtonClass(dyslexiaFontEnabled)}
-        >
+        <button onClick={handleDyslexiaFontToggle} className={toggleButtonClass(dyslexiaFontEnabled)}>
           <div className={toggleDotClass(dyslexiaFontEnabled)} />
         </button>
       </div>
@@ -117,13 +135,48 @@ const Toggles: React.FC = () => {
       {/* Read Mode Toggle */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-gray-700">Read Mode</span>
-        <button
-          onClick={handleReadModeToggle}
-          className={toggleButtonClass(readModeEnabled)}
-        >
+        <button onClick={handleReadModeToggle} className={toggleButtonClass(readModeEnabled)}>
           <div className={toggleDotClass(readModeEnabled)} />
         </button>
       </div>
+
+      {/* Translate Toggle */}
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-gray-700">Translate</span>
+        <button onClick={handleTranslateToggle} className={toggleButtonClass(translateEnabled)}>
+          <div className={toggleDotClass(translateEnabled)} />
+        </button>
+      </div>
+
+      {/* Show dropdown for target language only if translation is enabled */}
+      {translateEnabled && (
+        <div className="mt-4">
+          <label htmlFor="targetLanguage" className="block text-sm font-medium text-gray-700">
+            Target Language
+          </label>
+          <select
+            id="targetLanguage"
+            value={targetLanguage}
+            onChange={handleTargetLanguageChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          >
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="en">English</option>
+            <option value="zh">Chinese</option>
+            <option value="ko">Korean</option>
+            <option value="ja">Japanese</option>
+            <option value="ar">Arabic</option>
+            <option value="it">Italian</option>
+            <option value="pt">Portuguese</option>
+            <option value="vi">Vietnamese</option>
+            <option value="th">Thai</option>
+            <option value="ru">Russian</option>
+            {/* Add more options as needed */}
+          </select>
+        </div>
+      )}
     </div>
   );
 };
