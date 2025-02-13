@@ -1,7 +1,7 @@
 import { getSelectedText } from "./textSelection";
 
 let translationEnabled = false;
-let currentTargetLanguage = 'es'; // default value
+let currentTargetLanguage = ''; 
 
 // initial state from the background
 chrome.runtime.sendMessage({ type: "get_initial_state" }, (response) => {
@@ -29,11 +29,10 @@ export const initTranslation = () => {
 
   document.addEventListener("mouseup", () => {
     const selectedText = getSelectedText();
-    if (selectedText) {
+    if (selectedText && translationEnabled) {
       console.log("Selected text for translation:", selectedText);
       if (translationEnabled) {
         const isSentence = selectedText.trim().split(/\s+/).length > 1;
-        // Use the currentTargetLanguage variable rather than a hardcoded value.
         chrome.runtime.sendMessage(
           {
             type: "translate_text",
@@ -81,7 +80,7 @@ function showTranslatedOverlay(translatedText: string) {
 
     // Container for the translated text.
     const textContainer = document.createElement("div");
-    textContainer.id = "translated-text";
+    textContainer.id = "translated_text";
     overlay.appendChild(textContainer);
 
     document.body.appendChild(overlay);

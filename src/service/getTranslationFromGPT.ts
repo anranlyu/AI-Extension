@@ -23,11 +23,11 @@ const getTranslationFromGPT = async ({ prompt, text }: Props): Promise<string> =
 
   const completion = await openai.chat.completions.create({
     messages: [{ role: "system", content: prompt + text }],
-    model: "gpt-3.5-turbo", 
+    model: "gpt-4o-mini", 
   });
 
   const newText = completion.choices[0].message?.content;
-  return newText || "got nothing from GPT";
+  return newText || "Got nothing from GPT";
 };
 
 export default getTranslationFromGPT;

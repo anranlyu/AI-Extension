@@ -4,24 +4,21 @@ import { getSelectedText, replaceSelectedText } from './textSelection';
 import { Message } from '../service/type';
 import { injectDyslexiaFont, removeDyslexiaFontFromPage } from './dyslexiaFont';
 import { injectHighlightStyles } from './highlightStyles';
-import {
-  disableReadMode,
-  // displayProcessedText,
-  enableReadMode,
-} from './readMode';
-import "./translate"
-import { buildRealtimeURL } from 'openai/src/beta/realtime/internal-base.js';
+import { disableReadMode, enableReadMode } from './readMode';
+import "./translate"; 
 
 console.log('content has been injected');
-
 injectHighlightStyles();
-
 
 const handleRuntimeMessage = (message: Message) => {
   switch (message.type) {
     case 'simplified_text':
-      console.log('Received processed text:', message.text);
+      console.log('Received simplified text:', message.text);
       replaceSelectedText(message.text);
+      break;
+    case 'translated_text':
+      console.log('Received translated text:', message.text);
+      // You might display the translated text as an overlay here.
       break;
     case 'update_read_mode':
       message.readModeEnabled ? enableReadMode() : disableReadMode();
@@ -32,11 +29,10 @@ const handleRuntimeMessage = (message: Message) => {
         : removeDyslexiaFontFromPage();
       break;
     case 'readMode_text':
-      // displayProcessedText(message.text);
+      // Optionally handle read mode text.
       break;
     case "update_translate_mode":
-      console.log("Received update_translate_mode:", message.translateEnabled)
-      // should update UI to translation in progress or something
+      console.log("Received update_translate_mode:", message.translateEnabled);
       break;
     default:
       console.warn(`Unknown message type: ${message.type}`);
@@ -54,12 +50,3 @@ chrome.runtime.sendMessage({ type: 'get_initial_state' }, (response) => {
   }
 });
 
-document.addEventListener('mouseup', () => {
-  const selectedText = getSelectedText();
-  if (selectedText) {
-    console.log('Selected text:', selectedText);
-    chrome.runtime.sendMessage({ type: 'selected_text', text: selectedText });
-  } else {
-    console.warn('No text selected!');
-  }
-});
