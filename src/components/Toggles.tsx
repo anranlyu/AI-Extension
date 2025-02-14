@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { StorageValues } from '../service/type';
 
 const Toggles: React.FC = () => {
   const [simplifyTextEnabled, setSimplifyTextEnabled] = useState(false);
@@ -18,29 +19,30 @@ const Toggles: React.FC = () => {
     }`;
 
   // Helper to read from Chrome storage once, then sync component state
-  const syncFromStorage = () => {
-    chrome.storage.local.get(
-      [
-        'llm',
-        'apiKey',
-        'simplifyTextEnabled',
-        'dyslexiaFontEnabled',
-        'readModeEnabled',
-        'highlightEnabled',
-      ],
-      (res) => {
-        setHasLLMConfig(!!res.llm && !!res.apiKey);
-        setSimplifyTextEnabled(!!res.simplifyTextEnabled);
-        setDyslexiaFontEnabled(!!res.dyslexiaFontEnabled);
-        setReadModeEnabled(!!res.readModeEnabled);
-        setHighlightEnabled(!!res.highlightEnabled);
-      }
-    );
+  const syncFromStorage = async () => {
+    // Use Chrome's built-in promise support (Manifest V3+)
+    const res = (await chrome.storage.local.get([
+      'llm',
+      'apiKey',
+      'simplifyTextEnabled',
+      'dyslexiaFontEnabled',
+      'readModeEnabled',
+      'highlightEnabled',
+    ])) as StorageValues;
+
+    setHasLLMConfig(!!res.llm && !!res.apiKey);
+    setSimplifyTextEnabled(!!res.simplifyTextEnabled);
+    setDyslexiaFontEnabled(!!res.dyslexiaFontEnabled);
+    setReadModeEnabled(!!res.readModeEnabled);
+    setHighlightEnabled(!!res.highlightEnabled);
   };
 
   useEffect(() => {
+    const initialize = async () => {
+      await syncFromStorage();
+    };
     // Initial sync
-    syncFromStorage();
+    initialize();
 
     // Listen for any changes in Chrome storage
     const handleStorageChange = (changes: {
@@ -93,6 +95,11 @@ const Toggles: React.FC = () => {
     chrome.storage.local.set({ dyslexiaFontEnabled: newState });
   };
 
+  const handleHighlightToggle = () => {
+    setHighlightEnabled(!highlightEnabled);
+    chrome.storage.local.set({ highlightEnabled: highlightEnabled });
+  };
+
   return (
     <div className="p-4 bg-gray-100 rounded-lg shadow-md space-y-4 w-xs">
       {/* Simplify Text Toggle */}
@@ -131,7 +138,10 @@ const Toggles: React.FC = () => {
       {/* Highlighter Toggle*/}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-gray-700">Highlighter</span>
-        <button className={toggleButtonClass(highlightEnabled)}>
+        <button
+          onClick={handleHighlightToggle}
+          className={toggleButtonClass(highlightEnabled)}
+        >
           <div className={toggleDotClass(highlightEnabled)} />
         </button>
       </div>

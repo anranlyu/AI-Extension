@@ -4,3 +4,12 @@ export interface Message {
   dyslexiaFontEnabled: boolean;
   readModeEnabled: boolean;
 }
+
+export interface StorageValues {
+  llm?: string;
+  apiKey?: string;
+  simplifyTextEnabled?: boolean;
+  dyslexiaFontEnabled?: boolean;
+  readModeEnabled?: boolean;
+  highlightEnabled?: boolean;
+}

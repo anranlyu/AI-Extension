@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import './content.css';
 import { getSelectedText, replaceSelectedText } from './textSelection';
-import { Message } from '../service/type';
 import { injectDyslexiaFont, removeDyslexiaFontFromPage } from './dyslexiaFont';
 import { injectHighlightStyles } from './highlightStyles';
 import {
@@ -9,43 +8,31 @@ import {
   // displayProcessedText,
   enableReadMode,
 } from './readMode';
+import { enableHighlight } from './highlight';
 
 console.log('content has been injected');
 
 injectHighlightStyles();
 
-const handleRuntimeMessage = (message: Message) => {
-  switch (message.type) {
-    case 'simplified_text':
-      console.log('Received processed text:', message.text);
-      replaceSelectedText(message.text);
-      break;
-    case 'update_read_mode':
-      message.readModeEnabled ? enableReadMode() : disableReadMode();
-      break;
-    case 'update_dyslexia_font':
-      message.dyslexiaFontEnabled
-        ? injectDyslexiaFont()
-        : removeDyslexiaFontFromPage();
-      break;
-    case 'readMode_text':
-      // displayProcessedText(message.text);
-      break;
-    default:
-      console.warn(`Unknown message type: ${message.type}`);
-  }
-};
-
-chrome.runtime.onMessage.addListener(handleRuntimeMessage);
-
-chrome.runtime.sendMessage({ type: 'get_initial_state' }, (response) => {
-  if (response?.readModeEnabled) {
-    enableReadMode();
-  }
-  if (response?.dyslexiaFontEnabled) {
-    injectDyslexiaFont();
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes.readModeEnabled) {
+    if (changes.readModeEnabled.newValue) enableReadMode();
+    else disableReadMode();
+  } else if (changes.dyslexiaFontEnabled) {
+    if (changes.dyslexiaFontEnabled.newValue) injectDyslexiaFont();
+    else removeDyslexiaFontFromPage();
+  } else if (changes.highlightEnabled) {
+    if (changes.highlightEnabled.newValue) enableHighlight();
   }
 });
+
+chrome.storage.local.get(
+  ['readModeEnabled', 'dyslexiaFontEnabled'],
+  (result) => {
+    if (result.readModeEnabled) enableReadMode();
+    if (result.dyslexiaFontEnabled) injectDyslexiaFont();
+  }
+);
 
 document.addEventListener('mouseup', () => {
   const selectedText = getSelectedText();
@@ -56,3 +43,11 @@ document.addEventListener('mouseup', () => {
     console.warn('No text selected!');
   }
 });
+
+chrome.runtime.onMessage.addListener(
+  ({ type, text }: { type: string; text: string }) => {
+    if (type === 'simplified_text' && text) {
+      replaceSelectedText(text);
+    }
+  }
+);

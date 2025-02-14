@@ -43,40 +43,6 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
 });
 
 
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'local') {
-    chrome.tabs.query({}, (tabs) => {
-      for (const tab of tabs) {
-        if (tab.id) {
-          if (changes.readModeEnabled) {
-            chrome.tabs.sendMessage(tab.id, {
-              type: 'update_read_mode',
-              readModeEnabled: changes.readModeEnabled.newValue,
-            });
-          }
-          if (changes.dyslexiaFontEnabled) {
-            chrome.tabs.sendMessage(tab.id, {
-              type: 'update_dyslexia_font',
-              dyslexiaFontEnabled: changes.dyslexiaFontEnabled.newValue,
-            });
-          }
-          if (changes.simplifyTextEnabled) {
-            chrome.tabs.sendMessage(tab.id, {
-              type: 'update_simplify_text',
-              simplifyTextEnabled: changes.simplifyTextEnabled.newValue,
-            });
-          }
-        }
-      }
-    });
-  }
-});
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message.type === 'get_initial_state') {
-    chrome.storage.local.get(['readModeEnabled', 'dyslexiaFontEnabled'], (data) => {
-      sendResponse(data);
-    });
-    return true; // Required for async sendResponse
-  }
-});
+
+
