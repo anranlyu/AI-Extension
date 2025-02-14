@@ -4,6 +4,7 @@ const Toggles: React.FC = () => {
   const [simplifyTextEnabled, setSimplifyTextEnabled] = useState(false);
   const [dyslexiaFontEnabled, setDyslexiaFontEnabled] = useState(false);
   const [readModeEnabled, setReadModeEnabled] = useState(false);
+  const [highlightEnabled, setHighlightEnabled] = useState(false);
   const [hasLLMConfig, setHasLLMConfig] = useState(false);
 
   // Utility functions for applying Tailwind classes
@@ -25,12 +26,14 @@ const Toggles: React.FC = () => {
         'simplifyTextEnabled',
         'dyslexiaFontEnabled',
         'readModeEnabled',
+        'highlightEnabled',
       ],
       (res) => {
         setHasLLMConfig(!!res.llm && !!res.apiKey);
         setSimplifyTextEnabled(!!res.simplifyTextEnabled);
         setDyslexiaFontEnabled(!!res.dyslexiaFontEnabled);
         setReadModeEnabled(!!res.readModeEnabled);
+        setHighlightEnabled(!!res.highlightEnabled);
       }
     );
   };
@@ -105,7 +108,7 @@ const Toggles: React.FC = () => {
 
       {/* Dyslexia-Friendly Font Toggle */}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-700">Dyslexia Font</span>
+        <span className="text-sm font-medium text-gray-700">Font Switch</span>
         <button
           onClick={handleDyslexiaFontToggle}
           className={toggleButtonClass(dyslexiaFontEnabled)}
@@ -122,6 +125,14 @@ const Toggles: React.FC = () => {
           className={toggleButtonClass(readModeEnabled)}
         >
           <div className={toggleDotClass(readModeEnabled)} />
+        </button>
+      </div>
+
+      {/* Highlighter Toggle*/}
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-gray-700">Highlighter</span>
+        <button className={toggleButtonClass(highlightEnabled)}>
+          <div className={toggleDotClass(highlightEnabled)} />
         </button>
       </div>
     </div>

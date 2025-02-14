@@ -1,44 +1,37 @@
-import { isProbablyReaderable, Readability } from "@mozilla/readability";
-import rs from "text-readability";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import Parser from '@postlight/parser'
 
-const isPageReadable = () => {
-  return isProbablyReaderable(document);
+const extractReadableContent = async () => {
+    try {
+
+        const article = await Parser.parse();
+
+        console.log('Extracted article:', article);
+
+        return {
+            title: article.title?.trim() || 'Untitled',
+            content: article.content?.trim() || 'No readable content found.',
+            author: article.author?.trim() || 'Unknown Author',
+        };
+    } catch (error) {
+        console.error('Error extracting content:', error);
+        return null;
+    }
 };
 
-const extractReadableContent = () => {
-  if (!isPageReadable()) {
-    console.warn('This page is not suitable for Read Mode.');
-    return null;
-  }
-
-  const article = new Readability(document.cloneNode(true) as Document).parse();
-  console.log(article);
-  if (!article) return null;
-
-  console.log(rs.fleschKincaidGrade(article.textContent));
 
 
+export const enableReadMode = async () => { 
 
-  return {
-    title: article.title || 'Untitled',
-    content: article.content || '',
-    excerpt: article.excerpt || '',
-    author: article.byline || 'Unknown',
-  };
-};
-
-// Function to enable Read Mode
-export const enableReadMode = async () => {
-  const extractedData = extractReadableContent();
+    const extractedData = await extractReadableContent();
   if (!extractedData) {
     console.warn('No readable content found.');
     return;
-  }
-
-  displayProcessedText(extractedData.title, extractedData.author, extractedData.content);
-  chrome.storage.local.set({ readModeEnabled: true });
-};
-
+    }
+    displayProcessedText(extractedData.title, extractedData.author, extractedData.content);
+    chrome.storage.local.set({ readModeEnabled: true });
+}
 
 export const displayProcessedText = (title: string, author: string, content: string) => {
   let overlay = document.getElementById('read-mode-overlay');

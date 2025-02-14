@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import rs from "text-readability";
 
 
 interface props {
@@ -8,7 +9,7 @@ interface props {
 
 const getTextFromDeepseek = async ({ prompt, text }: props) => {
     
-    console.log('getTextFromDS got called')
+    console.log(rs.fleschKincaidGrade(text))
 
 
     const getOpenAi = async (): Promise<OpenAI> => {
@@ -30,6 +31,7 @@ const getTextFromDeepseek = async ({ prompt, text }: props) => {
     });
 
     const newText = completion.choices[0].message.content;
+    if (newText) console.log(rs.fleschKincaidGrade(newText));
     return newText || "got nothing from deepseek";
 
 
