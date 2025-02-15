@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StorageValues } from '../service/type';
+import { HighlightSettings } from './HighlightSettings';
 
 const Toggles: React.FC = () => {
   const [simplifyTextEnabled, setSimplifyTextEnabled] = useState(false);
@@ -96,8 +97,9 @@ const Toggles: React.FC = () => {
   };
 
   const handleHighlightToggle = () => {
-    setHighlightEnabled(!highlightEnabled);
-    chrome.storage.local.set({ highlightEnabled: highlightEnabled });
+    const newState = !highlightEnabled;
+    setHighlightEnabled(newState);
+    chrome.storage.local.set({ highlightEnabled: newState });
   };
 
   return (
@@ -144,6 +146,7 @@ const Toggles: React.FC = () => {
         >
           <div className={toggleDotClass(highlightEnabled)} />
         </button>
+        {highlightEnabled && <HighlightSettings />}
       </div>
     </div>
   );

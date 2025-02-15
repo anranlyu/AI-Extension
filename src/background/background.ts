@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
 
       if (simplifyTextEnabled) {
         const selectedText = message.text;
-        const simplifiedText = await getTextFromDeepseek({ prompt:Prompt, text:selectedText });
+        const simplifiedText = `[ ${await getTextFromDeepseek({ prompt:Prompt, text:selectedText })} ]`;
         console.log(`Got simplified text in background:${simplifiedText}`); // Todo: Delete after devolopment
         sendTextToContentScript('simplified_text', simplifiedText);
       } else {

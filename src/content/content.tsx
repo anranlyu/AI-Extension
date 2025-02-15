@@ -2,35 +2,37 @@
 import './content.css';
 import { getSelectedText, replaceSelectedText } from './textSelection';
 import { injectDyslexiaFont, removeDyslexiaFontFromPage } from './dyslexiaFont';
-import { injectHighlightStyles } from './highlightStyles';
 import {
   disableReadMode,
   // displayProcessedText,
   enableReadMode,
 } from './readMode';
-import { enableHighlight } from './highlight';
+import { disableHighlight, enableHighlight } from './highlight';
 
 console.log('content has been injected');
 
-injectHighlightStyles();
-
 chrome.storage.onChanged.addListener((changes) => {
   if (changes.readModeEnabled) {
-    if (changes.readModeEnabled.newValue) enableReadMode();
-    else disableReadMode();
+    changes.readModeEnabled.newValue ? enableReadMode() : disableReadMode();
   } else if (changes.dyslexiaFontEnabled) {
-    if (changes.dyslexiaFontEnabled.newValue) injectDyslexiaFont();
-    else removeDyslexiaFontFromPage();
+    changes.dyslexiaFontEnabled.newValue
+      ? injectDyslexiaFont()
+      : removeDyslexiaFontFromPage();
   } else if (changes.highlightEnabled) {
-    if (changes.highlightEnabled.newValue) enableHighlight();
+    changes.highlightEnabled.newValue ? enableHighlight() : disableHighlight();
   }
 });
 
 chrome.storage.local.get(
-  ['readModeEnabled', 'dyslexiaFontEnabled'],
+  ['readModeEnabled', 'dyslexiaFontEnabled', 'highlightEnabled'],
   (result) => {
     if (result.readModeEnabled) enableReadMode();
     if (result.dyslexiaFontEnabled) injectDyslexiaFont();
+    if (result.highlightEnabled) {
+      enableHighlight();
+    } else {
+      disableHighlight();
+    }
   }
 );
 

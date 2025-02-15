@@ -47,7 +47,7 @@ export const displayProcessedText = (title: string, author: string, content: str
     overlay.id = 'read-mode-overlay';
     overlay.className = `
     fixed inset-0 bg-white bg-opacity-95 text-gray-900 
-    z-[99999] flex flex-col gap-4 items-center justify-start 
+    z-[9999] flex flex-col gap-4 items-center justify-start 
     p-8 overflow-y-auto
     `;
 
