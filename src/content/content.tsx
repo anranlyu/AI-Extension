@@ -6,9 +6,11 @@ import { injectDyslexiaFont, removeDyslexiaFontFromPage } from './dyslexiaFont';
 import { injectHighlightStyles } from './highlightStyles';
 import { disableReadMode, enableReadMode } from './readMode';
 import "./translate"; 
+import { initTranslation, showTranslatedOverlay } from './translate';
 
-console.log('content has been injected');
+console.log('Content has been injected from content.tsx');
 injectHighlightStyles();
+initTranslation();
 
 const handleRuntimeMessage = (message: Message) => {
   switch (message.type) {
@@ -18,7 +20,9 @@ const handleRuntimeMessage = (message: Message) => {
       break;
     case 'translated_text':
       console.log('Received translated text:', message.text);
-      // You might display the translated text as an overlay here.
+      if (typeof message.text === "string"){
+        showTranslatedOverlay(message.text);
+      }
       break;
     case 'update_read_mode':
       message.readModeEnabled ? enableReadMode() : disableReadMode();

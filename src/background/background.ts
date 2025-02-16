@@ -4,6 +4,8 @@ import getTranslationFromGPT from "../service/getTranslationFromGPT";
 // import getTranslationFromDeepseek from "../service/getTranslationFromDeepseek";
 import { Message } from "../service/type";
 
+console.log('Background is running');
+
 const sendTextToContentScript = (type: string, text: string) => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs[0]?.id) {
@@ -12,16 +14,19 @@ const sendTextToContentScript = (type: string, text: string) => {
   });
 };
 
+
 chrome.runtime.onMessage.addListener(
   async (message: Message, _sender, sendResponse) => {
     if (message.type === 'selected_text') {
       // Merge the logic for translation and simplification here:
       chrome.storage.local.get(
-        ['translateEnabled', 'simplifyTextEnabled'],
+        ['translateEnabled', 'simplifyTextEnabled', 'targetLanguage'],
         async (result) => {
           const translateEnabled = result.translateEnabled || false;
           const simplifyTextEnabled = result.simplifyTextEnabled || false;
           const selectedText = message.text;
+          const targetLanguage = result.targetLanguage || "" ; 
+
 
           // If translation is enabled, prioritize translation over simplification.
           if (translateEnabled) {
@@ -29,9 +34,11 @@ chrome.runtime.onMessage.addListener(
             const translatedText = await getTranslationFromGPT({
               prompt: translatePrompt,
               text: selectedText,
+              targetLanguage: targetLanguage
             });
             console.log(`Got translated text in background: ${translatedText}`);
             sendTextToContentScript('translated_text', translatedText);
+            sendResponse({ translatedText: translatedText });
           } else if (simplifyTextEnabled) {
             console.log('Processing simplification for selected text.');
             const simplifiedText = await getTextFromDeepseek({
@@ -40,6 +47,7 @@ chrome.runtime.onMessage.addListener(
             });
             console.log(`Got simplified text in background: ${simplifiedText}`);
             sendTextToContentScript('simplified_text', simplifiedText);
+            sendResponse({ simplifiedText: simplifiedText});
           } else {
             console.log('No processing toggle enabled.');
           }
@@ -102,7 +110,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === 'get_initial_state') {
     chrome.storage.local.get(
-      ['readModeEnabled', 'dyslexiaFontEnabled', 'translateEnabled'],
+      ['readModeEnabled', 'dyslexiaFontEnabled', 'translateEnabled', 'targetLanguage'],
       (data) => {
         sendResponse(data);
       }
@@ -110,3 +118,4 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return true; // For asynchronous response.
   }
 });
+

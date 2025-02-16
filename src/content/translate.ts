@@ -13,34 +13,40 @@ chrome.runtime.sendMessage({ type: "get_initial_state" }, (response) => {
   }
 });
 
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes.targetLanguage) {
+    currentTargetLanguage = changes.targetLanguage.newValue;
+    console.log("Target language updated:", currentTargetLanguage);
+  }
+});
+
 export const initTranslation = () => {
   chrome.runtime.onMessage.addListener((message: any) => {
     if (message.type === "update_translate_mode") {
       translationEnabled = message.translateEnabled;
       console.log("Translation is now enabled", translationEnabled ? "ON" : "OFF");
-    } else if (message.type === "translated_text") {
-      showTranslatedOverlay(message.translatedText);
+    } else if (message.type === "translated_text" && message.text) {
+      // showTranslatedOverlay(message.translatedText);
     } else if (message.type === "update_target_language") {
-      // Optionally listen for an update message for target language.
       currentTargetLanguage = message.targetLanguage;
       console.log("Updated target language:", currentTargetLanguage);
     }
   });
 
+
   document.addEventListener("mouseup", () => {
     const selectedText = getSelectedText();
     if (selectedText && translationEnabled) {
-      console.log("Selected text for translation:", selectedText);
+      console.log("Translation.ts - Selected text for translation:", selectedText);
       if (translationEnabled) {
-        const isSentence = selectedText.trim().split(/\s+/).length > 1;
         chrome.runtime.sendMessage(
           {
-            type: "translate_text",
+            type: "selected_text",
             text: selectedText,
-            targetLang: currentTargetLanguage, // use user-selected target language
-            isSentence, // Pass the flag so the background can choose the correct API; sentences -> gpt, words -> dictionary API
+            targetLanguage: currentTargetLanguage,
           },
           (response) => {
+      
             if (response?.translatedText) {
               showTranslatedOverlay(response.translatedText);
             } else if (response?.error) {
@@ -54,7 +60,7 @@ export const initTranslation = () => {
 };
 
 
-function showTranslatedOverlay(translatedText: string) {
+export function showTranslatedOverlay(translatedText: string) {
   let overlay = document.getElementById("translate-overlay");
   if (!overlay) {
     overlay = document.createElement("div");
@@ -93,5 +99,9 @@ function showTranslatedOverlay(translatedText: string) {
   }
 }
 
-// Immediately initialize translation functionality.
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initTranslation);
+} else {
 initTranslation();
+}
+

@@ -36,7 +36,7 @@ const Toggles: React.FC = () => {
         setDyslexiaFontEnabled(!!res.dyslexiaFontEnabled);
         setReadModeEnabled(!!res.readModeEnabled);
         setTranslateEnabled(!!res.translateEnabled);
-        setTargetLanguage(res.targetLanguage || 'es'); // default to 'es' if not available
+        setTargetLanguage(res.targetLanguage || 'es'); // default to 'es' 
       }
     );
   };
@@ -109,9 +109,9 @@ const Toggles: React.FC = () => {
   };
 
   const handleTargetLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLang = event.target.value;
-    setTargetLanguage(newLang);
-    chrome.storage.local.set({ targetLanguage: newLang });
+    const targetLanguage = event.target.value;
+    setTargetLanguage(targetLanguage);
+    chrome.storage.local.set({ targetLanguage: targetLanguage });
   };
 
   return (
