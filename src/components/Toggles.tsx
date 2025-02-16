@@ -146,8 +146,8 @@ const Toggles: React.FC = () => {
         >
           <div className={toggleDotClass(highlightEnabled)} />
         </button>
-        {highlightEnabled && <HighlightSettings />}
       </div>
+      {highlightEnabled && <HighlightSettings />}
     </div>
   );
 };

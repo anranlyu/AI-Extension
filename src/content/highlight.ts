@@ -48,17 +48,28 @@ const removeEventListeners = () => {
   }
 };
 
+chrome.storage.onChanged.addListener((changes) => {
+  const highlightElement = getOrCreateHighlightElement();
+  if (changes.highlightColor) {
+    highlightElement.style.backgroundColor = hexToRgba(changes.highlightColor.newValue, 0.4);
+  }
+  if (changes.highlightHeight) {
+    highlightElement.style.height = `${changes.highlightHeight.newValue}px`;
+  }
+})
+
 
 export const enableHighlight = () => {
   chrome.storage.local.get(['highlightColor', 'highlightHeight'], (result) => {
+    console.log(result);
     const highlightElement = getOrCreateHighlightElement();
     
-    if (result.color) {
-      highlightElement.style.backgroundColor = hexToRgba(result.color, 0.4);
+    if (result.highlightColor) {
+      highlightElement.style.backgroundColor = hexToRgba(result.highlightColor, 0.4);
     }
 
-    if (result.height) {
-      highlightElement.style.height = `${result.height}px`;
+    if (result.highlightHeight) {
+      highlightElement.style.height = `${result.highlightHeight}px`;
     }
 
     highlightElement.style.visibility = 'visible';
@@ -75,8 +86,6 @@ export const disableHighlight = () => {
   }
   removeEventListeners();
 };
-
-
 
 
 

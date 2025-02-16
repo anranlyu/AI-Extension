@@ -29,9 +29,9 @@ export const HighlightSettings: React.FC = () => {
   };
 
   return (
-    <div className="ml-4 mt-2 space-y-3 border-l-2 border-gray-200 pl-4">
+    <div className="mt-2 border-t-2 border-gray-200 space-y-4">
       {/* Color Picker */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mt-2">
         <label className="text-sm font-medium text-gray-600">
           Highlight Color
         </label>
@@ -39,7 +39,7 @@ export const HighlightSettings: React.FC = () => {
           type="color"
           value={color}
           onInput={handleColorInput}
-          className="h-8 w-12 cursor-pointer rounded-lg border-none bg-transparent"
+          className="w-12 h-6 cursor-pointer rounded-lg border-none bg-transparent"
         />
       </div>
 
@@ -52,7 +52,7 @@ export const HighlightSettings: React.FC = () => {
           max="50"
           value={height}
           onInput={handleHightInput}
-          className="w-20 rounded-md border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none"
+          className="w-12 h-6 rounded-md border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none"
         />
       </div>
     </div>
