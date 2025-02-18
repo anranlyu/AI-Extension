@@ -2,6 +2,8 @@
 
 import { OpenAI } from "openai";
 
+type VoiceOption = "alloy" | "ash" | "coral" | "echo" | "fable" | "onyx" | "nova" | "sage" | "shimmer";
+const voiceOption: VoiceOption = "alloy";
 
 // Step 1: Get local api key
 const getOpenAIKey = async (): Promise<string> => {
@@ -31,32 +33,56 @@ const InitializeOpenAI = async (): Promise<OpenAI> => {
     }
 }
 
+// Step 3: Generate TTS Audio from OpenAI and return the URL
+const generateTTS = async (openai: OpenAI, voiceOption: VoiceOption = "alloy", ttsText: string) => {
+    try {
+        console.log("Sending request to OpenAI to generate TTS audio");
+        const response = await openai.audio.speech.create({
+            model: "tts-1",
+            voice: voiceOption,
+            input: ttsText,
+            response_format: "opus"
+        });
+        if (!response) {
+            throw new Error("No audio response from OpenAI");
+        }
+        console.log("Successfully retrieved audio response from OpenAI");
+
+        // Get the readable stream from the response
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error("Failed to get readable stream from response");
+
+        // Create a MediaSource for real-time streaming
+        const mediaSource = new MediaSource();
+        const audio = new Audio();
+        audio.src = URL.createObjectURL(mediaSource);
+        audio.play();
+
+        // When MediaSource is ready, process chunks of data
+        mediaSource.addEventListener("sourceopen", async () => {
+            const sourceBuffer = mediaSource.addSourceBuffer("audio/ogg; codecs=opus");
+            console.log("MediaSource is open. Appending audio chunks...");
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    mediaSource.endOfStream();
+                    console.log("Audio streaming completed.");
+                    break;
+                }
+                sourceBuffer.appendBuffer(value);
+            }
+        });
+    } catch (error) {
+        console.error("Error generating streaming audio:", error);
+    }
+};
+
 InitializeOpenAI().then((openai) => {
     if (openai) {
         console.log("Ready to use OpenAI!");
+        generateTTS(openai, voiceOption, "Hello, this is a test text.");
     }
 });
 
-/*
-Helper function
-Step 3: Create a function to generate readable text
-*/
-// TODO: Implement this function
-//const generateReadableText
-
-
-
-// Step 4: Create a function to generate audio from text
-// TODO: Implement this function
-//const generateAudioFromText
-
-
-/*const response = await openai.audio.speech.create({
-    model: "tts-1",
-    voice: "alloy",
-    input: ttsText,
-});
-*/
-
-// Step 5: Export the function to be used in other files
-// export default generateAudioFromText;
+export default InitializeOpenAI;
