@@ -44,7 +44,7 @@ const generateTTS = async (openai: OpenAI, _voiceOption: VoiceOption = "alloy", 
             input: ttsText,
             response_format: "opus"
         });
-        if (!response) {
+        if (!response || !response.ok) {
             throw new Error("No audio response from OpenAI");
         }
         console.log("Successfully retrieved audio response from OpenAI");
