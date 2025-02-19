@@ -34,8 +34,9 @@ const InitializeOpenAI = async (): Promise<OpenAI> => {
 }
 
 // Step 3: Generate TTS Audio from OpenAI and return the URL
-const generateTTS = async (openai: OpenAI, voiceOption: VoiceOption = "alloy", ttsText: string) => {
+const generateTTS = async (openai: OpenAI, _voiceOption: VoiceOption = "alloy", ttsText: string) => {
     try {
+        InitializeOpenAI();
         console.log("Sending request to OpenAI to generate TTS audio");
         const response = await openai.audio.speech.create({
             model: "tts-1",
@@ -78,11 +79,6 @@ const generateTTS = async (openai: OpenAI, voiceOption: VoiceOption = "alloy", t
     }
 };
 
-InitializeOpenAI().then((openai) => {
-    if (openai) {
-        console.log("Ready to use OpenAI!");
-        generateTTS(openai, voiceOption, "Hello, this is a test text.");
-    }
-});
 
-export default InitializeOpenAI;
+
+export default generateTTS;
