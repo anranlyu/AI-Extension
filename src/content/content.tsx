@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import './content.css';
 import { getSelectedText, replaceSelectedText } from './textSelection';
 import { injectDyslexiaFont, removeDyslexiaFontFromPage } from './dyslexiaFont';
 import {
