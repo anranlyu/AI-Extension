@@ -1,5 +1,5 @@
 import { isProbablyReaderable, Readability } from "@mozilla/readability";
-import rs from "text-readability";
+
 
 const isPageReadable = () => {
   return isProbablyReaderable(document);
@@ -15,7 +15,6 @@ const extractReadableContent = () => {
   console.log(article);
   if (!article) return null;
 
-  console.log(rs.fleschKincaidGrade(article.textContent));
 
 
 

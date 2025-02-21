@@ -7,6 +7,7 @@ import {
   enableReadMode,
 } from './readMode';
 import { disableHighlight, enableHighlight } from './highlight';
+import './content.css';
 
 console.log('content has been injected');
 
