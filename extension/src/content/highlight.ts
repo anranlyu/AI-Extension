@@ -49,14 +49,18 @@ const removeEventListeners = () => {
 };
 
 chrome.storage.onChanged.addListener((changes) => {
-  const highlightElement = getOrCreateHighlightElement();
-  if (changes.highlightColor) {
-    highlightElement.style.backgroundColor = hexToRgba(changes.highlightColor.newValue, 0.4);
+  if (changes.highlightColor || changes.highlightHeight) {
+    const highlightElement = getOrCreateHighlightElement();
+    
+    if (changes.highlightColor) {
+      highlightElement.style.backgroundColor = hexToRgba(changes.highlightColor.newValue, 0.4);
+    }
+    if (changes.highlightHeight) {
+      highlightElement.style.height = `${changes.highlightHeight.newValue}px`;
+    }
   }
-  if (changes.highlightHeight) {
-    highlightElement.style.height = `${changes.highlightHeight.newValue}px`;
-  }
-})
+});
+
 
 
 export const enableHighlight = () => {

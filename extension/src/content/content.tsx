@@ -23,6 +23,7 @@ chrome.storage.onChanged.addListener((changes) => {
   }
 });
 
+// Initialize the page state.
 chrome.storage.local.get(
   ['readModeEnabled', 'dyslexiaFontEnabled', 'highlightEnabled'],
   (result) => {
