@@ -1,4 +1,4 @@
-import { isProbablyReaderable} from "@mozilla/readability";
+import { isProbablyReaderable, Readability} from "@mozilla/readability";
 
 
 const isPageReadable = () => {
@@ -26,6 +26,9 @@ const isPageReadable = () => {
 const fetchContent = async (url:string) => {
   const res = await fetch(`http://localhost:5000/parse?url=${encodeURIComponent(url)}`)
   const data = await res.json();
+  if (data.error) {
+    return null;
+  }
   return data;
 }
 
@@ -36,9 +39,14 @@ const extractReadableContent = async () => {
           return null;
         }
         const url = window.location.href
-        const article = await fetchContent(url);
+        let article = await fetchContent(url);
 
         console.log('Extracted article:', article);
+        if (article === null) {
+          article = new Readability(document.cloneNode(true) as Document).parse();
+
+        }
+        
 
         return {
             title: article.title?.trim() || 'Untitled',
@@ -132,6 +140,12 @@ export const disableReadMode = () => {
   if (container) {
     container.remove();
   }
+
+  chrome.storage.local.get(
+    ['readModeEnabled'], () => {
+      chrome.storage.local.set({ readModeEnabled: false })
+  })
+
   // Restore the original page elements.
   restoreOriginalPageElements();
 };
@@ -163,11 +177,3 @@ function processContent(html: string): string {
   return tempDiv.innerHTML;
 }
 
-
-
-chrome.runtime.onMessage.addListener((message) => {
-  if (message.type === 'update_read_mode') {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    message.readModeEnabled ? enableReadMode() : disableReadMode();
-  }
-});
