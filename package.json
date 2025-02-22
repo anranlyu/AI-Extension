@@ -1,0 +1,17 @@
+{
+  "name": "ai-extension",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm install && npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@postlight/parser": "^2.2.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}

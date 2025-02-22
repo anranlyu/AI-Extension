@@ -1,34 +1,58 @@
-import { isProbablyReaderable, Readability } from "@mozilla/readability";
+import { isProbablyReaderable} from "@mozilla/readability";
 
 
 const isPageReadable = () => {
   return isProbablyReaderable(document);
 };
 
-const extractReadableContent = () => {
-  if (!isPageReadable()) {
-    console.warn('This page is not suitable for Read Mode.');
-    return null;
-  }
+// const extractReadableContent = () => {
+  // if (!isPageReadable()) {
+  //   console.warn('This page is not suitable for Read Mode.');
+  //   return null;
+  // }
 
-  const article = new Readability(document.cloneNode(true) as Document).parse();
-  console.log(article);
-  if (!article) return null;
+//   const article = new Readability(document.cloneNode(true) as Document).parse();
+//   console.log(article);
+//   if (!article) return null;
 
+//   return {
+//     title: article.title || 'Untitled',
+//     content: article.content || '',
+//     excerpt: article.excerpt || '',
+//     author: article.byline || 'Unknown',
+//   };
+// };
 
+const fetchContent = async (url:string) => {
+  const res = await fetch(`http://localhost:5000/parse?url=${encodeURIComponent(url)}`)
+  const data = await res.json();
+  return data;
+}
 
+const extractReadableContent = async () => {
+  try {
+        if (!isPageReadable()) {
+          console.warn('This page is not suitable for Read Mode.');
+          return null;
+        }
+        const url = window.location.href
+        const article = await fetchContent(url);
 
-  return {
-    title: article.title || 'Untitled',
-    content: article.content || '',
-    excerpt: article.excerpt || '',
-    author: article.byline || 'Unknown',
-  };
+        console.log('Extracted article:', article);
+
+        return {
+            title: article.title?.trim() || 'Untitled',
+            content: article.content?.trim() || 'No readable content found.',
+            author: article.author?.trim() || 'Unknown Author',
+        };
+    } catch (error) {
+        console.error('Error extracting content:', error);
+        return null;
+    }
 };
 
-
 export const enableReadMode = async () => {
-  const extractedData = extractReadableContent();
+  const extractedData = await extractReadableContent();
   if (!extractedData) {
     console.warn('No readable content found.');
     return;
@@ -138,12 +162,6 @@ function processContent(html: string): string {
 
   return tempDiv.innerHTML;
 }
-
-
-
-
-
-
 
 
 
