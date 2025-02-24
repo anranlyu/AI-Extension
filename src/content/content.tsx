@@ -23,11 +23,7 @@ chrome.storage.onChanged.addListener((changes) => {
     changes.highlightEnabled.newValue 
     ? enableHighlight() 
     : disableHighlight();
-  } else if (changes.translateEnabled){
-    changes.translateEnabled.newValue
-    ? "ON"
-    : "OFF"
-    }
+  }
 
 });
 
@@ -44,6 +40,7 @@ chrome.storage.local.get(
   }
 );
 
+// Send selected texts for processing
 document.addEventListener('mouseup', () => {
   const selectedText = getSelectedText();
   if (selectedText) {
@@ -54,6 +51,7 @@ document.addEventListener('mouseup', () => {
   }
 });
 
+// Listen for reponses from background
 chrome.runtime.onMessage.addListener(
   ({ type, text }: { type: string; text: string }) => {
     if (type === 'simplified_text' && text) {

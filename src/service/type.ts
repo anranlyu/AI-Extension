@@ -13,6 +13,8 @@ export interface StorageValues {
   dyslexiaFontEnabled?: boolean;
   readModeEnabled?: boolean;
   highlightEnabled?: boolean;
+  translateEnabled: boolean;
+  targetLanguage: string;
 }
 
 export interface StorageValues {
@@ -22,4 +24,6 @@ export interface StorageValues {
   dyslexiaFontEnabled?: boolean;
   readModeEnabled?: boolean;
   highlightEnabled?: boolean;
+  translateEnabled: boolean;
+  targetLanguage: string;
 }

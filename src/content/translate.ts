@@ -33,30 +33,6 @@ export const initTranslation = () => {
     }
   });
 
-
-  document.addEventListener("mouseup", () => {
-    const selectedText = getSelectedText();
-    if (selectedText && translationEnabled) {
-      console.log("Translation.ts - Selected text for translation:", selectedText);
-      if (translationEnabled) {
-        chrome.runtime.sendMessage(
-          {
-            type: "selected_text",
-            text: selectedText,
-            targetLanguage: currentTargetLanguage,
-          },
-          (response) => {
-      
-            if (response?.translatedText) {
-              showTranslatedOverlay(response.translatedText);
-            } else if (response?.error) {
-              console.error("Translation error:", response.error);
-            }
-          }
-        );
-      }
-    }
-  });
 };
 
 

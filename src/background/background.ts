@@ -1,7 +1,6 @@
 import { Prompt, readModePrompt, translatePrompt } from "../assets/Prompt";
 import getTextFromDeepseek from "../service/getTextFromDeepseek";
 import getTranslationFromGPT from "../service/getTranslationFromGPT";
-// import getTranslationFromDeepseek from "../service/getTranslationFromDeepseek";
 import { Message } from "../service/type";
 
 console.log('Background is running');
@@ -11,7 +10,7 @@ const sendTextToContentScript = (type: string, text: string) => {
     if (tabs[0]?.id) {
       chrome.tabs.sendMessage(tabs[0].id, { type, text });
     }
-  });
+  }); 
 };
 
 
@@ -37,15 +36,13 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
         });
         console.log(`Got translated text in background: ${translatedText}`); // Todo: Delete after devolopment
         sendTextToContentScript('translated_text', translatedText);
-        // console.log('Simplify Text toggle is OFF. Skipping text simplification.');
       } else {
         console.log("No processing toggle enabled.")
       }
+    
     });
   }
-
-
-    if (message.type === 'process_text_for_read_mode') {
+  if (message.type === 'process_text_for_read_mode') {
     const processedText = await getTextFromDeepseek({
       prompt: readModePrompt,
       text: message.text,
