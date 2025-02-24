@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { StorageValues } from '../service/type';
+import { HighlightSettings } from './HighlightSettings';
 
 const Toggles: React.FC = () => {
   const [simplifyTextEnabled, setSimplifyTextEnabled] = useState(false);
   const [dyslexiaFontEnabled, setDyslexiaFontEnabled] = useState(false);
   const [readModeEnabled, setReadModeEnabled] = useState(false);
+  const [highlightEnabled, setHighlightEnabled] = useState(false);
   const [translateEnabled, setTranslateEnabled] = useState(false);
   const [hasLLMConfig, setHasLLMConfig] = useState(false);
-  const [targetLanguage, setTargetLanguage] = useState('es'); // Default target language = Spanish
+  const [targetLanguage, setTargetLanguage] = useState(''); 
 
   // Utility functions for applying Tailwind classes
   const toggleButtonClass = (enabled: boolean) =>
@@ -19,37 +22,42 @@ const Toggles: React.FC = () => {
     }`;
 
   // Helper to read from Chrome storage once, then sync component state
-  const syncFromStorage = () => {
-    chrome.storage.local.get(
-      [
-        'llm',
-        'apiKey',
-        'simplifyTextEnabled',
-        'dyslexiaFontEnabled',
-        'readModeEnabled',
-        'translateEnabled',
-        'targetLanguage',
-      ],
-      (res) => {
-        setHasLLMConfig(!!res.llm && !!res.apiKey);
-        setSimplifyTextEnabled(!!res.simplifyTextEnabled);
-        setDyslexiaFontEnabled(!!res.dyslexiaFontEnabled);
-        setReadModeEnabled(!!res.readModeEnabled);
-        setTranslateEnabled(!!res.translateEnabled);
-        setTargetLanguage(res.targetLanguage || 'es'); // default to 'es' 
-      }
-    );
+  const syncFromStorage = async () => {
+    const res = (await chrome.storage.local.get([
+      'llm',
+      'apiKey',
+      'simplifyTextEnabled',
+      'dyslexiaFontEnabled',
+      'readModeEnabled',
+      'translateEnabled',
+      'targetLanguage',
+      'highlightEnabled',
+    ])) as StorageValues;
+      
+    setHasLLMConfig(!!res.llm && !!res.apiKey);
+    setSimplifyTextEnabled(!!res.simplifyTextEnabled);
+    setDyslexiaFontEnabled(!!res.dyslexiaFontEnabled);
+    setReadModeEnabled(!!res.readModeEnabled);
+    setTranslateEnabled(!!res.translateEnabled);
+    setTargetLanguage(res.targetLanguage || ''); 
+    setHighlightEnabled(!!res.highlightEnabled);
+
   };
 
   useEffect(() => {
-    // Initial sync with storage
-    syncFromStorage();
+    const initialize = async () => {
+      await syncFromStorage();
+    };
+    // Initial sync
+    initialize();
+
 
     // Listen for any changes in Chrome storage
     const handleStorageChange = (changes: {
       [key: string]: chrome.storage.StorageChange;
     }) => {
       if ('llm' in changes || 'apiKey' in changes) {
+        // If llm or apiKey changed, reevaluate hasLLMConfig
         const newLLM = changes.llm?.newValue;
         const newApiKey = changes.apiKey?.newValue;
         setHasLLMConfig(!!newLLM && !!newApiKey);
@@ -100,6 +108,11 @@ const Toggles: React.FC = () => {
     setDyslexiaFontEnabled(newState);
     chrome.storage.local.set({ dyslexiaFontEnabled: newState });
   };
+  const handleHighlightToggle = () => {
+    const newState = !highlightEnabled;
+    setHighlightEnabled(newState);
+    chrome.storage.local.set({ highlightEnabled: newState });
+  };
 
   const handleTranslateToggle = () => {
     const newState = !translateEnabled;
@@ -114,6 +127,7 @@ const Toggles: React.FC = () => {
     chrome.storage.local.set({ targetLanguage: targetLanguage });
   };
 
+
   return (
     <div className="p-4 bg-gray-100 rounded-lg shadow-md space-y-4 w-xs">
       {/* Simplify Text Toggle */}
@@ -126,8 +140,11 @@ const Toggles: React.FC = () => {
 
       {/* Dyslexia-Friendly Font Toggle */}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-700">Dyslexia Font</span>
-        <button onClick={handleDyslexiaFontToggle} className={toggleButtonClass(dyslexiaFontEnabled)}>
+        <span className="text-sm font-medium text-gray-700">Font Switch</span>
+        <button
+          onClick={handleDyslexiaFontToggle}
+          className={toggleButtonClass(dyslexiaFontEnabled)}
+        >
           <div className={toggleDotClass(dyslexiaFontEnabled)} />
         </button>
       </div>
@@ -139,6 +156,18 @@ const Toggles: React.FC = () => {
           <div className={toggleDotClass(readModeEnabled)} />
         </button>
       </div>
+
+      {/* Highlighter Toggle*/}
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-gray-700">Highlighter</span>
+        <button
+          onClick={handleHighlightToggle}
+          className={toggleButtonClass(highlightEnabled)}
+        >
+          <div className={toggleDotClass(highlightEnabled)} />
+        </button>
+      </div>
+      {highlightEnabled && <HighlightSettings />}
 
       {/* Translate Toggle */}
       <div className="flex items-center justify-between">

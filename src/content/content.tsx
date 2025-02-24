@@ -1,56 +1,65 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import './content.css';
 import { getSelectedText, replaceSelectedText } from './textSelection';
-import { Message } from '../service/type';
 import { injectDyslexiaFont, removeDyslexiaFontFromPage } from './dyslexiaFont';
-import { injectHighlightStyles } from './highlightStyles';
-import { disableReadMode, enableReadMode } from './readMode';
-import "./translate"; 
-import { initTranslation, showTranslatedOverlay } from './translate';
+import { showTranslatedOverlay } from './translate';
+import {
+  disableReadMode,
+  // displayProcessedText,
+  enableReadMode,
+} from './readMode';
+import { disableHighlight, enableHighlight } from './highlight';
 
-console.log('Content has been injected from content.tsx');
-injectHighlightStyles();
-initTranslation();
+console.log('content has been injected from content.tsx');
 
-const handleRuntimeMessage = (message: Message) => {
-  switch (message.type) {
-    case 'simplified_text':
-      console.log('Received simplified text:', message.text);
-      replaceSelectedText(message.text);
-      break;
-    case 'translated_text':
-      console.log('Received translated text:', message.text);
-      if (typeof message.text === "string"){
-        showTranslatedOverlay(message.text);
-      }
-      break;
-    case 'update_read_mode':
-      message.readModeEnabled ? enableReadMode() : disableReadMode();
-      break;
-    case 'update_dyslexia_font':
-      message.dyslexiaFontEnabled
-        ? injectDyslexiaFont()
-        : removeDyslexiaFontFromPage();
-      break;
-    case 'readMode_text':
-      // Optionally handle read mode text.
-      break;
-    case "update_translate_mode":
-      console.log("Received update_translate_mode:", message.translateEnabled);
-      break;
-    default:
-      console.warn(`Unknown message type: ${message.type}`);
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes.readModeEnabled){
+    changes.readModeEnabled.newValue ? enableReadMode() : disableReadMode();
+  } else if (changes.dyslexiaFontEnabled) {
+    changes.dyslexiaFontEnabled.newValue
+    ? injectDyslexiaFont()
+    : removeDyslexiaFontFromPage();
+
+  } else if (changes.highlightEnabled){
+    changes.highlightEnabled.newValue 
+    ? enableHighlight() 
+    : disableHighlight();
+  } else if (changes.translateEnabled){
+    changes.translateEnabled.newValue
+    ? "ON"
+    : "OFF"
+    }
+
+});
+
+chrome.storage.local.get(
+  ['readModeEnabled', 'dyslexiaFontEnabled', 'highlightEnabled', "translateEnabled", "targetLanguage"],
+  (result) => {
+    if (result.readModeEnabled) enableReadMode();
+    if (result.dyslexiaFontEnabled) injectDyslexiaFont();
+    if (result.highlightEnabled) {
+      enableHighlight();
+    } else {
+      disableHighlight();
+    }
   }
-};
+);
 
-chrome.runtime.onMessage.addListener(handleRuntimeMessage);
-
-chrome.runtime.sendMessage({ type: 'get_initial_state' }, (response) => {
-  if (response?.readModeEnabled) {
-    enableReadMode();
-  }
-  if (response?.dyslexiaFontEnabled) {
-    injectDyslexiaFont();
+document.addEventListener('mouseup', () => {
+  const selectedText = getSelectedText();
+  if (selectedText) {
+    console.log('Selected text:', selectedText);
+    chrome.runtime.sendMessage({ type: 'selected_text', text: selectedText });
+  } else {
+    console.warn('No text selected!');
   }
 });
 
+chrome.runtime.onMessage.addListener(
+  ({ type, text }: { type: string; text: string }) => {
+    if (type === 'simplified_text' && text) {
+      replaceSelectedText(text);
+    } else if (type === "translated_text" && text) {
+      showTranslatedOverlay(text);
+    }
+  }
+);

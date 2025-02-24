@@ -5,3 +5,21 @@ export interface Message {
   readModeEnabled: boolean;
   translateEnabled: boolean;
 }
+
+export interface StorageValues {
+  llm?: string;
+  apiKey?: string;
+  simplifyTextEnabled?: boolean;
+  dyslexiaFontEnabled?: boolean;
+  readModeEnabled?: boolean;
+  highlightEnabled?: boolean;
+}
+
+export interface StorageValues {
+  llm?: string;
+  apiKey?: string;
+  simplifyTextEnabled?: boolean;
+  dyslexiaFontEnabled?: boolean;
+  readModeEnabled?: boolean;
+  highlightEnabled?: boolean;
+}
