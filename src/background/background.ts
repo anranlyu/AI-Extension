@@ -2,6 +2,7 @@ import { Prompt, readModePrompt, translatePrompt } from "../assets/Prompt";
 import getTextFromDeepseek from "../service/getTextFromDeepseek";
 import getTranslationFromGPT from "../service/getTranslationFromGPT";
 import { Message } from "../service/type";
+import generateTTS from "../service/tts_openai";
 
 console.log('Background is running');
 
@@ -10,7 +11,7 @@ const sendTextToContentScript = (type: string, text: string) => {
     if (tabs[0]?.id) {
       chrome.tabs.sendMessage(tabs[0].id, { type, text });
     }
-  }); 
+  });
 };
 
 
@@ -24,7 +25,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
       if (simplifyTextEnabled) {
         console.log('Processing simplification for selected text.');
         const selectedText = message.text;
-        const simplifiedText = await getTextFromDeepseek({ prompt:Prompt, text:selectedText });
+        const simplifiedText = await getTextFromDeepseek({ prompt: Prompt, text: selectedText });
         console.log(`Got simplified text in background:${simplifiedText}`); // Todo: Delete after devolopment
         sendTextToContentScript('simplified_text', simplifiedText);
       } else if (translateEnabled) {
@@ -39,7 +40,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
       } else {
         console.log("No processing toggle enabled.")
       }
-    
+
     });
   }
   if (message.type === 'process_text_for_read_mode') {
@@ -47,9 +48,19 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
       prompt: readModePrompt,
       text: message.text,
     })
-    
+
     if (processedText) {
       sendTextToContentScript('readMode_text', processedText);
     }
   }
-});
+
+  if (message.type === 'tts_request') {
+    console.log('TTS request received:', message.text);
+    try {
+      await generateTTS(message.text, "alloy");
+    } catch (error) {
+      console.error('Error generating TTS:', error);
+    }
+  }
+}
+);
