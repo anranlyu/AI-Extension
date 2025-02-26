@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { ds_key } from "../assets/API_KEY";
+
 
 interface Props {
   prompt: string;
@@ -11,10 +11,9 @@ const getTranslationFromDeepseek = async ({ prompt, text }: Props): Promise<stri
 
   const getOpenAi = async (): Promise<OpenAI> => {
     const { apiKey } = await chrome.storage.local.get(["apiKey"]);
-    const key = apiKey || ds_key;
-    console.log("Using API key:", key); // Debug log.
+    const key = apiKey;
     return new OpenAI({
-      baseURL: "https://api.deepseek.com/v1", // Check if this is the correct endpoint.
+      baseURL: "https://api.deepseek.com", // Check if this is the correct endpoint.
       apiKey: key || "",
     });
   };

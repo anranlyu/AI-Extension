@@ -1,4 +1,4 @@
-import { awan_key } from "../assets/API_KEY";
+// import { awan_key } from "../assets/API_KEY";
 
 interface Props {
   prompt: string;
@@ -9,7 +9,7 @@ const getTranslationFromAwan = async ({ prompt, text }: Props): Promise<string> 
   console.log("getTranslationFromAwan is called");
 
   const storageResult = await chrome.storage.local.get(["apiKey"]);
-  const apiKey = storageResult.apiKey || awan_key;
+  const apiKey = storageResult.apiKey;
   
   // Construct the request payload.
   // System prompt is drawn from Prompt.ts

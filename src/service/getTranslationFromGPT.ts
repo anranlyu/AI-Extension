@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { gpt_Key } from "../assets/API_KEY";
+
 
 interface Props {
   prompt: string;
@@ -17,7 +17,7 @@ const getTranslationFromGPT = async ({ prompt, text, targetLanguage }: Props): P
 
   const getOpenAi = async (): Promise<OpenAI> => {
     const storageResult = await chrome.storage.local.get(["apiKey"]);
-    const apiKey = storageResult.apiKey || gpt_Key; 
+    const apiKey = storageResult.apiKey;
     
     return new OpenAI({
       baseURL: "https://api.openai.com/v1",

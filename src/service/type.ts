@@ -26,4 +26,5 @@ export interface StorageValues {
   highlightEnabled?: boolean;
   translateEnabled: boolean;
   targetLanguage: string;
+  TTSenabled: boolean;
 }
