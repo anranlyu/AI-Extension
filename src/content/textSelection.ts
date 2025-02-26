@@ -9,6 +9,7 @@ const animateReplacedText = (elements: NodeListOf<Element>) => {
     });
   }, 1000);
 };
+console.log("testing")
 
 export const getSelectedText = (): string | null => {
   return window.getSelection()?.toString() || null;
