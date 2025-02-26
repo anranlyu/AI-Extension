@@ -1,34 +1,33 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+import './content.css';
 import { getSelectedText, replaceSelectedText } from './textSelection';
 import { injectDyslexiaFont, removeDyslexiaFontFromPage } from './dyslexiaFont';
-import { showTranslatedOverlay } from './translate';
 import {
   disableReadMode,
   // displayProcessedText,
   enableReadMode,
 } from './readMode';
 import { disableHighlight, enableHighlight } from './highlight';
+import { enableTTSMode, stopRead } from './tts_content';
 
-console.log('content has been injected from content.tsx');
+console.log('content has been injected');
 
 chrome.storage.onChanged.addListener((changes) => {
-  if (changes.readModeEnabled){
+  if (changes.readModeEnabled) {
     changes.readModeEnabled.newValue ? enableReadMode() : disableReadMode();
   } else if (changes.dyslexiaFontEnabled) {
     changes.dyslexiaFontEnabled.newValue
-    ? injectDyslexiaFont()
-    : removeDyslexiaFontFromPage();
-
-  } else if (changes.highlightEnabled){
-    changes.highlightEnabled.newValue 
-    ? enableHighlight() 
-    : disableHighlight();
+      ? injectDyslexiaFont()
+      : removeDyslexiaFontFromPage();
+  } else if (changes.highlightEnabled) {
+    changes.highlightEnabled.newValue ? enableHighlight() : disableHighlight();
+  } else if (changes.TTSenabled) {
+    changes.TTSenabled.newValue ? enableTTSMode() : stopRead();
   }
-
 });
 
 chrome.storage.local.get(
-  ['readModeEnabled', 'dyslexiaFontEnabled', 'highlightEnabled', "translateEnabled", "targetLanguage"],
+  ['readModeEnabled', 'dyslexiaFontEnabled', 'highlightEnabled', 'TTSenabled'],
   (result) => {
     if (result.readModeEnabled) enableReadMode();
     if (result.dyslexiaFontEnabled) injectDyslexiaFont();
@@ -37,10 +36,16 @@ chrome.storage.local.get(
     } else {
       disableHighlight();
     }
+    if (result.TTSenabled) {
+      console.log("TTS Mode Initial State: Enabled");
+      enableTTSMode();
+    } else {
+      console.log("TTS Mode Initial State: Disabled");
+      stopRead();
+    }
   }
 );
 
-// Send selected texts for processing
 document.addEventListener('mouseup', () => {
   const selectedText = getSelectedText();
   if (selectedText) {
@@ -51,13 +56,10 @@ document.addEventListener('mouseup', () => {
   }
 });
 
-// Listen for reponses from background
 chrome.runtime.onMessage.addListener(
   ({ type, text }: { type: string; text: string }) => {
     if (type === 'simplified_text' && text) {
       replaceSelectedText(text);
-    } else if (type === "translated_text" && text) {
-      showTranslatedOverlay(text);
     }
   }
 );
