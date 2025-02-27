@@ -1,9 +1,8 @@
 // This is a script to handle open tts api
-
 import { OpenAI } from "openai";
 
 type VoiceOption = "alloy" | "ash" | "coral" | "echo" | "fable" | "onyx" | "nova" | "sage" | "shimmer";
-const voiceOption: VoiceOption = "alloy";
+const defaultVoiceOption: VoiceOption = "alloy";
 
 // Step 1: Get local api key
 const getOpenAIKey = async (): Promise<string> => {
@@ -34,9 +33,11 @@ const InitializeOpenAI = async (): Promise<OpenAI> => {
 }
 
 // Step 3: Generate TTS Audio from OpenAI and return the URL
-const generateTTS = async (openai: OpenAI, _voiceOption: VoiceOption = "alloy", ttsText: string) => {
+const generateTTS = async (ttsText: string, voiceOption: VoiceOption = defaultVoiceOption) => {
     try {
-        InitializeOpenAI();
+        const openai = await InitializeOpenAI();
+        console.log("OpenAI initialized successfully");
+
         console.log("Sending request to OpenAI to generate TTS audio");
         const response = await openai.audio.speech.create({
             model: "tts-1",
@@ -78,7 +79,5 @@ const generateTTS = async (openai: OpenAI, _voiceOption: VoiceOption = "alloy", 
         console.error("Error generating streaming audio:", error);
     }
 };
-
-
 
 export default generateTTS;
