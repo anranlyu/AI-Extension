@@ -1,41 +1,3 @@
-import { getSelectedText } from "./textSelection";
-
-let translationEnabled = false;
-let currentTargetLanguage = ''; 
-
-// initial state from the background
-chrome.runtime.sendMessage({ type: "get_initial_state" }, (response) => {
-  if (typeof response?.translateEnabled === "boolean") {
-    translationEnabled = response.translateEnabled;
-  }
-  if (response?.targetLanguage) {
-    currentTargetLanguage = response.targetLanguage;
-  }
-});
-
-chrome.storage.onChanged.addListener((changes) => {
-  if (changes.targetLanguage) {
-    currentTargetLanguage = changes.targetLanguage.newValue;
-    console.log("Target language updated:", currentTargetLanguage);
-  }
-});
-
-export const initTranslation = () => {
-  chrome.runtime.onMessage.addListener((message: any) => {
-    if (message.type === "update_translate_mode") {
-      translationEnabled = message.translateEnabled;
-      console.log("Translation is now enabled", translationEnabled ? "ON" : "OFF");
-    } else if (message.type === "translated_text" && message.text) {
-      // showTranslatedOverlay(message.translatedText);
-    } else if (message.type === "update_target_language") {
-      currentTargetLanguage = message.targetLanguage;
-      console.log("Updated target language:", currentTargetLanguage);
-    }
-  });
-
-};
-
-
 export function showTranslatedOverlay(translatedText: string) {
   let overlay = document.getElementById("translate-overlay");
   if (!overlay) {
@@ -86,11 +48,5 @@ export function showTranslatedOverlay(translatedText: string) {
   if (textContainer) {
     textContainer.textContent = translatedText;
   }
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initTranslation);
-} else {
-initTranslation();
 }
 

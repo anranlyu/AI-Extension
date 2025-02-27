@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { StorageValues } from '../service/type';
+import { HighlightSettings } from './HighlightSettings';
 
 const Toggles: React.FC = () => {
   const [simplifyTextEnabled, setSimplifyTextEnabled] = useState(false);
@@ -8,14 +10,16 @@ const Toggles: React.FC = () => {
   const [highlightEnabled, setHighlightEnabled] = useState(false);
   const [translateEnabled, setTranslateEnabled] = useState(false);
   const [hasLLMConfig, setHasLLMConfig] = useState(false);
-  const [targetLanguage, setTargetLanguage] = useState(''); 
+  const [targetLanguage, setTargetLanguage] = useState('');
 
   // Utility functions for applying Tailwind classes
   const toggleButtonClass = (enabled: boolean) =>
-    `relative w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none ${enabled ? 'bg-blue-600' : 'bg-gray-300'
+    `relative w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none ${
+      enabled ? 'bg-blue-600' : 'bg-gray-300'
     }`;
   const toggleDotClass = (enabled: boolean) =>
-    `absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ${enabled ? 'translate-x-6' : 'translate-x-0'
+    `absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ${
+      enabled ? 'translate-x-6' : 'translate-x-0'
     }`;
 
   // Helper to read from Chrome storage once, then sync component state
@@ -31,13 +35,13 @@ const Toggles: React.FC = () => {
       'TTSenabled',
       'highlightEnabled',
     ])) as StorageValues;
-      
+
     setHasLLMConfig(!!res.llm && !!res.apiKey);
     setSimplifyTextEnabled(!!res.simplifyTextEnabled);
     setDyslexiaFontEnabled(!!res.dyslexiaFontEnabled);
     setReadModeEnabled(!!res.readModeEnabled);
     setTranslateEnabled(!!res.translateEnabled);
-    setTargetLanguage(res.targetLanguage || ''); 
+    setTargetLanguage(res.targetLanguage || '');
     setHighlightEnabled(!!res.highlightEnabled);
     setTTSEnabled(!!res.TTSenabled);
   };
@@ -46,13 +50,11 @@ const Toggles: React.FC = () => {
     // Initial sync
     syncFromStorage();
 
-
     // Listen for any changes in Chrome storage
     const handleStorageChange = (changes: {
       [key: string]: chrome.storage.StorageChange;
     }) => {
       if ('llm' in changes || 'apiKey' in changes) {
-        // If llm or apiKey changed, reevaluate hasLLMConfig
         const newLLM = changes.llm?.newValue;
         const newApiKey = changes.apiKey?.newValue;
         setHasLLMConfig(!!newLLM && !!newApiKey);
@@ -68,6 +70,7 @@ const Toggles: React.FC = () => {
       }
       if ('TTSenabled' in changes) {
         setTTSEnabled(changes.TTSenabled.newValue);
+      }
       if ('translateEnabled' in changes) {
         setTranslateEnabled(changes.translateEnabled.newValue);
       }
@@ -79,7 +82,6 @@ const Toggles: React.FC = () => {
     chrome.storage.onChanged.addListener(handleStorageChange);
 
     return () => {
-      // Clean up the listener on unmount
       chrome.storage.onChanged.removeListener(handleStorageChange);
     };
   }, []);
@@ -89,7 +91,7 @@ const Toggles: React.FC = () => {
     const newState = !TTSenabled;
     setTTSEnabled(newState);
     chrome.storage.local.set({ TTSenabled: newState });
-  }
+  };
 
   const handleReadModeToggle = () => {
     const newState = !readModeEnabled;
@@ -105,13 +107,12 @@ const Toggles: React.FC = () => {
     setSimplifyTextEnabled(newState);
     chrome.storage.local.set({ simplifyTextEnabled: newState });
   };
-  
+
   const handleDyslexiaFontToggle = () => {
     const newState = !dyslexiaFontEnabled;
     setDyslexiaFontEnabled(newState);
     chrome.storage.local.set({ dyslexiaFontEnabled: newState });
   };
-
 
   const handleHighlightToggle = () => {
     const newState = !highlightEnabled;
@@ -123,22 +124,29 @@ const Toggles: React.FC = () => {
     const newState = !translateEnabled;
     setTranslateEnabled(newState);
     chrome.storage.local.set({ translateEnabled: newState });
-    chrome.runtime.sendMessage({ type: "update_translate_mode", translateEnabled: newState });
+    chrome.runtime.sendMessage({
+      type: 'update_translate_mode',
+      translateEnabled: newState,
+    });
   };
 
-  const handleTargetLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleTargetLanguageChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const targetLanguage = event.target.value;
     setTargetLanguage(targetLanguage);
     chrome.storage.local.set({ targetLanguage: targetLanguage });
   };
-
 
   return (
     <div className="p-4 bg-gray-100 rounded-lg shadow-md space-y-4 w-xs">
       {/* Simplify Text Toggle */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-gray-700">Simplify Text</span>
-        <button onClick={handleSimplifyTextToggle} className={toggleButtonClass(simplifyTextEnabled)}>
+        <button
+          onClick={handleSimplifyTextToggle}
+          className={toggleButtonClass(simplifyTextEnabled)}
+        >
           <div className={toggleDotClass(simplifyTextEnabled)} />
         </button>
       </div>
@@ -157,14 +165,19 @@ const Toggles: React.FC = () => {
       {/* Read Mode Toggle */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-gray-700">Read Mode</span>
-        <button onClick={handleReadModeToggle} className={toggleButtonClass(readModeEnabled)}>
+        <button
+          onClick={handleReadModeToggle}
+          className={toggleButtonClass(readModeEnabled)}
+        >
           <div className={toggleDotClass(readModeEnabled)} />
         </button>
       </div>
 
       {/* TTS Toggle*/}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-700">Text to Speech</span>
+        <span className="text-sm font-medium text-gray-700">
+          Text to Speech
+        </span>
         <button
           onClick={handleTTSToggle}
           className={toggleButtonClass(TTSenabled)}
@@ -173,12 +186,25 @@ const Toggles: React.FC = () => {
         </button>
       </div>
 
+      {/* Highlighter Toggle*/}
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-gray-700">Highlighter</span>
+        <button
+          onClick={handleHighlightToggle}
+          className={toggleButtonClass(highlightEnabled)}
+        >
+          <div className={toggleDotClass(highlightEnabled)} />
+        </button>
+      </div>
       {highlightEnabled && <HighlightSettings />}
 
       {/* Translate Toggle */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-gray-700">Translate</span>
-        <button onClick={handleTranslateToggle} className={toggleButtonClass(translateEnabled)}>
+        <button
+          onClick={handleTranslateToggle}
+          className={toggleButtonClass(translateEnabled)}
+        >
           <div className={toggleDotClass(translateEnabled)} />
         </button>
       </div>
@@ -186,7 +212,10 @@ const Toggles: React.FC = () => {
       {/* Show dropdown for target language only if translation is enabled */}
       {translateEnabled && (
         <div className="mt-4">
-          <label htmlFor="targetLanguage" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="targetLanguage"
+            className="block text-sm font-medium text-gray-700"
+          >
             Target Language
           </label>
           <select
@@ -212,7 +241,6 @@ const Toggles: React.FC = () => {
           </select>
         </div>
       )}
-
     </div>
   );
 };

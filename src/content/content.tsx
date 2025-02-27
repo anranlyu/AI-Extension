@@ -21,13 +21,16 @@ chrome.storage.onChanged.addListener((changes) => {
       : removeDyslexiaFontFromPage();
   } else if (changes.highlightEnabled) {
     changes.highlightEnabled.newValue ? enableHighlight() : disableHighlight();
+
   } else if (changes.TTSenabled) {
     changes.TTSenabled.newValue ? enableTTSMode() : stopRead();
   }
 });
 
 chrome.storage.local.get(
+
   ['readModeEnabled', 'dyslexiaFontEnabled', 'highlightEnabled', 'TTSenabled'],
+
   (result) => {
     if (result.readModeEnabled) enableReadMode();
     if (result.dyslexiaFontEnabled) injectDyslexiaFont();
@@ -60,6 +63,8 @@ chrome.runtime.onMessage.addListener(
   ({ type, text }: { type: string; text: string }) => {
     if (type === 'simplified_text' && text) {
       replaceSelectedText(text);
+    } else if (type === 'translated_text' && text) {
+      showTranslatedOverlay(text);
     }
   }
 );
