@@ -3,6 +3,7 @@ export interface Message {
   text: string;
   dyslexiaFontEnabled: boolean;
   readModeEnabled: boolean;
+  translateEnabled: boolean;
 }
 
 export interface StorageValues {
@@ -12,4 +13,18 @@ export interface StorageValues {
   dyslexiaFontEnabled?: boolean;
   readModeEnabled?: boolean;
   highlightEnabled?: boolean;
+  translateEnabled: boolean;
+  targetLanguage: string;
+}
+
+export interface StorageValues {
+  llm?: string;
+  apiKey?: string;
+  simplifyTextEnabled?: boolean;
+  dyslexiaFontEnabled?: boolean;
+  readModeEnabled?: boolean;
+  highlightEnabled?: boolean;
+  translateEnabled: boolean;
+  targetLanguage: string;
+  TTSenabled: boolean;
 }

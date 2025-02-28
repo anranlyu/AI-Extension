@@ -39,6 +39,7 @@ const LLMSelector: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <option value="deepseek">DeepSeek</option>
             <option value="chatgpt">ChatGPT</option>
             <option value="gemini">Gemini</option>
+            <option value="tts">TTS</option>
           </select>
         </div>
 
