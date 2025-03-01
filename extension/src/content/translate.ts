@@ -1,4 +1,4 @@
-export function showTranslatedOverlay(translatedText: string) {
+export function showFloatingOverlay(translatedText: string) {
   let overlay = document.getElementById("translate-overlay");
   if (!overlay) {
     overlay = document.createElement("div");

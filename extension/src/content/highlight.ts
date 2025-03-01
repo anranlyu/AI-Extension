@@ -9,7 +9,7 @@ const getOrCreateHighlightElement = () => {
       'h-[20px]', 
       'bg-yellow-200/50', 
       'pointer-events-none', 
-      'z-[99999]' 
+      'z-[999999]' 
     ].join(' ');
     
     document.body.appendChild(highlightElement);

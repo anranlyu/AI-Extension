@@ -1,27 +1,10 @@
 import { isProbablyReaderable, Readability} from "@mozilla/readability";
+import { renderReadModeOverlay } from "./readModeOverlay";
 
 
 const isPageReadable = () => {
   return isProbablyReaderable(document);
 };
-
-// const extractReadableContent = () => {
-  // if (!isPageReadable()) {
-  //   console.warn('This page is not suitable for Read Mode.');
-  //   return null;
-  // }
-
-//   const article = new Readability(document.cloneNode(true) as Document).parse();
-//   console.log(article);
-//   if (!article) return null;
-
-//   return {
-//     title: article.title || 'Untitled',
-//     content: article.content || '',
-//     excerpt: article.excerpt || '',
-//     author: article.byline || 'Unknown',
-//   };
-// };
 
 const fetchContent = async (url:string) => {
   const res = await fetch(`http://localhost:5000/parse?url=${encodeURIComponent(url)}`)
@@ -41,12 +24,13 @@ const extractReadableContent = async () => {
         const url = window.location.href
         let article = await fetchContent(url);
 
-        console.log('Extracted article:', article);
-        if (article === null) {
+    
+        // Switch to Readability
+        if (article === null || !article.content?.trim()) {
           article = new Readability(document.cloneNode(true) as Document).parse();
-
         }
         
+      
 
         return {
             title: article.title?.trim() || 'Untitled',
@@ -93,7 +77,6 @@ function restoreOriginalPageElements() {
 }
 
 export const displayProcessedText = (title: string, author: string, content: string) => {
-  // Create or get the container element for our read mode overlay.
   let container = document.getElementById('read-mode-shadow-container');
   if (!container) {
     container = document.createElement('div');
@@ -101,38 +84,17 @@ export const displayProcessedText = (title: string, author: string, content: str
     document.body.appendChild(container);
   }
 
-  // Attach a Shadow DOM to completely isolate our overlay.
-  const shadowRoot = container.shadowRoot || container.attachShadow({ mode: 'open' });
 
-  // Process the content to update <img> and <p> tags.
+
+  const shadowRoot = container.shadowRoot || container.attachShadow({ mode: 'open' });
   const processedContent = processContent(content);
 
-  // Inject Tailwind CSS via CDN and our markup into the shadow DOM.
-  shadowRoot.innerHTML = `
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" />
-    <div id="read-mode-overlay" class="fixed inset-0 bg-white text-gray-900 z-[99999] flex flex-col gap-4 items-center justify-start p-8 overflow-y-auto">
-      <button id="read-mode-close" class="absolute top-6 right-8 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200 shadow-lg">
-        Close
-      </button>
-      <div class="max-w-5xl bg-gray-100 p-6 rounded-lg shadow-lg">
-        <h1 class="text-3xl font-bold mb-2">${title}</h1>
-        <p class="text-lg italic text-gray-600 mb-4">${author}</p>
-        <div class="text-xl leading-8 flex flex-col gap-4">
-          ${processedContent}
-        </div>
-      </div>
-    </div>
-  `;
+  // Render the overlay using the separate module.
+  renderReadModeOverlay(shadowRoot, title, author, processedContent,7);
 
-  // Add event listener for the close button inside the shadow DOM.
-  const closeButton = shadowRoot.getElementById('read-mode-close');
-  if (closeButton) {
-    closeButton.addEventListener('click', disableReadMode);
-  }
-
-  // Hide the original page elements so that no popups or logos interfere.
   hideOriginalPageElements();
 };
+
 
 export const disableReadMode = () => {
   // Remove the shadow container that holds the read mode overlay.
@@ -163,15 +125,16 @@ function processContent(html: string): string {
   const images = tempDiv.querySelectorAll('img');
   images.forEach((img) => {
     img.removeAttribute('style');
+    img.removeAttribute('width');
     // Set fixed width, auto height, and add styling.
-    img.classList.add('w-[400px]', 'h-auto', 'object-contain', 'rounded', 'my-4');
+    img.classList.add('custom-img-size');
   });
 
   // Process all paragraphs.
   const paragraphs = tempDiv.querySelectorAll('p');
   paragraphs.forEach((p) => {
     // Add extra gap between paragraphs and increased line height.
-    p.classList.add('mb-4', 'leading-8');
+    p.classList.add('mb-8', 'leading-8');
   });
 
   return tempDiv.innerHTML;

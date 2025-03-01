@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import { getSelectedText, replaceSelectedText } from './textSelection';
+import { getSelectedText } from './textSelection';
 import { injectDyslexiaFont, removeDyslexiaFontFromPage } from './dyslexiaFont';
 import {
   disableReadMode,
   // displayProcessedText,
   enableReadMode,
-} from './readMode';
+} from './readMode/readMode';
 import { disableHighlight, enableHighlight } from './highlight';
 import { enableTTSMode, stopRead } from './tts_content';
-import { showTranslatedOverlay } from './translate';
+import { showFloatingOverlay } from './translate';
 import './content.css';
 
 console.log('content has been injected');
@@ -62,9 +62,9 @@ document.addEventListener('mouseup', () => {
 chrome.runtime.onMessage.addListener(
   ({ type, text }: { type: string; text: string }) => {
     if (type === 'simplified_text' && text) {
-      replaceSelectedText(text);
+      showFloatingOverlay(text);
     } else if (type === 'translated_text' && text) {
-      showTranslatedOverlay(text);
+      showFloatingOverlay(text);
     }
   }
 );
