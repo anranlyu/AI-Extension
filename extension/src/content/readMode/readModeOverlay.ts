@@ -1,6 +1,8 @@
 import { disableReadMode } from './readMode'; // Ensure disableReadMode is exported from your main module (or another common module)
 import contentCss from '../content.css?inline';
 
+const ReadabilityLabels = ['Very Complex', 'Complex', 'Challenging', 'Somewhat Challenging', 'Moderately Accessible', 'Accessible', 'Highly Accessible'];
+
 export const renderReadModeOverlay = (
   shadowRoot: ShadowRoot,
   title: string,
@@ -15,8 +17,8 @@ export const renderReadModeOverlay = (
       : `<p class="text-lg italic text-gray-600 mb-4">${author}</p>`;
   
   let optionsHTML = '';
-  for (let i = numOptions; i >= 1; i--) {
-    optionsHTML += `<option value="option${i}">Option ${i}</option>`;
+  for (let i = numOptions; i <= ReadabilityLabels.length - 1; i++) {
+    optionsHTML += `<option value="${i}">${ReadabilityLabels[i]}</option>`;
   }
 
   const buttonHTML = `<button id="rewrite-btn" class="text-white bg-blue-600 w-full pt-4 pb-4 mb-4 rounded-lg hidden"> Rewrite with AI</button>`;

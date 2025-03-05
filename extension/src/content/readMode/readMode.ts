@@ -1,5 +1,7 @@
 import { isProbablyReaderable, Readability} from "@mozilla/readability";
 import { renderReadModeOverlay } from "./readModeOverlay";
+// import rs from 'text-readability';
+import { getFleschReadingEase } from "./readability";
 
 
 const isPageReadable = () => {
@@ -24,18 +26,22 @@ const extractReadableContent = async () => {
         const url = window.location.href
         let article = await fetchContent(url);
 
-    
+        let textContent = '';
         // Switch to Readability
         if (article === null || !article.content?.trim()) {
           article = new Readability(document.cloneNode(true) as Document).parse();
+          textContent = article.textContent;
         }
         
+      textContent = new DOMParser().parseFromString(article.content, 'text/html').body.textContent || "";
+      
       
 
         return {
             title: article.title?.trim() || 'Untitled',
-            content: article.content?.trim() || 'No readable content found.',
+            htmlContent: article.content?.trim() || 'No readable content found.',
             author: article.author?.trim() || 'Unknown Author',
+            textContent:textContent
         };
     } catch (error) {
         console.error('Error extracting content:', error);
@@ -49,8 +55,8 @@ export const enableReadMode = async () => {
     console.warn('No readable content found.');
     return;
   }
-
-  displayProcessedText(extractedData.title, extractedData.author, extractedData.content);
+  const readingLevel = getFleschReadingEase(extractedData.textContent);
+  displayProcessedText(extractedData.title, extractedData.author, extractedData.htmlContent, readingLevel);
   chrome.storage.local.set({ readModeEnabled: true });
 };
 
@@ -76,7 +82,7 @@ function restoreOriginalPageElements() {
   }
 }
 
-export const displayProcessedText = (title: string, author: string, content: string) => {
+export const displayProcessedText = (title: string, author: string, content: string, readingLevel:number) => {
   let container = document.getElementById('read-mode-shadow-container');
   if (!container) {
     container = document.createElement('div');
@@ -90,7 +96,7 @@ export const displayProcessedText = (title: string, author: string, content: str
   const processedContent = processContent(content);
 
   // Render the overlay using the separate module.
-  renderReadModeOverlay(shadowRoot, title, author, processedContent,7);
+  renderReadModeOverlay(shadowRoot, title, author, processedContent,readingLevel);
 
   hideOriginalPageElements();
 };
