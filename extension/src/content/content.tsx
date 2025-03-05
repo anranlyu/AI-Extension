@@ -54,8 +54,6 @@ document.addEventListener('mouseup', () => {
   if (selectedText) {
     console.log('Selected text:', selectedText);
     chrome.runtime.sendMessage({ type: 'selected_text', text: selectedText });
-  } else {
-    console.warn('No text selected!');
   }
 });
 

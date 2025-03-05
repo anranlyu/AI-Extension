@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "npm install && npm run build"
+    "build": "npm install && npm run build",
+    "dev": "concurrently \"node backend/server.js\" \"npm run dev --prefix extension\""
   },
   "keywords": [],
   "author": "",
@@ -13,5 +14,8 @@
     "@postlight/parser": "^2.2.3",
     "cors": "^2.8.5",
     "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }
