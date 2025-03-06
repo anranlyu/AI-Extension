@@ -1,9 +1,8 @@
-import { Prompt, readModePrompt, translatePrompt } from "../assets/Prompt";
+import { Prompt, ReadModePrompts, translatePrompt } from "../assets/Prompt";
 import getTextFromDeepseek from "../service/getTextFromDeepseek";
 import { Message } from "../service/type";
 import generateTTS from "../service/tts_openai";
 
-console.log('Background is running');
 
 const sendTextToContentScript = (type: string, text: string) => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -43,15 +42,19 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
 
     });
   }
-  if (message.type === 'process_text_for_read_mode') {
+  if (message.type === 'readMode_text') {
+    console.log("get raw read mode text")
     const processedText = await getTextFromDeepseek({
-      prompt: readModePrompt,
+      prompt: ReadModePrompts[message.selectedLevel],
       text: message.text,
     })
-
+    console.log("Got new read mode text from llm" + processedText)
     if (processedText) {
-      sendTextToContentScript('readMode_text', processedText);
+      sendTextToContentScript('simplified_readMode_text', processedText);
+    } else {
+      console.log('no new read mode text')
     }
+
   }
 
   if (message.type === 'tts_request') {

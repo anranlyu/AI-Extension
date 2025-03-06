@@ -56,7 +56,7 @@ export const enableReadMode = async () => {
     return;
   }
   const readingLevel = getFleschReadingEase(extractedData.textContent);
-  displayProcessedText(extractedData.title, extractedData.author, extractedData.htmlContent, readingLevel);
+  displayProcessedText(extractedData.title, extractedData.author, extractedData.htmlContent, extractedData.textContent,readingLevel);
   chrome.storage.local.set({ readModeEnabled: true });
 };
 
@@ -82,7 +82,7 @@ function restoreOriginalPageElements() {
   }
 }
 
-export const displayProcessedText = (title: string, author: string, content: string, readingLevel:number) => {
+export const displayProcessedText = (title: string, author: string, rawHtmlContent: string, textContent:string,readingLevel:number) => {
   let container = document.getElementById('read-mode-shadow-container');
   if (!container) {
     container = document.createElement('div');
@@ -93,10 +93,10 @@ export const displayProcessedText = (title: string, author: string, content: str
 
 
   const shadowRoot = container.shadowRoot || container.attachShadow({ mode: 'open' });
-  const processedContent = processContent(content);
+  const htmlContent = processContent(rawHtmlContent);
 
   // Render the overlay using the separate module.
-  renderReadModeOverlay(shadowRoot, title, author, processedContent,readingLevel);
+  renderReadModeOverlay(shadowRoot, title, author, htmlContent,textContent,readingLevel);
 
   hideOriginalPageElements();
 };
@@ -145,4 +145,35 @@ function processContent(html: string): string {
 
   return tempDiv.innerHTML;
 }
+
+export const updateReadModeContent = (newText: string) => {
+  const container = document.getElementById('read-mode-shadow-container');
+  if (!container) {
+    console.warn('Read Mode container not found.');
+    return;
+  }
+
+  const shadowRoot = container.shadowRoot;
+  if (!shadowRoot) {
+    console.warn('Shadow root not found.');
+    return;
+  }
+
+  // Locate the element that holds the main article content.
+  // This must match the same selector in your readModeOverlay, i.e., the `<div>` with classes:
+  //   text-xl leading-8 flex flex-col gap-4
+  const contentElement = shadowRoot.querySelector('#mainContent');
+
+  if (!contentElement) {
+    console.warn('Content element not found inside shadow root.');
+    return;
+  }
+
+  // Replace its contents with the new text
+  const formattedText = newText.replace(/\n/g, '<br>');
+  contentElement.innerHTML = formattedText;
+};
+
+
+
 

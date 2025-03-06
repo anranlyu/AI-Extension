@@ -1,4 +1,4 @@
-import { disableReadMode } from './readMode'; // Ensure disableReadMode is exported from your main module (or another common module)
+import { disableReadMode} from './readMode'; // Ensure disableReadMode is exported from your main module (or another common module)
 import contentCss from '../content.css?inline';
 
 const ReadabilityLabels = ['Very Complex', 'Complex', 'Challenging', 'Somewhat Challenging', 'Moderately Accessible', 'Accessible', 'Highly Accessible'];
@@ -7,7 +7,8 @@ export const renderReadModeOverlay = (
   shadowRoot: ShadowRoot,
   title: string,
   author: string,
-  processedContent: string,
+  htmlContent: string,
+  textContent:string,
   numOptions: number,
 ) => {
   // Prepare the author markup only if needed.
@@ -20,9 +21,6 @@ export const renderReadModeOverlay = (
   for (let i = numOptions; i <= ReadabilityLabels.length - 1; i++) {
     optionsHTML += `<option value="${i}">${ReadabilityLabels[i]}</option>`;
   }
-
-  const buttonHTML = `<button id="rewrite-btn" class="text-white bg-blue-600 w-full pt-4 pb-4 mb-4 rounded-lg hidden"> Rewrite with AI</button>`;
-
 
   // Define the shadow DOM's HTML template.
   shadowRoot.innerHTML = `
@@ -41,10 +39,10 @@ export const renderReadModeOverlay = (
             ${optionsHTML}
           </select>
         </div>
-        ${buttonHTML}
+        <button id="rewrite-btn" class="text-white bg-blue-600 w-full pt-4 pb-4 mb-4 rounded-lg hidden"> Rewrite with AI</button>
         ${authorParagraph}
-        <div class="text-xl leading-8 flex flex-col gap-4">
-          ${processedContent}
+        <div id="mainContent" class="text-xl leading-8 flex flex-col gap-4">
+          ${htmlContent}
         </div>
       </div>
     </div>
@@ -67,11 +65,33 @@ export const renderReadModeOverlay = (
       
       console.log('Selected value:', dropdown.value);
       // Add any additional logic you need here.
-      if (selectedValue !== `option${numOptions}`) {
+      if (parseInt(selectedValue) !== numOptions) {
         rewriteButton.classList.remove('hidden');
       } else {
         rewriteButton.classList.add('hidden');
       }
     });
+
+    //Add listener to rewriteButton
+    rewriteButton.addEventListener('click', () => {
+      const selectedValue = dropdown.value;
+      console.log('rewrite button clicked')
+      rewriteButtonOnclick(textContent, parseInt(selectedValue));
+    })
+  }
+};
+
+
+
+const rewriteButtonOnclick = (textContent: string, selectedLevel: number) => {
+  try {
+
+    chrome.runtime.sendMessage({
+      type: 'readMode_text',
+      text: textContent,
+      selectedLevel: selectedLevel,
+    });
+  } catch (error) {
+    console.error("Error sending message:", error);
   }
 };

@@ -4,6 +4,7 @@ export interface Message {
   dyslexiaFontEnabled: boolean;
   readModeEnabled: boolean;
   translateEnabled: boolean;
+  selectedLevel: number;
 }
 
 

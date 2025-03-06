@@ -5,6 +5,7 @@ import {
   disableReadMode,
   // displayProcessedText,
   enableReadMode,
+  updateReadModeContent,
 } from './readMode/readMode';
 import { disableHighlight, enableHighlight } from './highlight';
 import { enableTTSMode, stopRead } from './tts_content';
@@ -63,6 +64,9 @@ chrome.runtime.onMessage.addListener(
       showFloatingOverlay(text);
     } else if (type === 'translated_text' && text) {
       showFloatingOverlay(text);
+    } else if (type === 'simplified_readMode_text') {
+      console.log('content script get new readmode text');
+      updateReadModeContent(text);
     }
   }
 );
