@@ -1,5 +1,5 @@
 // This is a script to handle open tts api
-import { OpenAI } from "openai";
+import { OpenAI } from "openai/index.mjs";
 
 type VoiceOption = "alloy" | "ash" | "coral" | "echo" | "fable" | "onyx" | "nova" | "sage" | "shimmer";
 const defaultVoiceOption: VoiceOption = "alloy";
