@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StorageValues } from '../service/type';
+import { StorageValues } from '../../service/type';
 import { HighlightSettings } from './HighlightSettings';
 
 const Toggles: React.FC = () => {
