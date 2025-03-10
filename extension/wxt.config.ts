@@ -20,6 +20,12 @@ export default defineConfig({
         "tabs",
         "storage"
     ],
-
+    "web_accessible_resources": [
+      {
+        "resources": [ "fonts/OpenDyslexicMono-Regular.otf" ],
+        "matches": [ "<all_urls>" ]
+      }
+    ]
   },
+  
 });
