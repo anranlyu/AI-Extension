@@ -7,15 +7,18 @@ import {
   enableReadMode,
   updateReadModeContent,
 } from './readMode/readMode';
-import { disableHighlight, enableHighlight } from './highlight';
+import { disableHighlight, enableHighlight, initHighlight } from './highlight';
 import { enableTTSMode, stopRead } from './tts_content';
 import { showFloatingOverlay } from './translate';
 import './content.css';
 
 export default defineContentScript({
-  matches: ['*://*/*'],
+  matches: ['https://www.cbc.ca/news/world/israel-gaza-electricity-1.7478863'],
+  cssInjectionMode: 'ui',
 
   async main(ctx) {
+    initHighlight();
+
     chrome.storage.onChanged.addListener((changes) => {
       if (changes.readModeEnabled) {
         changes.readModeEnabled.newValue ? enableReadMode() : disableReadMode();
@@ -25,7 +28,7 @@ export default defineContentScript({
           : removeDyslexiaFontFromPage();
       } else if (changes.highlightEnabled) {
         changes.highlightEnabled.newValue
-          ? enableHighlight()
+          ? enableHighlight(ctx)
           : disableHighlight();
       } else if (changes.TTSenabled) {
         changes.TTSenabled.newValue ? enableTTSMode() : stopRead();
@@ -45,7 +48,7 @@ export default defineContentScript({
         if (result.readModeEnabled) enableReadMode();
         if (result.dyslexiaFontEnabled) injectDyslexiaFont();
         if (result.highlightEnabled) {
-          enableHighlight();
+          enableHighlight(ctx);
         } else {
           disableHighlight();
         }

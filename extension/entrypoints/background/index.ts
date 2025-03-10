@@ -1,4 +1,4 @@
-import { Prompt, ReadModePrompts, translatePrompt } from "./Prompt";
+import { Prompt, ReadModePrompts, translatePrompt } from "../service/Prompt";
 import getTextFromDeepseek from "../service/getTextFromDeepseek";
 import { Message } from "../service/type";
 import generateTTS from "../service/tts_openai";

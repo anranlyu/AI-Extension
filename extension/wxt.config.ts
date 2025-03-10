@@ -13,18 +13,13 @@ export default defineConfig({
     "name": "Simplifier",
     "version": "1.0.0",
     "action": { "default_popup": "popup.html" },
-    "host_permissions": ["<all_urls>"],
+    "host_permissions": ["https://www.toronto.ca/news/city-of-toronto-and-cupe-local-79-reach-tentative-agreement-media-availability-at-145-a-m/"],
     "permissions": [
         "activeTab",
         "scripting",
         "tabs",
         "storage"
     ],
-    "web_accessible_resources": [
-      {
-        "resources": ["fonts/OpenDyslexicMono-Regular.otf"],
-        "matches": ["<all_urls>"]
-      }
-    ]
+
   },
 });
