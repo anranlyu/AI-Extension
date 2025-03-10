@@ -18,35 +18,39 @@ const fetchContent = async (url:string) => {
 }
 
 const extractReadableContent = async () => {
+  let textContent = '';
+  let article: any;
   try {
         if (!isPageReadable()) {
           console.warn('This page is not suitable for Read Mode.');
           return null;
         }
         const url = window.location.href
-        let article = await fetchContent(url);
-
-        let textContent = '';
+        article = await fetchContent(url);
         // Switch to Readability
-        if (article === null || !article.content?.trim()) {
+      if (article === null || !article.content?.trim()) {
+          console.log('Switch to Readability')
           article = new Readability(document.cloneNode(true) as Document).parse();
           textContent = article.textContent;
         }
+    
+      console.log(article);
         
-      textContent = new DOMParser().parseFromString(article.content, 'text/html').body.textContent || "";
-      
-      
-
-        return {
-            title: article.title?.trim() || 'Untitled',
-            htmlContent: article.content?.trim() || 'No readable content found.',
-            author: article.author?.trim() || 'Unknown Author',
-            textContent:textContent
-        };
     } catch (error) {
-        console.error('Error extracting content:', error);
-        return null;
+      // Switch to Readability;
+      article = new Readability(document.cloneNode(true) as Document).parse();
+      textContent = article?.textContent;
     }
+    textContent = new DOMParser().parseFromString(article.content, 'text/html').body.textContent || "";
+    
+    
+
+      return {
+          title: article.title?.trim() || 'Untitled',
+          htmlContent: article.content?.trim() || 'No readable content found.',
+          author: article.author?.trim() || 'Unknown Author',
+          textContent:textContent
+      };
 };
 
 export const enableReadMode = async () => {

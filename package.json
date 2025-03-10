@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "build": "npm install && npm run build",
-    "dev": "concurrently \"node backend/server.js\" \"npm run dev --prefix extension\""
+    "dev": "concurrently \"node backend/server.js\" \"npm run dev --prefix extension\"",
+    "start": "node backend/server.js"
+    
   },
   "keywords": [],
   "author": "",
