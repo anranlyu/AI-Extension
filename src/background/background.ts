@@ -13,8 +13,7 @@ const sendTextToContentScript = (type: string, text: string) => {
   });
 };
 
-
-chrome.runtime.onMessage.addListener(async (message: Message) => {
+chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) => {
   if (message.type === 'selected_text') {
     chrome.storage.local.get(['simplifyTextEnabled', "translateEnabled", "targetLanguage"], async (result) => {
       const simplifyTextEnabled = result.simplifyTextEnabled || false;
@@ -25,9 +24,9 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
         console.log('Processing simplification for selected text.');
         const selectedText = message.text;
 
-        const simplifiedText = `[ ${await getTextFromDeepseek({ prompt:Prompt, text:selectedText })} ]`;
-        
-        console.log(`Got simplified text in background:${simplifiedText}`); // Todo: Delete after devolopment
+        const simplifiedText = `[ ${await getTextFromDeepseek({ prompt: Prompt, text: selectedText })} ]`;
+
+        console.log(`Got simplified text in background:${simplifiedText}`);
         sendTextToContentScript('simplified_text', simplifiedText);
       } else if (translateEnabled) {
         const selectedText = message.text;
@@ -35,32 +34,46 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
           prompt: `${translatePrompt} to ${targetLanguage}:`,
           text: selectedText,
         });
-        console.log(`Got translated text in background: ${translatedText}`); // Todo: Delete after devolopment
+        console.log(`Got translated text in background: ${translatedText}`);
         sendTextToContentScript('translated_text', translatedText);
       } else {
-        console.log("No processing toggle enabled.")
+        console.log("No processing toggle enabled.");
       }
-
     });
   }
-  if (message.type === 'process_text_for_read_mode') {
-    const processedText = await getTextFromDeepseek({
-      prompt: readModePrompt,
-      text: message.text,
-    })
 
-    if (processedText) {
-      sendTextToContentScript('readMode_text', processedText);
-    }
+  if (message.type === 'process_text_for_read_mode') {
+    (async () => {
+      const processedText = await getTextFromDeepseek({
+        prompt: readModePrompt,
+        text: message.text,
+      });
+
+      if (processedText) {
+        sendTextToContentScript('readMode_text', processedText);
+      }
+    })();
   }
 
   if (message.type === 'tts_request') {
     console.log('TTS request received:', message.text);
-    try {
-      await generateTTS(message.text, "alloy");
-    } catch (error) {
-      console.error('Error generating TTS:', error);
-    }
+
+    (async function handleTTSRequest() {
+      try {
+        const ttsResponse = await generateTTS(message.text, "alloy");
+        console.log('Generated TTS:', ttsResponse);
+
+        if (ttsResponse.success && ttsResponse.audioUrl) {
+          sendResponse({ success: true, audioUrl: ttsResponse.audioUrl });
+        } else {
+          sendResponse({ success: false, error: "No audio URL received." });
+        }
+      } catch (error) {
+        console.error('Error generating TTS:', error);
+        sendResponse({ success: false, error: error instanceof Error ? error.message : "Unknown error occurred" });
+      }
+    })();
+
+    return true;
   }
-}
-);
+});
