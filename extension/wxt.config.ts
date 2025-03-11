@@ -13,10 +13,10 @@ export default defineConfig({
   },
   manifest: {
     "manifest_version": 3,
-    "name": "Simplifier",
+    "name": "LumiRead",
     "version": "1.0.0",
     "action": { "default_popup": "popup.html" },
-    "host_permissions": ["<all_urls>"],
+    "host_permissions": [ "http://*/*","https://*/*"],
     "permissions": [
         "activeTab",
         "scripting",
@@ -26,7 +26,7 @@ export default defineConfig({
     "web_accessible_resources": [
       {
         "resources": [ "fonts/OpenDyslexicMono-Regular.otf" ],
-        "matches": [ "<all_urls>" ]
+        "matches": [ "http://*/*", "https://*/*" ]
       }
     ]
   },

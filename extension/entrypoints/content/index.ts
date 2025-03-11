@@ -13,7 +13,7 @@ import { showFloatingOverlay } from './translate';
 import './content.css';
 
 export default defineContentScript({
-  matches: ['<all_urls>'],
+  matches: ["http://*/*", "https://*/*"],
   cssInjectionMode: 'ui',
 
   async main(ctx) {
