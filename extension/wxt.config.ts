@@ -7,13 +7,16 @@ export default defineConfig({
     plugins: [tailwindcss()],
   }),
   extensionApi: 'chrome',
-  modules: ['@wxt-dev/module-react'],
+  modules: ['@wxt-dev/module-react', '@wxt-dev/auto-icons'],
+  autoIcons: {
+    // ...
+  },
   manifest: {
     "manifest_version": 3,
     "name": "Simplifier",
     "version": "1.0.0",
     "action": { "default_popup": "popup.html" },
-    "host_permissions": ["https://www.toronto.ca/news/city-of-toronto-and-cupe-local-79-reach-tentative-agreement-media-availability-at-145-a-m/"],
+    "host_permissions": ["<all_urls>"],
     "permissions": [
         "activeTab",
         "scripting",
