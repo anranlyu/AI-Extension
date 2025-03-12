@@ -4,18 +4,9 @@ export interface Message {
   dyslexiaFontEnabled: boolean;
   readModeEnabled: boolean;
   translateEnabled: boolean;
+  selectedLevel: number;
 }
 
-export interface StorageValues {
-  llm?: string;
-  apiKey?: string;
-  simplifyTextEnabled?: boolean;
-  dyslexiaFontEnabled?: boolean;
-  readModeEnabled?: boolean;
-  highlightEnabled?: boolean;
-  translateEnabled: boolean;
-  targetLanguage: string;
-}
 
 export interface StorageValues {
   llm?: string;

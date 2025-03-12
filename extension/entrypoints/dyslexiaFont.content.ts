@@ -1,4 +1,4 @@
-export const injectDyslexiaFont = () => {
+const injectDyslexiaFont = () => {
   if (document.querySelector('style[data-dyslexia-font]')) {
     console.log('Dyslexia font already injected.');
     return;
@@ -22,7 +22,7 @@ export const injectDyslexiaFont = () => {
   document.head.appendChild(style);
 };
 
-export const removeDyslexiaFontFromPage = () => {
+const removeDyslexiaFontFromPage = () => {
   const styleElement = document.querySelector('style[data-dyslexia-font]');
   if (styleElement) {
     styleElement.remove();
@@ -30,3 +30,30 @@ export const removeDyslexiaFontFromPage = () => {
     console.warn('No dyslexia font style to remove.');
   }
 };
+
+
+export default defineContentScript({
+  matches: ['<all_urls>'],
+  main(ctx) {
+
+
+    chrome.storage.local.get(
+      [
+        'dyslexiaFontEnabled',
+      ],
+
+      (result) => {
+        if (result.dyslexiaFontEnabled) injectDyslexiaFont();
+      }
+    )
+
+
+    chrome.storage.onChanged.addListener((changes) => {
+      if (changes.dyslexiaFontEnabled) {
+        changes.dyslexiaFontEnabled.newValue
+          ? injectDyslexiaFont()
+          : removeDyslexiaFontFromPage();
+      }
+    })
+  },
+});

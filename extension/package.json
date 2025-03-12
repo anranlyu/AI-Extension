@@ -1,0 +1,35 @@
+{
+  "name": "read-easy",
+  "description": "Improve readability with AI-powered Read Mode, Text Simplification, Translation, and Text-to-Speech, designed for inclusivity.",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "postinstall": "wxt prepare"
+  },
+  "dependencies": {
+    "@mozilla/readability": "^0.5.0",
+    "@tailwindcss/vite": "^4.0.11",
+    "axios": "^1.7.9",
+    "openai": "^4.80.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.11"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.280",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
+    "@wxt-dev/auto-icons": "^1.0.2",
+    "@wxt-dev/module-react": "^1.1.2",
+    "typescript": "^5.6.3",
+    "wxt": "^0.19.13"
+  }
+}
