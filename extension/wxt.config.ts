@@ -15,17 +15,18 @@ export default defineConfig({
     "manifest_version": 3,
     "name": "LumiRead",
     "version": "1.0.0",
-    "action": { "default_popup": "popup.html" },
-    "host_permissions": [ "http://*/*","https://*/*"],
+    "host_permissions": ["http://*/*", "https://*/*"],
+    "action": {},
     "permissions": [
         "activeTab",
         "scripting",
         "tabs",
-        "storage"
+      "storage",
+        "identity"
     ],
     "web_accessible_resources": [
       {
-        "resources": [ "fonts/OpenDyslexicMono-Regular.otf" ],
+        "resources": [ "fonts/OpenDyslexicMono-Regular.otf","auth.html","popup.html" ],
         "matches": [ "http://*/*", "https://*/*" ]
       }
     ]
