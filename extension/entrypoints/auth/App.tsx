@@ -14,12 +14,21 @@ const queryParams = {
 };
 
 export function App() {
+  // Get tab URL from the chrome object
+  const tabUrl = new URL(window.location.href);
+  const type = tabUrl.searchParams.get('type');
+  const access_token = tabUrl.searchParams.get('access_token');
+  const refresh_token = tabUrl.searchParams.get('refresh_token');
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
+    if (access_token && refresh_token) {
+      supabase.auth.setSession({ access_token, refresh_token });
+    } else {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setSession(session);
+      });
+    }
 
     const {
       data: { subscription },
@@ -28,6 +37,9 @@ export function App() {
 
       if (session) {
         chrome.runtime.sendMessage({ type: 'SET_AUTH', auth: session });
+        if (event === 'USER_UPDATED') {
+          window.location.assign(`${tabUrl.origin}${tabUrl.pathname}`);
+        }
       }
     });
 
@@ -41,6 +53,7 @@ export function App() {
           <h1>Login</h1>
           <Auth
             supabaseClient={supabase}
+            view={type === 'recovery' ? 'update_password' : undefined}
             providers={['google']}
             queryParams={queryParams}
             redirectTo={chrome.identity.getRedirectURL()}
@@ -50,6 +63,8 @@ export function App() {
       </div>
     );
   } else {
+    console.log(`Auth html`);
+    console.log(session);
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md text-center">
