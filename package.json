@@ -6,16 +6,19 @@
     "build": "npm install && npm run build",
     "dev": "concurrently \"node backend/server.js\" \"npm run dev --prefix extension\"",
     "start": "node backend/server.js"
-    
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@postlight/parser": "^2.2.3",
-    "cors": "^2.8.5",
-    "express": "^4.21.2"
+    "@mozilla/readability": "^0.5.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "axios": "^1.7.9",
+    "openai": "^4.80.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "text-readability": "^1.1.0"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
