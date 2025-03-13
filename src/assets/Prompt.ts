@@ -1,3 +1,0 @@
-export const Prompt = "Rewrite the following paragraph so that it is easier to understand for people with lower literacy. Use simple language, short sentences, and clear instructions. Avoid complex words, jargon, or long sentences. Break down the information into small chunks if needed, and add examples for clarity. Avoid adding extra comments, introductions, or explanations. Only provide the simplified version of the text. Here's the text:"
-export const readModePrompt = "Format this text for readability in read mode."
-export const translatePrompt = "Translate the following text to the target language, stay true to the context.";
