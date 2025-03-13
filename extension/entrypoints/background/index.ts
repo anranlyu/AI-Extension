@@ -4,7 +4,7 @@ import { Message } from "../service/type";
 import generateTTS from "../service/tts_openai";
 
 export default defineBackground(() => {
- 
+
   const sendTextToContentScript = (type: string, text: string) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]?.id) {
@@ -12,21 +12,21 @@ export default defineBackground(() => {
       }
     });
   };
-  
-  
+
+
   chrome.runtime.onMessage.addListener(async (message: Message) => {
     if (message.type === 'selected_text') {
       chrome.storage.local.get(['simplifyTextEnabled', "translateEnabled", "targetLanguage"], async (result) => {
         const simplifyTextEnabled = result.simplifyTextEnabled || false;
         const translateEnabled = result.translateEnabled || false;
         const targetLanguage = result.targetLanguage || "";
-  
+
         if (simplifyTextEnabled) {
           console.log('Processing simplification for selected text.');
           const selectedText = message.text;
-  
-          const simplifiedText = `[ ${await getTextFromDeepseek({ prompt:Prompt, text:selectedText })} ]`;
-          
+
+          const simplifiedText = `[ ${await getTextFromDeepseek({ prompt: Prompt, text: selectedText })} ]`;
+
           console.log(`Got simplified text in background:${simplifiedText}`); // Todo: Delete after devolopment
           sendTextToContentScript('simplified_text', simplifiedText);
         } else if (translateEnabled) {
@@ -40,7 +40,7 @@ export default defineBackground(() => {
         } else {
           console.log("No processing toggle enabled.")
         }
-  
+
       });
     }
     if (message.type === 'readMode_text') {
@@ -55,17 +55,32 @@ export default defineBackground(() => {
       } else {
         console.log('no new read mode text')
       }
-  
-    }
-  
-    if (message.type === 'tts_request') {
-      console.log('TTS request received:', message.text);
-      try {
-        await generateTTS(message.text, "alloy");
-      } catch (error) {
-        console.error('Error generating TTS:', error);
-      }
     }
   }
   );
+
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === 'tts_request') {
+      console.log('TTS request received:', message.text);
+      (async () => {
+        try {
+          const ttsResponse = await generateTTS(message.text, "alloy");
+          console.log('Generated TTS:', ttsResponse);
+          if (ttsResponse.success && ttsResponse.audioUrl) {
+            sendResponse({ success: true, audioUrl: ttsResponse.audioUrl });
+          } else {
+            sendResponse({ success: false, error: "No audio URL received." });
+          }
+        } catch (error) {
+          console.error('Error generating TTS:', error);
+          sendResponse({
+            success: false,
+            error: error instanceof Error ? error.message : "Unknown error occurred"
+          });
+        }
+      })();
+      // Return true to indicate we will respond asynchronously.
+      return true;
+    }
+  });
 });
