@@ -46,6 +46,8 @@ export function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  console.log(browser.identity.getRedirectURL());
+
   if (!session) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">

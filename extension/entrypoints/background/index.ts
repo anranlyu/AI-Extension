@@ -18,7 +18,6 @@ export default defineBackground(() => {
 
   // Handler watches for tabs change and finish the auth flow when the extension’s redirect URL is open
   chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-    
     if (changeInfo.url?.startsWith(chrome.identity.getRedirectURL())) {
       const hashMap = parseUrlHash(changeInfo.url);
       const redirectType = hashMap.get('type');
@@ -32,14 +31,17 @@ export default defineBackground(() => {
   });
 
   supabase.auth.onAuthStateChange((event, session) => {
+
+    console.log('supabase.auth.onAuthStateChange called')
+    console.log(event);
     if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
       if (session) {
-        browser.storage.local.set(session);
+        chrome.storage.local.set(session);
       } 
     }
 
     if (event === 'SIGNED_OUT') {
-      browser.storage.local.clear();
+      chrome.storage.local.clear();
     }
   });
 
@@ -142,6 +144,7 @@ const openLoginPage = async () => {
  
 
 const finishUserAuth = async (url: string) => {
+  console.log('finishUserAuth called')
   try {
     const hashMap = parseUrlHash(url);
     const access_token = hashMap.get('access_token');
@@ -158,12 +161,12 @@ const finishUserAuth = async (url: string) => {
 
     // Persist session to storage - background script can become inactive and the session will be lost,
     // we need to be able to recover it by storing the tokens in extension's storage.
-    console.log(data);
-    await chrome.storage.local.set({ session: data.session, refresh_token: data.session?.refresh_token });
+    console.log('finishUserAuths')
+    await chrome.storage.local.set({ session: data.session});
 
     // finally redirect to a post-auth page
     //TODO: update the post-auth page
-    chrome.tabs.update({ url: 'https://myapp.com/user-login-success/' });
+    chrome.tabs.update({ url: 'https://crxjs.dev/vite-plugin' });
 
     console.log(`finished handling user Auth callback`);
   } catch (error) {
