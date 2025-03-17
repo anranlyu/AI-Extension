@@ -1,33 +1,33 @@
 import { defineConfig } from 'wxt';
 import tailwindcss from "@tailwindcss/vite";
 
-// See https://wxt.dev/api/config.html
 export default defineConfig({
   vite: () => ({
     plugins: [tailwindcss()],
   }),
   extensionApi: 'chrome',
   modules: ['@wxt-dev/module-react', '@wxt-dev/auto-icons'],
-  autoIcons: {
-    // ...
+  autoIcons: {},
+  entries: {
+    contentFloating: './entrypoint/content/Floating/contentFloating.tsx'
   },
   manifest: {
     "manifest_version": 3,
     "name": "LumiRead",
     "version": "1.0.0",
     "host_permissions": ["http://*/*", "https://*/*"],
-    "action": {},
+    "action": { "default_popup": "popup.html" },
     "permissions": [
         "activeTab",
         "scripting",
         "tabs",
-      "storage",
+        "storage",
         "identity"
     ],
     "content_scripts": [
       {
         "matches": ["<all_urls>"],
-        "js": ["contentFloating.bundle.js"],
+        "js": ["content-scripts/contentFloating.bundle.js"],
         "run_at": "document_end"
       }
     ],
