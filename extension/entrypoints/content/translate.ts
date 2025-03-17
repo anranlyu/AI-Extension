@@ -1,65 +1,40 @@
 import { showTooltip } from "./Floating/renderFloating";
 
-export function showFloatingOverlay(translatedText: string) {
-  const referenceEl = ..// how do i identify the element here?
-
-  if (referenceEl){
-    showTooltip({
-      content: translatedText,
-      referenceElement: referenceEl as HTMLElement,
-    });
-  }}
-  
-  /**
-   * let overlay = document.getElementById("translate-overlay");
-  if (!overlay) {
-    overlay = document.createElement("div");
-    overlay.id = "translate-overlay";
-    overlay.style.position = "fixed";
-    overlay.style.top = "10%";
-    overlay.style.left = "50%";
-    overlay.style.transform = "translateX(-50%)";
-    overlay.style.background = "rgba(255, 255, 255, 0.95)";
-    overlay.style.color = "#333"; 
-    overlay.style.padding = "1.5rem";
-    overlay.style.border = "1px solid #ccc";
-    overlay.style.borderRadius = "8px";
-    overlay.style.zIndex = "99999";
-    overlay.style.boxShadow = "0 4px 15px rgba(0, 0, 0, 0.15)";
-    overlay.style.fontSize = "16px";
-    overlay.style.lineHeight = "1.5";
-
-    // Add a close button.
-    const closeButton = document.createElement("button");
-    closeButton.textContent = "✕";
-    closeButton.style.position = "absolute";
-    closeButton.style.top = "10px";
-    closeButton.style.right = "10px";
-    closeButton.style.background = "transparent";
-    closeButton.style.border = "none";
-    closeButton.style.cursor = "pointer";
-    closeButton.style.fontSize = "18px";
-    closeButton.style.color = "#666";
-    closeButton.onmouseover = () => { closeButton.style.color = "#000"; };
-    closeButton.onmouseout = () => { closeButton.style.color = "#666"; };
-    closeButton.onclick = () => overlay?.remove();
-    overlay.appendChild(closeButton);
-
-    // Container for the translated text.
-    const textContainer = document.createElement("div");
-    textContainer.id = "translated_text";
-    textContainer.style.marginTop = "10px";
-    textContainer.style.fontWeight = "400";
-    overlay.appendChild(textContainer);
-
-    document.body.appendChild(overlay);
+// temporary reference element
+export function createReferenceFromSelection(): HTMLElement | null {
+  const selection = window.getSelection();
+  if (selection && !selection.isCollapsed) {
+    const range = selection.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    
+    const dummy = document.createElement("div");
+    dummy.style.position = "absolute";
+    dummy.style.top = `${rect.top + window.scrollY}px`;
+    dummy.style.left = `${rect.left + window.scrollX}px`;
+    dummy.style.width = `${rect.width}px`;
+    dummy.style.height = `${rect.height}px`;
+    dummy.style.pointerEvents = "none";
+    dummy.style.opacity = "0"; // Invisible, but present for positioning
+    
+    document.body.appendChild(dummy);
+    return dummy;
   }
-
-  // Update the content of the translated text container.
-  const textContainer = document.getElementById("translated_text");
-  if (textContainer) {
-    textContainer.textContent = translatedText;
-  }
+  return null;
 }
 
-**/
+export function showFloatingOverlay(translatedText: string) {
+  // Use the helper to create a temporary reference element based on selection.
+  const referenceEl = createReferenceFromSelection();
+
+  if (referenceEl) {
+    showTooltip({
+      content: translatedText,
+      referenceElement: referenceEl,
+    });
+    
+    // Optionally, remove the dummy reference element after some time or when the tooltip is closed.
+    setTimeout(() => {
+      referenceEl.remove();
+    }, 5000);
+  }
+}

@@ -1,46 +1,37 @@
-// contentFloating.tsx
-import { showTooltip } from './renderFloating';
+import { showTooltip } from "./Floating/renderFloating.tsx";
 
-// Optional: Create a helper to derive a reference element.
-// For example, if you want to base the tooltip position on text selection,
-// you can create a temporary reference element:
+// Optionally include any helper functions here, for example:
 function createReferenceFromSelection(): HTMLElement | null {
   const selection = window.getSelection();
   if (selection && !selection.isCollapsed) {
     const range = selection.getRangeAt(0);
     const rect = range.getBoundingClientRect();
-    const dummy = document.createElement('div');
-    dummy.style.position = 'absolute';
+    const dummy = document.createElement("div");
+    dummy.style.position = "absolute";
     dummy.style.top = `${rect.top + window.scrollY}px`;
     dummy.style.left = `${rect.left + window.scrollX}px`;
     dummy.style.width = `${rect.width}px`;
     dummy.style.height = `${rect.height}px`;
-    dummy.style.pointerEvents = 'none';
-    dummy.style.opacity = '0';
+    dummy.style.pointerEvents = "none";
+    dummy.style.opacity = "0";
     document.body.appendChild(dummy);
     return dummy;
   }
   return null;
 }
 
-// Listen for messages from the background script.
+// Listen for messages from the background
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'translated_text') {
     const translationText = message.text;
-    // Decide on the reference element.
-    // Here we use a helper to create a reference element based on the current text selection.
-    let referenceElement = createReferenceFromSelection();
-    // Alternatively, if you have an element ID or another strategy, use that.
-    
-    if (referenceElement) {
+    const referenceEl = createReferenceFromSelection(); // Or use another strategy
+    if (referenceEl) {
       showTooltip({
         content: translationText,
-        referenceElement,
+        referenceElement: referenceEl,
       });
-      // Optionally, remove the temporary reference element after a while:
-      setTimeout(() => {
-        referenceElement?.remove();
-      }, 5000);
+      // Optionally, remove the dummy after a delay:
+      setTimeout(() => referenceEl.remove(), 5000);
     }
   }
 });
