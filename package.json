@@ -6,13 +6,13 @@
     "build": "npm install && npm run build",
     "dev": "concurrently \"node backend/server.js\" \"npm run dev --prefix extension\"",
     "start": "node backend/server.js"
-    
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@floating-ui/react": "^0.27.5",
     "@postlight/parser": "^2.2.3",
     "cors": "^2.8.5",
     "express": "^4.21.2"
