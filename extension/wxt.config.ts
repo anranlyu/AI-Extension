@@ -24,6 +24,13 @@ export default defineConfig({
       "storage",
         "identity"
     ],
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["contentFloating.bundle.js"],
+        "run_at": "document_end"
+      }
+    ],
     "web_accessible_resources": [
       {
         "resources": [ "fonts/OpenDyslexicMono-Regular.otf","auth.html","popup.html" ],

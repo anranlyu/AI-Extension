@@ -1,5 +1,17 @@
+import { showTooltip } from "./Floating/renderFloating";
+
 export function showFloatingOverlay(translatedText: string) {
-  let overlay = document.getElementById("translate-overlay");
+  const referenceEl = ..// how do i identify the element here?
+
+  if (referenceEl){
+    showTooltip({
+      content: translatedText,
+      referenceElement: referenceEl as HTMLElement,
+    });
+  }}
+  
+  /**
+   * let overlay = document.getElementById("translate-overlay");
   if (!overlay) {
     overlay = document.createElement("div");
     overlay.id = "translate-overlay";
@@ -50,3 +62,4 @@ export function showFloatingOverlay(translatedText: string) {
   }
 }
 
+**/
