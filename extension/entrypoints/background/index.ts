@@ -59,17 +59,17 @@ export default defineBackground(() => {
   }
   );
 
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message.type === 'tts_request') {
       console.log('TTS request received:', message.text);
       (async () => {
         try {
-          const ttsResponse = await generateTTS(message.text, "alloy");
-          console.log('Generated TTS:', ttsResponse);
-          if (ttsResponse.success && ttsResponse.audioUrl) {
-            sendResponse({ success: true, audioUrl: ttsResponse.audioUrl });
+          const ttsResult = await generateTTS(message.text, "alloy");
+          console.log('Generated TTS:', ttsResult);
+          if (ttsResult.success && ttsResult.audioBlob) {
+            sendResponse({ success: true, audioUrl: ttsResult.audioBlob });
           } else {
-            sendResponse({ success: false, error: "No audio URL received." });
+            sendResponse({ success: false, error: "No audio Blob object received." });
           }
         } catch (error) {
           console.error('Error generating TTS:', error);
@@ -79,7 +79,6 @@ export default defineBackground(() => {
           });
         }
       })();
-      // Return true to indicate we will respond asynchronously.
       return true;
     }
   });
