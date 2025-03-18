@@ -1,5 +1,5 @@
 // This is a script to handle open tts api
-// import { OpenAI } from "openai";
+import { OpenAI } from "openai";
 
 type VoiceOption = "alloy" | "ash" | "coral" | "echo" | "fable" | "onyx" | "nova" | "sage" | "shimmer";
 
@@ -23,12 +23,15 @@ const getOpenAIKey = async (): Promise<string> => {
     });
 };
 
-// Step 3: Generate TTS Audio from OpenAI and return the URL
+// Step 2: Generate TTS Audio from OpenAI and return the audio URL
 const generateTTS = async (ttsText: string, voiceOption: VoiceOption = "alloy") => {
     try {
         const apiKey = await getOpenAIKey();
+        const maxChars = 1000; // Hard code to be safe to avoid hitting the API limit
+        const limitedText = ttsText.slice(0, maxChars);
         console.log("Using API Key:", apiKey ? "Retrieved successfully" : "Missing");
 
+        // Approach 1: Using fetch
         const response = await fetch("https://api.openai.com/v1/audio/speech", {
             method: "POST",
             headers: {
@@ -38,7 +41,7 @@ const generateTTS = async (ttsText: string, voiceOption: VoiceOption = "alloy") 
             body: JSON.stringify({
                 model: "tts-1",
                 voice: voiceOption,
-                input: ttsText,
+                input: limitedText,
                 response_format: "mp3"
             })
         });
@@ -47,27 +50,11 @@ const generateTTS = async (ttsText: string, voiceOption: VoiceOption = "alloy") 
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.error?.message || "Failed to generate TTS.");
         }
-
+        // Convert the response to audio blob object, then to a URL
         const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
 
-        const audioFile = new File([audioBlob], "tts_audio.mp3", { type: "audio/mpeg" });
-        const fileReader = new FileReader();
-
-        return new Promise<{ success: boolean; audioUrl?: string; error?: string }>((resolve) => {
-            fileReader.onloadend = () => {
-                const base64Audio = fileReader.result as string;
-                chrome.storage.local.set({ ttsAudio: base64Audio }, () => {
-                    if (chrome.runtime.lastError) {
-                        console.error("Failed to store audio in Chrome storage:", chrome.runtime.lastError.message);
-                        resolve({ success: false, error: "Failed to store audio." });
-                    } else {
-                        console.log("Stored TTS audio in Chrome storage.");
-                        resolve({ success: true, audioUrl: "chrome.storage://ttsAudio" });
-                    }
-                });
-            };
-            fileReader.readAsDataURL(audioFile);
-        });
+        return { success: true, audioUrl };
 
     } catch (error) {
         console.error("Error generating TTS:", error);
