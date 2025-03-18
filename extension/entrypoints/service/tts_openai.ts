@@ -50,11 +50,9 @@ const generateTTS = async (ttsText: string, voiceOption: VoiceOption = "alloy") 
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.error?.message || "Failed to generate TTS.");
         }
-        // Convert the response to audio blob object, then to a URL
+        // Convert the response to audio blob object
         const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-
-        return { success: true, audioUrl };
+        return { success: true, audioBlob };
 
     } catch (error) {
         console.error("Error generating TTS:", error);
