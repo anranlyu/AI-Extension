@@ -1,6 +1,6 @@
 import { isProbablyReaderable, Readability } from "@mozilla/readability";
 
-const MAX_TTS_LENGTH = 2000;
+const MAX_TTS_LENGTH = 300; // Hard code to be safe to avoid hitting the API limit
 let currentAudio: HTMLAudioElement | null = null;
 let isProcessing = false;
 
@@ -58,9 +58,8 @@ const extractReadableContent = () => {
 };
 
 /**
- * Sends a TTS request (Manifest V3).
- * In MV3, `chrome.runtime.sendMessage` returns a Promise
- * if no callback is provided.
+ * Sends a TTS request
+ * Chrome.runtime.sendMessage returns a Promise if no callback is provided.
  */
 const requestTTS = async (textToRead: string): Promise<{
     success: boolean;
@@ -129,8 +128,25 @@ export const enableTTSMode = async () => {
         console.log("Received response in content script:", ttsResponse);
 
         if (ttsResponse?.success && ttsResponse.audioUrl) {
-            console.log("Received TTS audio URL:", ttsResponse.audioUrl);
-            playAudio();
+            if (currentAudio) {
+                currentAudio.pause();
+            }
+            const audio = new Audio(ttsResponse.audioUrl);
+            currentAudio = audio;
+            currentAudio.play()
+                .catch((err) => {
+                    console.warn("Autoplay blocked:", err.message);
+                    document.body.addEventListener(
+                        "click",
+                        function playAfterInteraction() {
+                            currentAudio?.play().then(() => {
+                                console.log("Audio is now playing.");
+                                document.body.removeEventListener("click", playAfterInteraction);
+                            });
+                        },
+                        { once: true }
+                    );
+                });
         } else {
             console.error("TTS request failed:", ttsResponse?.error || "Unknown error");
         }
@@ -139,40 +155,6 @@ export const enableTTSMode = async () => {
     } finally {
         isProcessing = false;
     }
-};
-
-/**
- * Plays the stored TTS audio by retrieving it from Chrome Storage.
- */
-const playAudio = () => {
-    chrome.storage.local.get("ttsAudio", (result) => {
-        if (chrome.runtime.lastError || !result.ttsAudio) {
-            console.error(
-                "No stored TTS audio found:",
-                chrome.runtime.lastError?.message || "No audio available."
-            );
-            return;
-        }
-
-        console.log("Retrieved stored TTS audio.");
-        const audio = new Audio(result.ttsAudio);
-        audio.play().catch((err) => {
-            console.warn("Autoplay blocked:", err.message);
-            document.body.addEventListener(
-                "click",
-                function playAfterInteraction() {
-                    audio
-                        .play()
-                        .then(() => {
-                            console.log("Audio is now playing.");
-                            document.body.removeEventListener("click", playAfterInteraction);
-                        })
-                        .catch(console.error);
-                },
-                { once: true }
-            );
-        });
-    });
 };
 
 /**
@@ -185,5 +167,4 @@ export const stopRead = () => {
         currentAudio = null;
         console.log("TTS playback stopped.");
     }
-    chrome.storage.local.set({ TTSenabled: false });
 };

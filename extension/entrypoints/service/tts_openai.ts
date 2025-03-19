@@ -31,7 +31,7 @@ const generateTTS = async (ttsText: string, voiceOption: VoiceOption = "alloy") 
         const limitedText = ttsText.slice(0, maxChars);
         console.log("Using API Key:", apiKey ? "Retrieved successfully" : "Missing");
 
-        // Approach 1: Using fetch
+        // Send the request to OpenAI API
         const response = await fetch("https://api.openai.com/v1/audio/speech", {
             method: "POST",
             headers: {
@@ -50,9 +50,11 @@ const generateTTS = async (ttsText: string, voiceOption: VoiceOption = "alloy") 
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.error?.message || "Failed to generate TTS.");
         }
+
         // Convert the response to audio blob object
         const audioBlob = await response.blob();
-        return { success: true, audioBlob };
+        console.log("TTS audio generated :", audioBlob);
+        return { success: true, audioBlob: audioBlob };
 
     } catch (error) {
         console.error("Error generating TTS:", error);

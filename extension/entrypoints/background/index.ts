@@ -65,9 +65,15 @@ export default defineBackground(() => {
       (async () => {
         try {
           const ttsResult = await generateTTS(message.text, "alloy");
-          console.log('Generated TTS:', ttsResult);
           if (ttsResult.success && ttsResult.audioBlob) {
-            sendResponse({ success: true, audioUrl: ttsResult.audioBlob });
+            // Convert the audio blob to base64 URL due to Chrome type restrictions
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const base64Audio = reader.result;
+              sendResponse({ success: true, audioUrl: base64Audio });
+              console.log('Sending TTS audio URL to content script...');
+            };
+            reader.readAsDataURL(ttsResult.audioBlob);
           } else {
             sendResponse({ success: false, error: "No audio Blob object received." });
           }
