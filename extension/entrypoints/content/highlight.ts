@@ -112,12 +112,12 @@ chrome.storage.onChanged.addListener((changes) => {
 export async function enableHighlight(ctx: ContentScriptContext) {
   shadowUi = await createHighlighter(ctx);
   shadowUi.mount();
-  highlightElement =  shadowUi.shadow.querySelector('#highlighter') ?? null;
+  highlightElement = shadowUi.shadow.querySelector('#highlighter') ?? null;
   console.log(highlightElement)
 
   // Start tracking mouse movements
   setupEventListeners();
-  
+
 }
 
 /**
