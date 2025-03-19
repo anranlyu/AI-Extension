@@ -16,19 +16,19 @@ export default defineConfig({
     "name": "LumiRead",
     "version": "1.0.0",
     "action": { "default_popup": "popup.html" },
-    "host_permissions": [ "http://*/*","https://*/*"],
+    "host_permissions": ["http://*/*", "https://*/*"],
     "permissions": [
-        "activeTab",
-        "scripting",
-        "tabs",
-        "storage"
+      "activeTab",
+      "scripting",
+      "tabs",
+      "storage"
     ],
     "web_accessible_resources": [
       {
-        "resources": [ "fonts/OpenDyslexicMono-Regular.otf" ],
-        "matches": [ "http://*/*", "https://*/*" ]
+        "resources": ["fonts/OpenDyslexicMono-Regular.otf"],
+        "matches": ["http://*/*", "https://*/*"]
       }
     ]
   },
-  
+
 });
