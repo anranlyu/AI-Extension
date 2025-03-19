@@ -7,10 +7,7 @@ export default defineConfig({
   }),
   extensionApi: 'chrome',
   modules: ['@wxt-dev/module-react', '@wxt-dev/auto-icons'],
-  autoIcons: {},
-  entries: {
-    contentFloating: './entrypoint/content/Floating/contentFloating.tsx'
-  },
+  // autoIcons: {},
   manifest: {
     "manifest_version": 3,
     "name": "LumiRead",
@@ -27,7 +24,9 @@ export default defineConfig({
     "content_scripts": [
       {
         "matches": ["<all_urls>"],
-        "js": ["content-scripts/contentFloating.bundle.js"],
+        "js": [
+        "content-scripts/content.js",
+        "content-scripts/floating.js"],
         "run_at": "document_end"
       }
     ],

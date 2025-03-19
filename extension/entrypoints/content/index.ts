@@ -32,7 +32,7 @@ export default defineContentScript({
    * Initializes all features and sets up event listeners.
    * @param ctx - The content script context provided by WXT
    */
-  async main(ctx) {
+  async main(ctx: any) {
     // Initialize text highlighting feature
     initHighlight();
     let ttsUI: Awaited<ReturnType<typeof createTTSFloatingUI>>;
@@ -129,3 +129,5 @@ export default defineContentScript({
     );
   },
 });
+
+
