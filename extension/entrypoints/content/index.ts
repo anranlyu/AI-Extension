@@ -6,10 +6,8 @@
 
 
 import { getSelectedText } from './textSelection';
-// import { injectDyslexiaFont, removeDyslexiaFontFromPage } from './dyslexiaFont';
 import {
   disableReadMode,
-  // displayProcessedText,
   enableReadMode,
   updateReadModeContent,
 } from './readMode/readMode';

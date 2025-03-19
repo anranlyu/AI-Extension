@@ -8,6 +8,9 @@ export default defineConfig({
   extensionApi: 'chrome',
   modules: ['@wxt-dev/module-react', '@wxt-dev/auto-icons'],
   // autoIcons: {},
+  entrypoints: {
+    'content-scripts/content': './content/index.ts',},
+
   manifest: {
     "manifest_version": 3,
     "name": "LumiRead",
@@ -25,8 +28,8 @@ export default defineConfig({
       {
         "matches": ["<all_urls>"],
         "js": [
-        "content-scripts/content.js",
-        "content-scripts/floating.js"],
+        "content-scripts/content.js"],
+        // "content-scripts/floating.js"],
         "run_at": "document_end"
       }
     ],
