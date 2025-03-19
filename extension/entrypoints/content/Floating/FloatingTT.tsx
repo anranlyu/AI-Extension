@@ -6,7 +6,7 @@ interface FloatingTooltipProps {
   content: React.ReactNode;
   referenceElement: HTMLElement | null;
   onClose: () => void;
-  theme?: 'light' | 'dark';
+  theme?: 'light' | 'dark'; // for future preference
 }
 
 const FloatingTooltip: React.FC<FloatingTooltipProps> = ({

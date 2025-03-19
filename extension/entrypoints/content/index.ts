@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { getSelectedText } from './textSelection';
-// import { injectDyslexiaFont, removeDyslexiaFontFromPage } from './dyslexiaFont';
 import {
   disableReadMode,
-  // displayProcessedText,
   enableReadMode,
   updateReadModeContent,
 } from './readMode/readMode';
@@ -12,70 +10,63 @@ import { enableTTSMode, stopRead } from './tts_content';
 import { showFloatingOverlay } from './translate';
 import './content.css';
 
-export default defineContentScript({
-  matches: ["http://*/*", "https://*/*"],
-  cssInjectionMode: 'ui',
+initHighlight();
 
-  async main(ctx: any) {
-    initHighlight();
-
-    chrome.storage.onChanged.addListener((changes) => {
-      if (changes.readModeEnabled) {
-        changes.readModeEnabled.newValue ? enableReadMode() : disableReadMode();
-      } else if (changes.highlightEnabled) {
-        changes.highlightEnabled.newValue
-          ? enableHighlight(ctx)
-          : disableHighlight();
-      } else if (changes.TTSenabled) {
-        changes.TTSenabled.newValue ? enableTTSMode() : stopRead();
-      }
-    });
-
-    // Initialize the page state.
-    chrome.storage.local.get(
-      ['readModeEnabled', 'highlightEnabled', 'TTSenabled'],
-
-      (result) => {
-        if (result.readModeEnabled) enableReadMode();
-        if (result.highlightEnabled) {
-          enableHighlight(ctx);
-        } else {
-          disableHighlight();
-        }
-        if (result.TTSenabled) {
-          console.log('TTS Mode Initial State: Enabled');
-          enableTTSMode();
-        } else {
-          console.log('TTS Mode Initial State: Disabled');
-          stopRead();
-        }
-      }
-    );
-
-    document.addEventListener('mouseup', () => {
-      const selectedText = getSelectedText();
-      if (selectedText) {
-        console.log('Selected text:', selectedText);
-        chrome.runtime.sendMessage({
-          type: 'selected_text',
-          text: selectedText,
-        });
-      }
-    });
-
-    chrome.runtime.onMessage.addListener(
-      ({ type, text }: { type: string; text: string }) => {
-        if (type === 'simplified_text' && text) {
-          showFloatingOverlay(text);
-        } else if (type === 'translated_text' && text) {
-          showFloatingOverlay(text);
-        } else if (type === 'simplified_readMode_text') {
-          console.log('content script get new readmode text');
-          updateReadModeContent(text);
-        }
-      }
-    );
-  },
+// Listen for changes in storage
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes.readModeEnabled) {
+    changes.readModeEnabled.newValue ? enableReadMode() : disableReadMode();
+  } else if (changes.highlightEnabled) {
+    changes.highlightEnabled.newValue
+      ? enableHighlight(document)  // Pass document instead of ctx
+      : disableHighlight();
+  } else if (changes.TTSenabled) {
+    changes.TTSenabled.newValue ? enableTTSMode() : stopRead();
+  }
 });
 
+// Initialize the page state.
+chrome.storage.local.get(
+  ['readModeEnabled', 'highlightEnabled', 'TTSenabled'],
+  (result) => {
+    if (result.readModeEnabled) enableReadMode();
+    if (result.highlightEnabled) {
+      enableHighlight(document);  // Pass document instead of ctx
+    } else {
+      disableHighlight();
+    }
+    if (result.TTSenabled) {
+      console.log('TTS Mode Initial State: Enabled');
+      enableTTSMode();
+    } else {
+      console.log('TTS Mode Initial State: Disabled');
+      stopRead();
+    }
+  }
+);
 
+// Listen for text selections
+document.addEventListener('mouseup', () => {
+  const selectedText = getSelectedText();
+  if (selectedText) {
+    console.log('Selected text:', selectedText);
+    chrome.runtime.sendMessage({
+      type: 'selected_text',
+      text: selectedText,
+    });
+  }
+});
+
+// Listen for messages from the background script
+chrome.runtime.onMessage.addListener(
+  ({ type, text }: { type: string; text: string }) => {
+    if (type === 'simplified_text' && text) {
+      showFloatingOverlay(text);
+    } else if (type === 'translated_text' && text) {
+      showFloatingOverlay(text);
+    } else if (type === 'simplified_readMode_text') {
+      console.log('content script get new readmode text');
+      updateReadModeContent(text);
+    }
+  }
+);
