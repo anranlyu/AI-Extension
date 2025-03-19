@@ -1,5 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
-import OnBoarding from './pages/onBoarding';
+import OnBoarding from './pages/OnBoarding';
 import Privacy from './pages/Privacy';
 import Home from './pages/Home';
 

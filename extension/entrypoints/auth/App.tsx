@@ -23,10 +23,23 @@ export function App() {
 
   useEffect(() => {
     if (access_token && refresh_token) {
-      supabase.auth.setSession({ access_token, refresh_token });
+      supabase.auth
+        .setSession({ access_token, refresh_token })
+        .then(({ data: { session } }) => {
+          if (session) {
+            setSession(session);
+            chrome.runtime.sendMessage({ type: 'SET_AUTH', auth: session });
+            chrome.storage.local.set({ auth: session });
+          }
+        });
     } else {
+      // Manually check for a session in case onAuthStateChange didn't trigger it.
       supabase.auth.getSession().then(({ data: { session } }) => {
-        setSession(session);
+        if (session) {
+          setSession(session);
+          chrome.runtime.sendMessage({ type: 'SET_AUTH', session });
+          chrome.storage.local.set({ auth: session });
+        }
       });
     }
 
@@ -45,8 +58,6 @@ export function App() {
 
     return () => subscription.unsubscribe();
   }, []);
-
-  console.log(browser.identity.getRedirectURL());
 
   if (!session) {
     return (

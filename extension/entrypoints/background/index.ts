@@ -32,8 +32,6 @@ export default defineBackground(() => {
 
   supabase.auth.onAuthStateChange((event, session) => {
 
-    console.log('supabase.auth.onAuthStateChange called')
-    console.log(event);
     if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
       if (session) {
         chrome.storage.local.set(session);
@@ -102,6 +100,11 @@ export default defineBackground(() => {
       }
   
     }
+
+    if (message.type === 'SET_AUTH') {
+      console.log(message);
+      await chrome.storage.local.set(message.auth);
+    }
   
     if (message.type === 'tts_request') {
       console.log('TTS request received:', message.text);
@@ -144,7 +147,7 @@ const openLoginPage = async () => {
  
 
 const finishUserAuth = async (url: string) => {
-  console.log('finishUserAuth called')
+
   try {
     const hashMap = parseUrlHash(url);
     const access_token = hashMap.get('access_token');
@@ -161,7 +164,7 @@ const finishUserAuth = async (url: string) => {
 
     // Persist session to storage - background script can become inactive and the session will be lost,
     // we need to be able to recover it by storing the tokens in extension's storage.
-    console.log('finishUserAuths')
+
     await chrome.storage.local.set({ session: data.session});
 
     // finally redirect to a post-auth page
