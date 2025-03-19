@@ -16,7 +16,7 @@ export default defineContentScript({
   matches: ["http://*/*", "https://*/*"],
   cssInjectionMode: 'ui',
 
-  async main(ctx) {
+  async main(ctx: any) {
     initHighlight();
 
     chrome.storage.onChanged.addListener((changes) => {
@@ -77,3 +77,5 @@ export default defineContentScript({
     );
   },
 });
+
+
