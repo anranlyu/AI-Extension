@@ -186,7 +186,7 @@ const finishUserAuth = async (url: string) => {
 
     // finally redirect to a post-auth page
     //TODO: update the post-auth page
-    chrome.tabs.update({ url: 'https://crxjs.dev/vite-plugin' });
+    chrome.tabs.update({ url: 'https://lumiread.netlify.app' });
 
     console.log(`finished handling user Auth callback`);
   } catch (error) {
