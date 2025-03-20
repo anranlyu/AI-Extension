@@ -8,7 +8,7 @@
     "jsx": "react-jsx",
     "typeRoots": [
       "./node_modules/@types",
-      "./"  // This will include declarations at the root (like global.d.ts)
+      "./"  // includes declarations (global.d.ts) at the root 
     ]
   },
   "include": [
