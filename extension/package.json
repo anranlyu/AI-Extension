@@ -5,8 +5,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "wxt",
-    "dev:firefox": "wxt -b firefox",
+    "dev": "npx wxt",
+    "dev:firefox": "NODE_OPTIONS='--experimental-loader=@esbuild-kit/esm-loader' wxt -b firefox",
     "build": "wxt build",
     "build:firefox": "wxt build -b firefox",
     "zip": "wxt zip",
@@ -30,6 +30,7 @@
     "tailwindcss": "^4.0.11"
   },
   "devDependencies": {
+    "@esbuild-kit/esm-loader": "^2.6.5",
     "@tailwindcss/vite": "^4.0.14",
     "@types/chrome": "^0.0.280",
     "@types/react": "^19.0.1",
@@ -37,6 +38,6 @@
     "@wxt-dev/auto-icons": "^1.0.2",
     "@wxt-dev/module-react": "^1.1.2",
     "typescript": "^5.6.3",
-    "wxt": "^0.19.29"
+    "wxt": "^0.17.0"
   }
 }

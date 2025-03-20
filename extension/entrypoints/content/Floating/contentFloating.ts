@@ -13,20 +13,17 @@ const defaultOptions: FloatingUIOptions = {
   autoHideAfter: 5000
 };
 
-// For automatic cleanup
+// automatic cleanup
 let hideTimeout: number | null = null;
 
-/**
- * Shows floating UI at the current text selection
- */
+//Floating UI at the current text selection
 export function showFloatingUI(
   content: React.ReactNode,
   options: FloatingUIOptions = {}
 ) {
   // Merge with default options
   const mergedOptions = { ...defaultOptions, ...options };
-  
-  // Clear any existing timeout
+
   if (hideTimeout) {
     clearTimeout(hideTimeout);
     hideTimeout = null;
@@ -45,7 +42,6 @@ export function showFloatingUI(
       // cssClass: mergedOptions.cssClass
     });
     
-    // Auto-hide if configured
     if (mergedOptions.autoHideAfter) {
       hideTimeout = window.setTimeout(() => {
         hideFloatingUI();
@@ -59,9 +55,7 @@ export function showFloatingUI(
   }
 }
 
-/**
- * Manually hide the floating UI
- */
+// Manually hide the floating UI
 export function hideFloatingUI() {
   if (hideTimeout) {
     clearTimeout(hideTimeout);
@@ -70,9 +64,6 @@ export function hideFloatingUI() {
   hideTooltip();
 }
 
-/**
- * Handler specifically for translation text messages
- */
 export function handleTranslatedText(text: string) {
   showFloatingUI(text);
 }

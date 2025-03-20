@@ -25,6 +25,7 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
     }
   }, [referenceElement, refs]);
 
+
   return (
     <div
       ref={refs.setFloating}
@@ -32,15 +33,16 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
         position: strategy,
         top: y ?? 0,
         left: x ?? 0,
-        background: 'rgba(255, 255, 255, 0.95)',
-        color: '#333',
+        background: 'rgba(13, 170, 142, 0.90)', // Persian green background
+        color: '#fff', // White text
         padding: '1.5rem',
-        border: '1px solid #ccc',
+        border: '3px solid #5563A2', // Thicker border with libery blue
         borderRadius: '8px',
-        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.15)',
+        boxShadow: '0 6px 20px rgba(0, 0, 0, 0.25)', // Enhanced shadow
         fontSize: '16px',
         lineHeight: '1.5',
         zIndex: 99999,
+        maxWidth: '400px', // limit width for better readability
       }}
     >
       <button
@@ -54,10 +56,10 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
           border: 'none',
           cursor: 'pointer',
           fontSize: '18px',
-          color: '#666',
+          color: '#fff', // White color for the close button to match text
           animation: 'fadeIn 0.2s ease-in-out',
         }}
-        onMouseOver={(e) => (e.currentTarget.style.color = '#000')}
+        onMouseOver={(e) => (e.currentTarget.style.color = '#e0e0e0')} // Slightly darker on hover
         onMouseOut={(e) => (e.currentTarget.style.color = '#666')}
       >
         ✕

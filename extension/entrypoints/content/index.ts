@@ -16,6 +16,7 @@ import { enableTTSMode, stopRead } from './ttsMode/tts_content';
 import { createTTSFloatingUI } from './ttsMode/tts_ui';
 import { showFloatingOverlay } from './translate';
 import './content.css';
+import { defineContentScript } from 'wxt/sandbox';
 
 /**
  * Main content script configuration and initialization.
