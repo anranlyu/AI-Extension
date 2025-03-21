@@ -2,6 +2,7 @@ import { isProbablyReaderable, Readability} from "@mozilla/readability";
 import { renderReadModeOverlay } from "./readModeOverlay";
 // import rs from 'text-readability';
 import { getFleschReadingEase } from "./readability";
+import { showFloatingOverlay } from "../translate";
 
 
 const isPageReadable = () => {
@@ -22,7 +23,7 @@ const extractReadableContent = async () => {
   let article: any;
   try {
         if (!isPageReadable()) {
-          console.warn('This page is not suitable for Read Mode.');
+          showFloatingOverlay('This page is not supported for Read Mode.');
           return null;
         }
         const url = window.location.href
@@ -64,27 +65,6 @@ export const enableReadMode = async () => {
   chrome.storage.local.set({ readModeEnabled: true });
 };
 
-let originalPageStyle: HTMLStyleElement | null = null;
-
-function hideOriginalPageElements() {
-  // Inject a style to hide everything except the read mode container.
-  originalPageStyle = document.createElement('style');
-  originalPageStyle.id = 'hide-original-page';
-  originalPageStyle.textContent = `
-    body > :not(#read-mode-shadow-container) {
-      display: none !important;
-    }
-  `;
-  document.head.appendChild(originalPageStyle);
-}
-
-function restoreOriginalPageElements() {
-  // Remove the injected style to restore the original page.
-  const style = document.getElementById('hide-original-page');
-  if (style) {
-    style.remove();
-  }
-}
 
 export const displayProcessedText = (title: string, author: string, rawHtmlContent: string, textContent:string,readingLevel:number) => {
   let container = document.getElementById('read-mode-shadow-container');
@@ -102,7 +82,7 @@ export const displayProcessedText = (title: string, author: string, rawHtmlConte
   // Render the overlay using the separate module.
   renderReadModeOverlay(shadowRoot, title, author, htmlContent,textContent,readingLevel);
 
-  hideOriginalPageElements();
+
 };
 
 
@@ -118,8 +98,7 @@ export const disableReadMode = () => {
       chrome.storage.local.set({ readModeEnabled: false })
   })
 
-  // Restore the original page elements.
-  restoreOriginalPageElements();
+
 };
 
 /**

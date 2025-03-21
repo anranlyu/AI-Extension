@@ -19,7 +19,12 @@ export const renderReadModeOverlay = (
   
   let optionsHTML = '';
   for (let i = numOptions; i <= ReadabilityLabels.length - 1; i++) {
-    optionsHTML += `<option value="${i}">${ReadabilityLabels[i]}</option>`;
+    if (i == numOptions) {
+      optionsHTML += `<option value="${i}">(current level)${ ReadabilityLabels[i]}</option>`;
+    } else {
+
+      optionsHTML += `<option value="${i}">${ReadabilityLabels[i]}</option>`;
+    }
   }
 
   // Define the shadow DOM's HTML template.
@@ -27,15 +32,15 @@ export const renderReadModeOverlay = (
   
     <style>${contentCss}</style>
     <div id="read-mode-overlay" class="fixed inset-0 bg-white text-gray-900 z-[99999] flex flex-col gap-4 justify-between items-center p-8 overflow-y-auto">
-      <button id="read-mode-close" class="absolute top-6 right-8 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200 shadow-lg">
+      <button id="read-mode-close" class="absolute top-13 right-8 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200 shadow-lg">
         Close
       </button>
       
       <div class="max-w-5xl bg-gray-100 p-6 rounded-lg shadow-lg">
         <h1 class="text-3xl font-bold mb-2">${title}</h1>
-        <div class="flex justify-between w-full mb-4 p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex justify-between items-center w-full mb-4 p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
           <p class="font-normal text-gray-700 dark:text-gray-400">AI Reading Level Adjustment</p>
-          <select id="read-mode-dropdown" class="inline-flex gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50">
+          <select id="read-mode-dropdown" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5" >
             ${optionsHTML}
           </select>
         </div>
