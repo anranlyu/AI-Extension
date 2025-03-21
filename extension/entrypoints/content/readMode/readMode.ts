@@ -155,6 +155,19 @@ export const updateReadModeContent = (newText: string) => {
   // Replace its contents with the new text
   const formattedText = newText.replace(/\n/g, '<br>');
   contentElement.innerHTML = formattedText;
+
+
+  const rewriteBtn = shadowRoot.getElementById('rewrite-btn');
+  if (rewriteBtn) {
+    const noticePanel = document.createElement('div');
+    // Tailwind CSS classes for styling the notice panel.
+    noticePanel.className = 'bg-blue-100 border border-blue-300 text-blue-800 p-4 rounded mt-4';
+    noticePanel.innerText = 'The text has been rewritten by AI.';
+    
+    // Replace the button with the notice panel in its parent container.
+    rewriteBtn.parentNode?.replaceChild(noticePanel, rewriteBtn);
+  }
+  console.log(rewriteBtn);
 };
 
 

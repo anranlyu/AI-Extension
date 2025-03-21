@@ -44,7 +44,7 @@ export const renderReadModeOverlay = (
             ${optionsHTML}
           </select>
         </div>
-        <button id="rewrite-btn" class="text-white bg-blue-600 w-full pt-4 pb-4 mb-4 rounded-lg hidden"> Rewrite with AI</button>
+        <button id="rewrite-btn" class="flex justify-center items-center text-white bg-blue-600 w-full pt-4 pb-4 mb-4 rounded-lg hidden"> Rewrite with AI</button>
         ${authorParagraph}
         <div id="mainContent" class="text-xl leading-8 flex flex-col gap-4">
           ${htmlContent}
@@ -80,7 +80,13 @@ export const renderReadModeOverlay = (
     //Add listener to rewriteButton
     rewriteButton.addEventListener('click', () => {
       const selectedValue = dropdown.value;
-      console.log('rewrite button clicked')
+      rewriteButton.innerHTML = `
+        <span>The AI is writting</span>
+        <svg class="animate-spin ml-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+      `;
       rewriteButtonOnclick(textContent, parseInt(selectedValue));
     })
   }
@@ -89,14 +95,11 @@ export const renderReadModeOverlay = (
 
 
 const rewriteButtonOnclick = (textContent: string, selectedLevel: number) => {
-  try {
-
-    chrome.runtime.sendMessage({
-      type: 'readMode_text',
-      text: textContent,
-      selectedLevel: selectedLevel,
-    });
-  } catch (error) {
-    console.error("Error sending message:", error);
-  }
+  chrome.runtime.sendMessage({
+    type: 'readMode_text',
+    text: textContent,
+    selectedLevel: selectedLevel,
+  });
 };
+
+
