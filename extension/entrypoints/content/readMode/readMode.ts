@@ -55,6 +55,7 @@ const extractReadableContent = async () => {
 };
 
 export const enableReadMode = async () => {
+  document.body.style.overflow = 'hidden';
   const extractedData = await extractReadableContent();
   if (!extractedData) {
     console.warn('No readable content found.');
@@ -93,11 +94,9 @@ export const disableReadMode = () => {
     container.remove();
   }
 
-  chrome.storage.local.get(
-    ['readModeEnabled'], () => {
-      chrome.storage.local.set({ readModeEnabled: false })
-  })
+  chrome.storage.local.set({ readModeEnabled: false });
 
+  document.body.style.overflow = '';
 
 };
 
