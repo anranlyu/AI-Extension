@@ -111,25 +111,22 @@ function processContent(html: string): string {
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = html;
 
-  // Convert line breaks to paragraphs if needed
-  const paragraphs = tempDiv.innerHTML
-    .split(/(?:\r?\n){2,}/) // Split on double newlines
-    .map(p => {
-      if (!p.startsWith('<p')) {
-        return `<p class="mb-8 leading-8">${p}</p>`;
-      }
-      return p;
-    })
-    .join('');
+  // Add Tailwind classes to all paragraphs
+  const paragraphs = tempDiv.querySelectorAll('p');
+  paragraphs.forEach(p => {
+    p.classList.add('mb-4', 'leading-7'); // Tailwind spacing classes
+  });
 
-  tempDiv.innerHTML = paragraphs;
+  // Convert <br> tags to Tailwind-spaced breaks
+  const brElements = tempDiv.querySelectorAll('br');
+  brElements.forEach(br => {
+    br.classList.add('block', 'h-4'); // Creates 1rem vertical space
+  });
 
-  // Rest of existing image processing
+  // Process images (existing logic)
   const images = tempDiv.querySelectorAll('img');
-  images.forEach((img) => {
-    img.removeAttribute('style');
-    img.removeAttribute('width');
-    img.classList.add('custom-img-size');
+  images.forEach(img => {
+    img.classList.add('max-w-full', 'h-auto', 'my-4'); // Tailwind image classes
   });
 
   return tempDiv.innerHTML;

@@ -59,7 +59,7 @@ export const renderReadModeOverlay = (
           <div id="notice-panel" class="bg-blue-100 border border-blue-300 text-blue-800 p-4 rounded mt-4 hidden">This article has been rewritten by AI to a new reading level, which may impact its accuracy. Please verify information using the original article.</div>
         </div>
         ${authorParagraph}
-        <div id="mainContent" class="text-xl leading-8 flex flex-col gap-4">
+        <div id="mainContent" class="text-xl leading-8 flex flex-col gap-4 space-y-4">
           ${htmlContent}
         </div>
       </div>
