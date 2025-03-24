@@ -6,6 +6,7 @@ import { getTooltipContainer } from './persistentContainer';
 interface TooltipData {
   content: React.ReactNode;
   referenceElement: HTMLElement | null;
+  preserveReferenceElement?: boolean;
 }
 
 // Store a reference to the root
