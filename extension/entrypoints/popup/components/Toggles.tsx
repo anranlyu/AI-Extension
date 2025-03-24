@@ -14,12 +14,10 @@ const Toggles: React.FC = () => {
 
   // Utility functions for applying Tailwind classes
   const toggleButtonClass = (enabled: boolean) =>
-    `relative w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none ${
-      enabled ? 'bg-blue-600' : 'bg-gray-300'
+    `relative w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none ${enabled ? 'bg-blue-600' : 'bg-gray-300'
     }`;
   const toggleDotClass = (enabled: boolean) =>
-    `absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ${
-      enabled ? 'translate-x-6' : 'translate-x-0'
+    `absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ${enabled ? 'translate-x-6' : 'translate-x-0'
     }`;
 
   // Helper to read from Chrome storage once, then sync component state
@@ -91,6 +89,13 @@ const Toggles: React.FC = () => {
     const newState = !TTSenabled;
     setTTSEnabled(newState);
     chrome.storage.local.set({ TTSenabled: newState });
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0].id) {
+        chrome.tabs.sendMessage(tabs[0].id, { type: 'toggle_tts_card', enabled: newState });
+      }
+    }
+    );
   };
 
   const handleReadModeToggle = () => {

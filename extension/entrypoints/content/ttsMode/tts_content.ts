@@ -1,6 +1,9 @@
 import { isProbablyReaderable, Readability } from "@mozilla/readability";
+import ttsFloatingCard from "./ttsFloatingCard";
+import { createShadowRootUi } from 'wxt/client';
+import '../../content/content.css';
 
-const MAX_TTS_LENGTH = 300; // Hard code to be safe to avoid hitting the API limit
+const MAX_TTS_LENGTH = 0; // Hard code to be safe to avoid hitting the API limit
 let currentAudio: HTMLAudioElement | null = null;
 let isProcessing = false;
 
@@ -168,3 +171,4 @@ export const stopRead = () => {
         console.log("TTS playback stopped.");
     }
 };
+

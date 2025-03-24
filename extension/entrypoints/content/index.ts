@@ -8,9 +8,11 @@ import {
   updateReadModeContent,
 } from './readMode/readMode';
 import { disableHighlight, enableHighlight, initHighlight } from './highlight';
-import { enableTTSMode, stopRead } from './tts_content';
+import { enableTTSMode, stopRead } from './ttsMode/tts_content';
+import { createTTSFloatingUI } from './ttsMode/tts_ui';
 import { showFloatingOverlay } from './translate';
 import './content.css';
+
 
 export default defineContentScript({
   matches: ["http://*/*", "https://*/*"],
@@ -18,6 +20,18 @@ export default defineContentScript({
 
   async main(ctx) {
     initHighlight();
+    let ttsUI: Awaited<ReturnType<typeof createTTSFloatingUI>>;
+
+    const createTTSUI = async () => {
+      ttsUI = await createTTSFloatingUI(ctx);
+      ttsUI.mount();
+    };
+
+    const removeTTSUI = () => {
+      if (ttsUI) {
+        ttsUI.remove();
+      }
+    };
 
     chrome.storage.onChanged.addListener((changes) => {
       if (changes.readModeEnabled) {
@@ -27,7 +41,13 @@ export default defineContentScript({
           ? enableHighlight(ctx)
           : disableHighlight();
       } else if (changes.TTSenabled) {
-        changes.TTSenabled.newValue ? enableTTSMode() : stopRead();
+        if (changes.TTSenabled.newValue) {
+          createTTSUI();
+          enableTTSMode();
+        } else {
+          removeTTSUI();
+          stopRead();
+        }
       }
     });
 
@@ -43,11 +63,8 @@ export default defineContentScript({
           disableHighlight();
         }
         if (result.TTSenabled) {
-          console.log('TTS Mode Initial State: Enabled');
+          createTTSUI();
           enableTTSMode();
-        } else {
-          console.log('TTS Mode Initial State: Disabled');
-          stopRead();
         }
       }
     );
