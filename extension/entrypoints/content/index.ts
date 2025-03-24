@@ -64,14 +64,14 @@ export default defineContentScript({
     });
 
     chrome.runtime.onMessage.addListener(
-      ({ type, text }: { type: string; text: string }) => {
+      ({ type, text, level }: { type: string; text: string; level:number }) => {
         if (type === 'simplified_text' && text) {
           showFloatingOverlay(text);
         } else if (type === 'translated_text' && text) {
           showFloatingOverlay(text);
         } else if (type === 'simplified_readMode_text') {
           console.log('content script get new readmode text');
-          updateReadModeContent(text);
+          updateReadModeContent(text, level);
         }
       }
     );

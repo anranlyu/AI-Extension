@@ -1,7 +1,14 @@
 import { disableReadMode} from './readMode'; // Ensure disableReadMode is exported from your main module (or another common module)
 import contentCss from '../content.css?inline';
 
-const ReadabilityLabels = ['Very Complex', 'Complex', 'Challenging', 'Somewhat Challenging', 'Moderately Accessible', 'Accessible', 'Highly Accessible'];
+export const ReadabilityLabels = ['Very Complex', 'Complex', 'Challenging', 'Somewhat Challenging', 'Moderately Accessible', 'Accessible', 'Highly Accessible'];
+// state.ts
+export const rewrittenLevels = new Map<number, {
+  content: string;
+
+}>();
+export let originalHtmlContent = '';
+
 
 export const renderReadModeOverlay = (
   shadowRoot: ShadowRoot,
@@ -11,6 +18,9 @@ export const renderReadModeOverlay = (
   textContent:string,
   numOptions: number,
 ) => {
+
+  originalHtmlContent = htmlContent;
+  
   // Prepare the author markup only if needed.
   const authorParagraph =
     author === 'Unknown Author'
@@ -44,7 +54,10 @@ export const renderReadModeOverlay = (
             ${optionsHTML}
           </select>
         </div>
-        <button id="rewrite-btn" class="flex justify-center items-center text-white bg-blue-600 w-full pt-4 pb-4 mb-4 rounded-lg hidden"> Rewrite with AI</button>
+        <div class="button-container">
+          <button id="rewrite-btn" class="flex justify-center items-center text-white bg-blue-600 w-full pt-4 pb-4 mb-4 rounded-lg hidden"> Rewrite with AI</button>
+          <div id="notice-panel" class="bg-blue-100 border border-blue-300 text-blue-800 p-4 rounded mt-4 hidden">This article has been rewritten by AI to a new reading level, which may impact its accuracy. Please verify information using the original article.</div>
+        </div>
         ${authorParagraph}
         <div id="mainContent" class="text-xl leading-8 flex flex-col gap-4">
           ${htmlContent}
@@ -62,24 +75,39 @@ export const renderReadModeOverlay = (
   // Attach event listener(s) to the select element.
   const dropdown = shadowRoot.getElementById('read-mode-dropdown') as HTMLSelectElement;
   const rewriteButton = shadowRoot.getElementById('rewrite-btn') as HTMLButtonElement;
+  const contentElement = shadowRoot.querySelector('#mainContent') as HTMLDivElement;
+  const noticePanel = shadowRoot.getElementById('notice-panel') as HTMLDivElement;
 
   if (dropdown && rewriteButton) {
     // For a select element, consider using 'change' rather than 'click'.
     dropdown.addEventListener('change', () => {
-      const selectedValue = dropdown.value;
+      const selectedLevel = parseInt(dropdown.value);
+      const isOriginalLevel = selectedLevel === numOptions;
       
-      console.log('Selected value:', dropdown.value);
-      // Add any additional logic you need here.
-      if (parseInt(selectedValue) !== numOptions) {
-        rewriteButton.classList.remove('hidden');
-      } else {
+      if (isOriginalLevel) {
+        contentElement.innerHTML = originalHtmlContent;
         rewriteButton.classList.add('hidden');
+        noticePanel.classList.add('hidden');
+        
+      } else {
+        const rewrittenData = rewrittenLevels.get(selectedLevel);
+        
+        if (rewrittenData) {
+          contentElement.innerHTML = rewrittenData.content;
+          noticePanel?.classList.remove('hidden');
+          rewriteButton?.classList.add('hidden')
+
+        } else {
+          // contentElement.innerHTML = originalHtmlContent;
+          rewriteButton.classList.remove('hidden');
+          rewriteButton.innerHTML='<span>The AI is writting</span>'
+        }
       }
     });
 
     //Add listener to rewriteButton
     rewriteButton.addEventListener('click', () => {
-      const selectedValue = dropdown.value;
+      const selectedLevel = parseInt(dropdown.value);
       rewriteButton.innerHTML = `
         <span>The AI is writting</span>
         <svg class="animate-spin ml-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -87,18 +115,34 @@ export const renderReadModeOverlay = (
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
         </svg>
       `;
-      rewriteButtonOnclick(textContent, parseInt(selectedValue));
+      rewriteButtonOnclick(textContent, selectedLevel, (newContent) => {
+        rewrittenLevels.set(selectedLevel, {
+          content: newContent,
+        });
+        
+        const noticePanel = shadowRoot.getElementById('notice-panel') as HTMLDivElement;
+        const rewriteBtn = shadowRoot.getElementById('rewrite-btn');
+        
+        rewriteBtn?.classList.add('hidden');
+        noticePanel?.classList.remove('hidden');
+      });
     })
   }
 };
 
-
-
-const rewriteButtonOnclick = (textContent: string, selectedLevel: number) => {
+const rewriteButtonOnclick = (
+  textContent: string, 
+  selectedLevel: number,
+  callback: (newContent: string) => void
+) => {
   chrome.runtime.sendMessage({
     type: 'readMode_text',
     text: textContent,
     selectedLevel: selectedLevel,
+  }, (response) => {
+    if (response.success) {
+      callback(response.newContent);
+    }
   });
 };
 

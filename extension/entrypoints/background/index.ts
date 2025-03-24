@@ -52,7 +52,7 @@ export default defineBackground(() => {
   };
 
 
-  chrome.runtime.onMessage.addListener(async (message: Message) => {
+  chrome.runtime.onMessage.addListener(async (message: Message, sender) => {
     if (message.type === 'selected_text') {
       chrome.storage.local.get(['simplifyTextEnabled', "translateEnabled", "targetLanguage"], async (result) => {
         const simplifyTextEnabled = result.simplifyTextEnabled || false;
@@ -88,11 +88,14 @@ export default defineBackground(() => {
         text: message.text,
       })
       console.log("Got new read mode text from llm" + processedText)
-      if (processedText) {
-        sendTextToContentScript('simplified_readMode_text', processedText);
-      } else {
-        console.log('no new read mode text')
+      if (sender.tab?.id) {
+        chrome.tabs.sendMessage(sender.tab.id, {
+          type: 'simplified_readMode_text',
+          text: processedText,
+          level: message.selectedLevel
+        });
       }
+  
     }
 
     if (message.type === 'SET_AUTH') {
@@ -102,6 +105,7 @@ export default defineBackground(() => {
   
   }
   );
+
 
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message.type === 'tts_request') {

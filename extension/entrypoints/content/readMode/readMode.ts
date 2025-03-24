@@ -1,8 +1,10 @@
 import { isProbablyReaderable, Readability} from "@mozilla/readability";
-import { renderReadModeOverlay } from "./readModeOverlay";
+import { ReadabilityLabels, renderReadModeOverlay, rewrittenLevels } from "./readModeOverlay";
 // import rs from 'text-readability';
 import { getFleschReadingEase } from "./readability";
 import { showFloatingOverlay } from "../translate";
+
+
 
 
 const isPageReadable = () => {
@@ -109,26 +111,31 @@ function processContent(html: string): string {
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = html;
 
-  // Process all images.
+  // Convert line breaks to paragraphs if needed
+  const paragraphs = tempDiv.innerHTML
+    .split(/(?:\r?\n){2,}/) // Split on double newlines
+    .map(p => {
+      if (!p.startsWith('<p')) {
+        return `<p class="mb-8 leading-8">${p}</p>`;
+      }
+      return p;
+    })
+    .join('');
+
+  tempDiv.innerHTML = paragraphs;
+
+  // Rest of existing image processing
   const images = tempDiv.querySelectorAll('img');
   images.forEach((img) => {
     img.removeAttribute('style');
     img.removeAttribute('width');
-    // Set fixed width, auto height, and add styling.
     img.classList.add('custom-img-size');
-  });
-
-  // Process all paragraphs.
-  const paragraphs = tempDiv.querySelectorAll('p');
-  paragraphs.forEach((p) => {
-    // Add extra gap between paragraphs and increased line height.
-    p.classList.add('mb-8', 'leading-8');
   });
 
   return tempDiv.innerHTML;
 }
 
-export const updateReadModeContent = (newText: string) => {
+export const updateReadModeContent = (newText: string, selectedLevel: number) => {
   const container = document.getElementById('read-mode-shadow-container');
   if (!container) {
     console.warn('Read Mode container not found.');
@@ -141,34 +148,36 @@ export const updateReadModeContent = (newText: string) => {
     return;
   }
 
-  // Locate the element that holds the main article content.
-  // This must match the same selector in your readModeOverlay, i.e., the `<div>` with classes:
-  //   text-xl leading-8 flex flex-col gap-4
+  const processedText = processContent(
+    newText.replace(/\n/g, '<br>') // Preserve single newlines
+  );
+
+  // Update state with new rewritten content
+  rewrittenLevels.set(selectedLevel, {
+    content: processedText
+  });
+
+  // Update displayed content
   const contentElement = shadowRoot.querySelector('#mainContent');
-
-  if (!contentElement) {
-    console.warn('Content element not found inside shadow root.');
-    return;
+  if (contentElement) {
+    contentElement.innerHTML = processedText;
   }
 
-  // Replace its contents with the new text
-  const formattedText = newText.replace(/\n/g, '<br>');
-  contentElement.innerHTML = formattedText;
-
-
+  // Update UI elements
   const rewriteBtn = shadowRoot.getElementById('rewrite-btn');
-  if (rewriteBtn) {
-    const noticePanel = document.createElement('div');
-    // Tailwind CSS classes for styling the notice panel.
-    noticePanel.className = 'bg-blue-100 border border-blue-300 text-blue-800 p-4 rounded mt-4';
-    noticePanel.innerText = 'The text has been rewritten by AI.';
-    
-    // Replace the button with the notice panel in its parent container.
-    rewriteBtn.parentNode?.replaceChild(noticePanel, rewriteBtn);
-  }
-  console.log(rewriteBtn);
-};
+  const noticePanel = shadowRoot.getElementById('notice-panel');
+  const dropdown = shadowRoot.getElementById('read-mode-dropdown') as HTMLSelectElement;
 
+  if (rewriteBtn && noticePanel) {
+    // Only hide button/show panel for the CURRENTLY ACTIVE level
+    const currentLevel = parseInt(dropdown.value);
+    if (currentLevel === selectedLevel) {
+      rewriteBtn.classList.add('hidden');
+      noticePanel.classList.remove('hidden');
+      noticePanel.textContent = `This article has been rewritten by AI to ${ReadabilityLabels[selectedLevel]}, which may impact its accuracy. Please verify information using the original article.`;
+    }
+  }
+};
 
 
 
