@@ -1,29 +1,31 @@
-// contentFloating.ts as a module
 import { showTooltip, hideTooltip } from './renderFloating';
 import { createReferenceFromSelection } from '../utilities';
 
 // Configuration options
 interface FloatingUIOptions {
-  autoHideAfter?: number; // ms to auto-hide, undefined for no auto-hide
-  // cssClass?: string;      // option to adopt different CSS class for styling
+  autoHideAfter?: number;   // currently undefined for no auto-hide
+  draggable?: boolean; 
+  preserveReference?: boolean; 
 }
 
-// Default options
+// Default options - no auto-hide
 const defaultOptions: FloatingUIOptions = {
-  autoHideAfter: 5000
+  autoHideAfter: undefined, 
+  draggable: true,
+  preserveReference: true
 };
 
-// automatic cleanup
 let hideTimeout: number | null = null;
+let isDragging = false;
 
-//Floating UI at the current text selection
+// Floating UI at the current text selection
 export function showFloatingUI(
   content: React.ReactNode,
   options: FloatingUIOptions = {}
 ) {
-  // Merge with default options
   const mergedOptions = { ...defaultOptions, ...options };
 
+  // Clear any existing timeout if present
   if (hideTimeout) {
     clearTimeout(hideTimeout);
     hideTimeout = null;
@@ -39,10 +41,36 @@ export function showFloatingUI(
     showTooltip({
       content,
       referenceElement: referenceEl,
-      // cssClass: mergedOptions.cssClass
+      ...(mergedOptions.preserveReference ? { preserveReferenceElement: true } as any : {})
     });
     
-    if (mergedOptions.autoHideAfter) {
+    // Listen for drag start/end if draggable is enabled
+    if (mergedOptions.draggable) {
+      const container = document.querySelector('.floating-tooltip-container');
+      if (container) {
+        container.addEventListener('mousedown', () => {
+          isDragging = true;
+          // Cancel any existing hide timeout while dragging
+          if (hideTimeout) {
+            clearTimeout(hideTimeout);
+            hideTimeout = null;
+          }
+        }, { once: true });
+        
+        document.addEventListener('mouseup', () => {
+          isDragging = false;
+          // Restart auto-hide after drag ends if enabled and explicitly requested
+          if (mergedOptions.autoHideAfter && !isDragging) {
+            hideTimeout = window.setTimeout(() => {
+              hideFloatingUI();
+            }, mergedOptions.autoHideAfter);
+          }
+        }, { once: true });
+      }
+    }
+    
+    // Only set auto-hide if explicitly enabled
+    if (mergedOptions.autoHideAfter && !isDragging) {
       hideTimeout = window.setTimeout(() => {
         hideFloatingUI();
       }, mergedOptions.autoHideAfter);
@@ -61,9 +89,42 @@ export function hideFloatingUI() {
     clearTimeout(hideTimeout);
     hideTimeout = null;
   }
-  hideTooltip();
+  hideTooltip(); // Call without arguments to match your current API
+}
+
+// Update content without resetting position
+export function updateFloatingContent(content: React.ReactNode, options: FloatingUIOptions = {}) {
+  const mergedOptions = { ...defaultOptions, ...options };
+  
+  // Get the current reference element
+  const currentReferenceEl = document.querySelector('[data-floating-reference="true"]');
+  
+  if (currentReferenceEl) {
+    showTooltip({
+      content,
+      referenceElement: currentReferenceEl as HTMLElement,
+      ...(mergedOptions.preserveReference ? { preserveReferenceElement: true } as any : {})
+    });
+    
+    // Only reset hide timeout if auto-hide is explicitly enabled
+    if (mergedOptions.autoHideAfter && !isDragging) {
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+      }
+      
+      hideTimeout = window.setTimeout(() => {
+        hideFloatingUI();
+      }, mergedOptions.autoHideAfter);
+    }
+    
+    return true;
+  }
+  
+  // If no existing tooltip, create a new one
+  return showFloatingUI(content, options);
 }
 
 export function handleTranslatedText(text: string) {
+  // Show text without auto-hide
   showFloatingUI(text);
 }
