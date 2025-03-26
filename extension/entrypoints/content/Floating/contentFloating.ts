@@ -128,3 +128,48 @@ export function handleTranslatedText(text: string) {
   // Show text without auto-hide
   showFloatingUI(text);
 }
+
+// 3. Add this simple test function to contentFloating.ts:
+export function testDraggable() {
+  const div = document.createElement('div');
+  div.style.position = 'fixed';
+  div.style.top = '100px';
+  div.style.left = '100px';
+  div.style.width = '200px';
+  div.style.height = '100px';
+  div.style.backgroundColor = 'lightblue';
+  div.style.border = '2px solid blue';
+  div.style.zIndex = '10000';
+  div.style.cursor = 'grab';
+  div.textContent = 'Test Draggable';
+  
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+  
+  div.addEventListener('mousedown', (e) => {
+    console.log('Test draggable: mousedown');
+    isDragging = true;
+    offsetX = e.clientX - parseInt(div.style.left);
+    offsetY = e.clientY - parseInt(div.style.top);
+    div.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+  
+  document.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      console.log('Test draggable: mousemove');
+      div.style.left = (e.clientX - offsetX) + 'px';
+      div.style.top = (e.clientY - offsetY) + 'px';
+    }
+  });
+  
+  document.addEventListener('mouseup', () => {
+    console.log('Test draggable: mouseup');
+    isDragging = false;
+    div.style.cursor = 'grab';
+  });
+  
+  document.body.appendChild(div);
+  return div;
+}

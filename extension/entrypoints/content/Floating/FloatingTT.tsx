@@ -1,6 +1,6 @@
-// FloatingTooltip.tsx
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useFloating, offset, flip, shift } from '@floating-ui/react';
+import '../../content/content.css';
 
 interface FloatingTooltipProps {
   content: React.ReactNode;
@@ -14,102 +14,151 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
   referenceElement,
   onClose,
 }) => {
-  const { x, y, strategy, refs, update } = useFloating({
+  // Use refs to store state that shouldn't trigger re-renders
+  const initialPositionSetRef = useRef(false);
+  const tooltipRef = useRef<HTMLElement | null>(null);
+  
+  // Regular state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: 100, y: 100 }); // Default fallback position
+  
+  const TOOLTIP_WIDTH = 600; 
+
+  // Use useFloating only for initial positioning, then never again
+  const { x, y, refs } = useFloating({
+    strategy: "fixed",
     middleware: [offset(8), flip(), shift({ padding: 5 })],
   });
   
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  
-  /* Resize?
-  const [resize, setResize] = useState({width: 500, height: 200});
-  const [isResizing, setIsResizing] = useState(false);
-  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
-  
   useEffect(() => {
-    if (!isDragging && !isResizing && x !== null && y !== null) {
+    if (!initialPositionSetRef.current && x !== null && y !== null) {
       setPosition({ x, y });
+      initialPositionSetRef.current = true;
     }
-  }, [x, y, isDragging, isResizing]);
-*/
-
+  }, [x, y]);
+  
+  // Attach the reference element only once, and disconnect from automatic updates
   useEffect(() => {
-    if (!isDragging && x !== null && y !== null) {
-      setPosition({ x, y });
-    }
-  }, [x, y, isDragging]);
-
-  // Attach the external reference element.
-  useEffect(() => {
-    if (referenceElement) {
+    if (referenceElement && !initialPositionSetRef.current) {
       refs.setReference(referenceElement);
     }
-  }, [referenceElement, refs]);
-
-    // Drag handlers
-    const handleMouseDown = (e: React.MouseEvent) => {
-      setIsDragging(true);
-      setDragOffset({
-        x: e.clientX - position.x,
-        y: e.clientY - position.y,
-      });
-      e.preventDefault(); // Prevent text selection during drag
+    
+    // Store the floating ref for boundary detection
+    if (refs.floating.current) {
+      tooltipRef.current = refs.floating.current;
+    }
+    return () => {
     };
+  }, [referenceElement, refs]);
+  
+  // To make tooltip stay within viewport boundaries
+  const constrainToViewport = (newX: number, newY: number): { x: number, y: number } => {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
     
-    const handleMouseMove = useCallback(
-      (e: MouseEvent) => {
-        if (isDragging) {
-          setPosition({
-            x: e.clientX - dragOffset.x,
-            y: e.clientY - dragOffset.y,
-          });
-        }
-      },
-      [isDragging, dragOffset]
-    );
+    const maxX = viewportWidth - TOOLTIP_WIDTH - 20;
+    const constrainedX = Math.min(Math.max(10, newX), maxX);
     
-    const handleMouseUp = useCallback(() => {
-      setIsDragging(false);
-    }, []);
+    const tooltipHeight = tooltipRef.current?.offsetHeight || 200;
     
-    // Add/remove event listeners
-    useEffect(() => {
+    const maxY = viewportHeight - tooltipHeight - 20;
+    const constrainedY = Math.min(Math.max(10, newY), maxY);
+    
+    return { x: constrainedX, y: constrainedY };
+  };
+  
+  // Drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragOffset({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y,
+    });
+    
+    // Mark position as set to prevent any floating UI updates
+    initialPositionSetRef.current = true;
+    
+    e.preventDefault();
+    e.stopPropagation();
+  };
+  
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
       if (isDragging) {
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-      } else {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+        const rawX = e.clientX - dragOffset.x;
+        const rawY = e.clientY - dragOffset.y;
+        
+        // Apply viewport constraints
+        const { x: constrainedX, y: constrainedY } = constrainToViewport(rawX, rawY);
+        
+        // Update React state
+        setPosition({
+          x: constrainedX,
+          y: constrainedY,
+        });
+        
+        // Direct DOM update for smoother dragging
+        if (refs.floating.current) {
+          const element = refs.floating.current as HTMLElement;
+          element.style.top = `${constrainedY}px`;
+          element.style.left = `${constrainedX}px`;
+        }
       }
-      
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }, [isDragging, handleMouseMove, handleMouseUp]);
+    },
+    [isDragging, dragOffset, refs.floating]
+  );
+  
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+  
+  // Add/remove event listeners
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    } else {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    }
     
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, handleMouseMove, handleMouseUp]);
+  
+  // Apply viewport constraints on initial positioning
+  useEffect(() => {
+    if (initialPositionSetRef.current) {
+      const { x: constrainedX, y: constrainedY } = constrainToViewport(position.x, position.y);
+      if (constrainedX !== position.x || constrainedY !== position.y) {
+        setPosition({ x: constrainedX, y: constrainedY });
+      }
+    }
+  }, [position.x, position.y]);
+  
   return (
     <div
       ref={refs.setFloating}
+      className="text-white p-6 rounded-lg shadow-lg text-base leading-relaxed"
       style={{
-        position: strategy,
-        top: y ?? 0,
-        left: x ?? 0,
-        background: 'rgba(13, 170, 142, 0.90)', // Persian green background
-        color: '#fff', // White text
-        padding: '1.5rem',
-        // width: '50%',
-        border: '3px solid #5563A2', // Thicker border with libery blue
-        borderRadius: '8px',
-        boxShadow: '0 6px 20px rgba(0, 0, 0, 0.25)',
-        fontSize: '16px',
-        lineHeight: '1.5',
+        position: 'fixed',
+        top: `${position.y}px`,
+        left: `${position.x}px`,
+        transform: 'none',
+        backgroundColor: 'rgba(13, 170, 142, 0.90)', // Persian green background
+        border: '3px solid #5563A2', // liberty blue
         cursor: isDragging ? 'grabbing' : 'grab',
-        userSelect: 'none', // Prevent text selection during drag
-        overflow: 'auto',
+        userSelect: 'none',
         zIndex: 99999,
-        maxWidth: '400px', // limit width for better readability
+        boxShadow: '0 6px 20px rgba(0, 0, 0, 0.25)',
+        width: `${TOOLTIP_WIDTH}px`, // Fixed width
+        maxHeight: '70vh', // Maximum height as percentage of viewport
+        overflow: 'auto', // scrolling
+        display: 'flex',
+        flexDirection: 'column',
       }}
       onMouseDown={handleMouseDown}
     >
@@ -124,15 +173,17 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
           border: 'none',
           cursor: 'pointer',
           fontSize: '18px',
-          color: '#fff', // White color for the close button to match text
-          animation: 'fadeIn 0.2s ease-in-out',
+          color: '#fff',
         }}
-        onMouseOver={(e) => (e.currentTarget.style.color = '#e0e0e0')} // Slightly darker on hover
-        onMouseOut={(e) => (e.currentTarget.style.color = '#666')}
+        onMouseOver={(e) => (e.currentTarget.style.color = '#e0e0e0')}
+        onMouseOut={(e) => (e.currentTarget.style.color = '#fff')}
       >
         ✕
       </button>
-      <div style={{ marginTop: '10px' }}>
+      <div 
+        style={{ marginTop: '10px' }}
+        className="overflow-auto w-full"
+      >
         {content}
       </div>
     </div>
