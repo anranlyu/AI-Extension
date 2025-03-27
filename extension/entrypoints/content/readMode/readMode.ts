@@ -1,7 +1,10 @@
 import { isProbablyReaderable, Readability} from "@mozilla/readability";
-import { renderReadModeOverlay } from "./readModeOverlay";
+import { ReadabilityLabels, renderReadModeOverlay, rewrittenLevels } from "./readModeOverlay";
 // import rs from 'text-readability';
 import { getFleschReadingEase } from "./readability";
+import { showFloatingOverlay } from "../translate";
+
+
 
 
 const isPageReadable = () => {
@@ -22,7 +25,7 @@ const extractReadableContent = async () => {
   let article: any;
   try {
         if (!isPageReadable()) {
-          console.warn('This page is not suitable for Read Mode.');
+          showFloatingOverlay('This page is not supported for Read Mode.');
           return null;
         }
         const url = window.location.href
@@ -54,6 +57,7 @@ const extractReadableContent = async () => {
 };
 
 export const enableReadMode = async () => {
+  document.body.style.overflow = 'hidden';
   const extractedData = await extractReadableContent();
   if (!extractedData) {
     console.warn('No readable content found.');
@@ -64,27 +68,6 @@ export const enableReadMode = async () => {
   chrome.storage.local.set({ readModeEnabled: true });
 };
 
-let originalPageStyle: HTMLStyleElement | null = null;
-
-function hideOriginalPageElements() {
-  // Inject a style to hide everything except the read mode container.
-  originalPageStyle = document.createElement('style');
-  originalPageStyle.id = 'hide-original-page';
-  originalPageStyle.textContent = `
-    body > :not(#read-mode-shadow-container) {
-      display: none !important;
-    }
-  `;
-  document.head.appendChild(originalPageStyle);
-}
-
-function restoreOriginalPageElements() {
-  // Remove the injected style to restore the original page.
-  const style = document.getElementById('hide-original-page');
-  if (style) {
-    style.remove();
-  }
-}
 
 export const displayProcessedText = (title: string, author: string, rawHtmlContent: string, textContent:string,readingLevel:number) => {
   let container = document.getElementById('read-mode-shadow-container');
@@ -102,7 +85,7 @@ export const displayProcessedText = (title: string, author: string, rawHtmlConte
   // Render the overlay using the separate module.
   renderReadModeOverlay(shadowRoot, title, author, htmlContent,textContent,readingLevel);
 
-  hideOriginalPageElements();
+
 };
 
 
@@ -113,13 +96,10 @@ export const disableReadMode = () => {
     container.remove();
   }
 
-  chrome.storage.local.get(
-    ['readModeEnabled'], () => {
-      chrome.storage.local.set({ readModeEnabled: false })
-  })
+  chrome.storage.local.set({ readModeEnabled: false });
 
-  // Restore the original page elements.
-  restoreOriginalPageElements();
+  document.body.style.overflow = '';
+
 };
 
 /**
@@ -131,26 +111,28 @@ function processContent(html: string): string {
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = html;
 
-  // Process all images.
-  const images = tempDiv.querySelectorAll('img');
-  images.forEach((img) => {
-    img.removeAttribute('style');
-    img.removeAttribute('width');
-    // Set fixed width, auto height, and add styling.
-    img.classList.add('custom-img-size');
+  // Add Tailwind classes to all paragraphs
+  const paragraphs = tempDiv.querySelectorAll('p');
+  paragraphs.forEach(p => {
+    p.classList.add('mb-4', 'leading-7'); // Tailwind spacing classes
   });
 
-  // Process all paragraphs.
-  const paragraphs = tempDiv.querySelectorAll('p');
-  paragraphs.forEach((p) => {
-    // Add extra gap between paragraphs and increased line height.
-    p.classList.add('mb-8', 'leading-8');
+  // Convert <br> tags to Tailwind-spaced breaks
+  const brElements = tempDiv.querySelectorAll('br');
+  brElements.forEach(br => {
+    br.classList.add('block', 'h-4'); // Creates 1rem vertical space
+  });
+
+  // Process images (existing logic)
+  const images = tempDiv.querySelectorAll('img');
+  images.forEach(img => {
+    img.classList.add('max-w-full', 'h-auto', 'my-4'); // Tailwind image classes
   });
 
   return tempDiv.innerHTML;
 }
 
-export const updateReadModeContent = (newText: string) => {
+export const updateReadModeContent = (newText: string, selectedLevel: number) => {
   const container = document.getElementById('read-mode-shadow-container');
   if (!container) {
     console.warn('Read Mode container not found.');
@@ -163,21 +145,36 @@ export const updateReadModeContent = (newText: string) => {
     return;
   }
 
-  // Locate the element that holds the main article content.
-  // This must match the same selector in your readModeOverlay, i.e., the `<div>` with classes:
-  //   text-xl leading-8 flex flex-col gap-4
-  const contentElement = shadowRoot.querySelector('#mainContent');
+  const processedText = processContent(
+    newText.replace(/\n/g, '<br>') // Preserve single newlines
+  );
 
-  if (!contentElement) {
-    console.warn('Content element not found inside shadow root.');
-    return;
+  // Update state with new rewritten content
+  rewrittenLevels.set(selectedLevel, {
+    content: processedText
+  });
+
+  // Update displayed content
+  const contentElement = shadowRoot.querySelector('#mainContent');
+  if (contentElement) {
+    contentElement.innerHTML = processedText;
   }
 
-  // Replace its contents with the new text
-  const formattedText = newText.replace(/\n/g, '<br>');
-  contentElement.innerHTML = formattedText;
-};
+  // Update UI elements
+  const rewriteBtn = shadowRoot.getElementById('rewrite-btn');
+  const noticePanel = shadowRoot.getElementById('notice-panel');
+  const dropdown = shadowRoot.getElementById('read-mode-dropdown') as HTMLSelectElement;
 
+  if (rewriteBtn && noticePanel) {
+    // Only hide button/show panel for the CURRENTLY ACTIVE level
+    const currentLevel = parseInt(dropdown.value);
+    if (currentLevel === selectedLevel) {
+      rewriteBtn.classList.add('hidden');
+      noticePanel.classList.remove('hidden');
+      noticePanel.textContent = `This article has been rewritten by AI to ${ReadabilityLabels[selectedLevel]}, which may impact its accuracy. Please verify information using the original article.`;
+    }
+  }
+};
 
 
 

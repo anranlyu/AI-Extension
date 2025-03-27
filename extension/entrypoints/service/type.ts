@@ -1,4 +1,5 @@
 export interface Message {
+  auth: any;
   type: string;
   text: string;
   dyslexiaFontEnabled: boolean;
