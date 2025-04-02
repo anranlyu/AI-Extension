@@ -21,6 +21,6 @@
     "@esbuild-kit/esm-loader": "^2.6.5",
     "@tailwindcss/vite": "^4.0.14",
     "concurrently": "^9.1.2",
-    "wxt": "^0.19.29"
+    "wxt": "^0.20.0"
   }
 }
