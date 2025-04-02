@@ -1,17 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="AutoImportSettings">
-    <option name="autoReloadType" value="SELECTIVE" />
-  </component>
   <component name="ChangeListManager">
-    <list default="true" id="34e7e563-1ff1-4680-9dff-6fd114b8f51c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/extension/entrypoints/content/Floating/FloatingTT.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/extension/entrypoints/content/Floating/contentFloating.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/extension/entrypoints/content/Floating/persistentContainer.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/extension/entrypoints/content/Floating/renderFloating.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/extension/entrypoints/content/translate.ts" beforeDir="false" afterPath="$PROJECT_DIR$/extension/entrypoints/content/translate.ts" afterDir="false" />
+    <list default="true" id="571c170c-a06b-4b59-9acf-1ba6be5a541e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/extension/entrypoints/content/Floating/FloatingTT.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/extension/entrypoints/content/Floating/FloatingTT.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/extension/entrypoints/content/Floating/persistentContainer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/extension/entrypoints/content/Floating/persistentContainer.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/extension/entrypoints/content/utilities.ts" beforeDir="false" afterPath="$PROJECT_DIR$/extension/entrypoints/content/utilities.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/extension/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/extension/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/extension/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/extension/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/extension/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/extension/tsconfig.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/extension/wxt.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/extension/wxt.config.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
@@ -24,10 +19,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 3
-}</component>
-  <component name="ProjectId" id="2v9S6YL1iG4kj11pKISyywfIHGE" />
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="2vBzQu6UOfYl1SyqLB4pwXx3QGu" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -36,14 +31,14 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Rebasing floating",
+    "git-widget-placeholder": "floating",
+    "last_opened_file_path": "/Users/xiaolinliu/General CS/cs7580 Special Topics/testing branches/AI-Extension",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "vcs.Git",
-    "ts.external.directory.path": "/Users/xiaolinliu/General CS/cs7580 Special Topics/AI-Extension/extension/node_modules/typescript/lib",
+    "ts.external.directory.path": "/Users/xiaolinliu/General CS/cs7580 Special Topics/testing branches/AI-Extension/extension/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -57,33 +52,16 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="34e7e563-1ff1-4680-9dff-6fd114b8f51c" name="Changes" comment="" />
-      <created>1743555622395</created>
+      <changelist id="571c170c-a06b-4b59-9acf-1ba6be5a541e" name="Changes" comment="" />
+      <created>1743633243094</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1743555622395</updated>
-      <workItem from="1743555624063" duration="3470000" />
-      <workItem from="1743581996082" duration="179000" />
+      <updated>1743633243094</updated>
+      <workItem from="1743633244544" duration="453000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="Merge branch 'main' into floating&#10;&#10;# Conflicts:&#10;#&#9;extension/entrypoints/content/index.ts&#10;#&#9;extension/package-lock.json&#10;#&#9;extension/package.json&#10;#&#9;extension/tsconfig.json&#10;#&#9;extension/wxt.config.ts&#10;" />
-    <MESSAGE value="Merge branch 'main' into floating&#10;&#10;# Conflicts:&#10;#&#9;extension/entrypoints/content/index.ts&#10;#&#9;extension/package-lock.json&#10;#&#9;extension/package.json&#10;#&#9;extension/tsconfig.json&#10;#&#9;extension/wxt.config.ts" />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge branch 'main' into floating&#10;&#10;# Conflicts:&#10;#&#9;extension/entrypoints/content/index.ts&#10;#&#9;extension/package-lock.json&#10;#&#9;extension/package.json&#10;#&#9;extension/tsconfig.json&#10;#&#9;extension/wxt.config.ts" />
   </component>
 </project>

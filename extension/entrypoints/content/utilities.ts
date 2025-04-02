@@ -83,5 +83,5 @@ export function createReferenceFromSelection(): HTMLElement | null {
   } catch (error) {
     console.error("Error creating reference element:", error);
     return null;
-  }
-}
+  }}
+

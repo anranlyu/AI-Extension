@@ -70,6 +70,11 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
   
   // Drag handlers
   const handleMouseDown = (e: React.MouseEvent) => {
+    // Don't start dragging if clicking on the close button
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+
     setIsDragging(true);
     setDragOffset({
       x: e.clientX - position.x,
@@ -142,7 +147,6 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
   return (
     <div
       ref={refs.setFloating}
-      className="text-white p-6 rounded-lg shadow-lg text-base leading-relaxed"
       style={{
         position: 'fixed',
         top: `${position.y}px`,
@@ -156,33 +160,49 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
         boxShadow: '0 6px 20px rgba(0, 0, 0, 0.25)',
         width: `${TOOLTIP_WIDTH}px`, // Fixed width
         maxHeight: '70vh', // Maximum height as percentage of viewport
-        overflow: 'auto', // scrolling
         display: 'flex',
         flexDirection: 'column',
       }}
       onMouseDown={handleMouseDown}
     >
-      <button
-        onClick={onClose}
-        aria-label="Close"
+      {/* Header with close button */}
+      <div
         style={{
-          position: 'absolute',
-          top: '10px',
-          right: '10px',
-          background: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-          fontSize: '18px',
-          color: '#fff',
+          position: 'relative',
+          height: '40px', // Fixed height for the header
+          width: '100%',
         }}
-        onMouseOver={(e) => (e.currentTarget.style.color = '#e0e0e0')}
-        onMouseOut={(e) => (e.currentTarget.style.color = '#fff')}
       >
-        ✕
-      </button>
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          style={{
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '18px',
+            color: '#fff',
+            zIndex: 2, // Higher z-index than content
+            padding: '5px', // Larger click area
+          }}
+          onMouseOver={(e) => (e.currentTarget.style.color = '#e0e0e0')}
+          onMouseOut={(e) => (e.currentTarget.style.color = '#fff')}
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Content area with padding and scrolling */}
       <div 
-        style={{ marginTop: '10px' }}
         className="overflow-auto w-full"
+        style={{
+          padding: '0 20px 20px 20px', // Add padding around content, but not at top (header handles that)
+          zIndex: 1,
+          maxHeight: 'calc(70vh - 40px)', // Adjust for header height
+        }}
       >
         {content}
       </div>

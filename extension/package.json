@@ -5,8 +5,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npx wxt",
-    "dev:firefox": "NODE_OPTIONS='--experimental-loader=@esbuild-kit/esm-loader' wxt -b firefox",
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
     "build": "wxt build",
     "build:firefox": "wxt build -b firefox",
     "zip": "wxt zip",
@@ -15,7 +15,7 @@
     "postinstall": "wxt prepare"
   },
   "dependencies": {
-    "@floating-ui/react": "^0.27.5",
+    "@floating-ui/react": "^0.27.6",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
     "@mozilla/readability": "^0.5.0",
@@ -30,14 +30,12 @@
     "tailwindcss": "^4.0.11"
   },
   "devDependencies": {
-    "@esbuild-kit/esm-loader": "^2.6.5",
-    "@tailwindcss/vite": "^4.0.14",
     "@types/chrome": "^0.0.280",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
     "@wxt-dev/auto-icons": "^1.0.2",
-    "@wxt-dev/module-react": "^1.1.2",
+    "@wxt-dev/module-react": "^1.1.3",
     "typescript": "^5.6.3",
-    "wxt": "^0.17.0"
+    "wxt": "^0.19.29"
   }
 }
