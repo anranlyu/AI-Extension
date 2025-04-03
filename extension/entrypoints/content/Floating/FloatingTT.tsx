@@ -17,6 +17,7 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
   // Use refs to store state that shouldn't trigger re-renders
   const initialPositionSetRef = useRef(false);
   const tooltipRef = useRef<HTMLElement | null>(null);
+  const positionRef = useRef({ x: 250, y: 250 });
   
   // Regular state
   const [isDragging, setIsDragging] = useState(false);
@@ -29,29 +30,42 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
   const { x, y, refs } = useFloating({
     strategy: "fixed",
     middleware: [offset(8), flip(), shift({ padding: 5 })],
+    transform: false,
+    placement: "bottom"
   });
-  
+
+  // Initialize position just once on mount
   useEffect(() => {
-    if (!initialPositionSetRef.current && x !== null && y !== null) {
-      setPosition({ x, y });
-      initialPositionSetRef.current = true;
-    }
-  }, [x, y]);
-  
-  // Attach the reference element only once, and disconnect from automatic updates
-  useEffect(() => {
+    // Set the reference element once
     if (referenceElement && !initialPositionSetRef.current) {
       refs.setReference(referenceElement);
+
+      // Get the initial position based on the reference element
+      const refRect = referenceElement.getBoundingClientRect();
+      const initialX = refRect.left;
+      const initialY = refRect.bottom + 8; // 8px offset
+
+      // Apply viewport constraints to initial position
+      const { x: constrainedX, y: constrainedY } = constrainToViewport(initialX, initialY);
+
+      // Set both the state and ref
+      setPosition({ x: constrainedX, y: constrainedY });
+      positionRef.current = { x: constrainedX, y: constrainedY };
+
+      initialPositionSetRef.current = true;
     }
-    
+
     // Store the floating ref for boundary detection
     if (refs.floating.current) {
       tooltipRef.current = refs.floating.current;
     }
+
+    // Clean up function that runs when component unmounts
     return () => {
+      // Nothing to clean up here now
     };
-  }, [referenceElement, refs]);
-  
+  }, [referenceElement]); // Only run when referenceElement changes or on mount
+
   // To make tooltip stay within viewport boundaries
   const constrainToViewport = (newX: number, newY: number): { x: number, y: number } => {
     const viewportWidth = window.innerWidth;
@@ -77,13 +91,10 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
 
     setIsDragging(true);
     setDragOffset({
-      x: e.clientX - position.x,
-      y: e.clientY - position.y,
+      x: e.clientX - positionRef.current.x,
+      y: e.clientY - positionRef.current.y,
     });
-    
-    // Mark position as set to prevent any floating UI updates
-    initialPositionSetRef.current = true;
-    
+
     e.preventDefault();
     e.stopPropagation();
   };
@@ -102,10 +113,12 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
           x: constrainedX,
           y: constrainedY,
         });
-        
+        positionRef.current = { x: constrainedX, y: constrainedY };
+
         // Direct DOM update for smoother dragging
         if (refs.floating.current) {
           const element = refs.floating.current as HTMLElement;
+          element.style.transform = 'none';
           element.style.top = `${constrainedY}px`;
           element.style.left = `${constrainedX}px`;
         }
@@ -147,11 +160,13 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
   return (
     <div
       ref={refs.setFloating}
+      className="text-white rounded-lg shadow-lg text-base leading-relaxed"
       style={{
         position: 'fixed',
-        top: `${position.y}px`,
-        left: `${position.x}px`,
-        transform: 'none',
+        top: `${positionRef.current.y}px`, // Use ref instead of state
+        left: `${positionRef.current.x}px`, // Use ref instead of state
+        transform: 'none', // Explicitly disable transform
+        pointerEvents: 'auto', // Ensure it captures mouse events
         backgroundColor: 'rgba(13, 170, 142, 0.90)', // Persian green background
         border: '3px solid #5563A2', // liberty blue
         cursor: isDragging ? 'grabbing' : 'grab',
@@ -185,7 +200,7 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
             cursor: 'pointer',
             fontSize: '18px',
             color: '#fff',
-            zIndex: 2, // Higher z-index than content
+            zIndex: 2,
             padding: '5px', // Larger click area
           }}
           onMouseOver={(e) => (e.currentTarget.style.color = '#e0e0e0')}
