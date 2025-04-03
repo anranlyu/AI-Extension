@@ -162,13 +162,14 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
       ref={refs.setFloating}
       className="text-white rounded-lg shadow-lg text-base leading-relaxed"
       style={{
+        color: 'white',
         position: 'fixed',
         top: `${positionRef.current.y}px`, // Use ref instead of state
         left: `${positionRef.current.x}px`, // Use ref instead of state
         transform: 'none', // Explicitly disable transform
         pointerEvents: 'auto', // Ensure it captures mouse events
-        backgroundColor: 'rgba(13, 170, 142, 0.90)', // Persian green background
-        border: '3px solid #5563A2', // liberty blue
+        backgroundColor: 	'#16775c', 
+        border: '3px solid #97c481', 
         cursor: isDragging ? 'grabbing' : 'grab',
         userSelect: 'none',
         zIndex: 99999,
