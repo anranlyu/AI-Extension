@@ -8,7 +8,7 @@ const Parser = require('@postlight/parser');
 const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Enable JSON parsing for incoming requests
 app.use(express.json());
