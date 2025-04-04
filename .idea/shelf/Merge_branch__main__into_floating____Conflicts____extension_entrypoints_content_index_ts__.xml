@@ -1,8 +1,0 @@
-<changelist name="Merge_branch_'main'_into_floating__#_Conflicts__#_extension_entrypoints_content_index_ts_#" date="1743581586571" recycled="false" deleted="true">
-  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Merge_branch_'main'_into_floating__#_Conflicts__#_extension_entrypoints_content_index_ts_#/shelved.patch" />
-  <option name="DESCRIPTION" value="Merge branch 'main' into floating  # Conflicts: #&#9;extension/entrypoints/content/index.ts #&#9;extension/package-lock.json #&#9;extension/package.json #&#9;extension/tsconfig.json #&#9;extension/wxt.config.ts" />
-  <binary>
-    <option name="AFTER_PATH" value="Frontend/public/icon.png" />
-    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Merge_branch_'main'_into_floating__#_Conflicts__#_extension_entrypoints_content_index_ts_#/icon.png" />
-  </binary>
-</changelist>
