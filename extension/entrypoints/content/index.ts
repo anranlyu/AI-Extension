@@ -6,8 +6,10 @@
 
 
 import { getSelectedText } from './textSelection';
+// import { injectDyslexiaFont, removeDyslexiaFontFromPage } from './dyslexiaFont';
 import {
   disableReadMode,
+  // displayProcessedText,
   enableReadMode,
   updateReadModeContent,
 } from './readMode/readMode';
@@ -16,7 +18,6 @@ import { enableTTSMode, stopRead } from './ttsMode/tts_content';
 import { createTTSFloatingUI } from './ttsMode/tts_ui';
 import { showFloatingOverlay } from './translate';
 import './content.css';
-import { defineContentScript } from 'wxt/sandbox';
 
 /**
  * Main content script configuration and initialization.
@@ -31,7 +32,7 @@ export default defineContentScript({
    * Initializes all features and sets up event listeners.
    * @param ctx - The content script context provided by WXT
    */
-  async main(ctx: any) {
+  async main(ctx) {
     // Initialize text highlighting feature
     initHighlight();
     let ttsUI: Awaited<ReturnType<typeof createTTSFloatingUI>>;
@@ -128,5 +129,3 @@ export default defineContentScript({
     );
   },
 });
-
-
