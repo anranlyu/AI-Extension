@@ -1,5 +1,6 @@
 import { disableReadMode} from './readMode'; // Ensure disableReadMode is exported from your main module (or another common module)
 import contentCss from '../content.css?inline';
+import { showFloatingToolbar, hideFloatingToolbar } from './renderFloatingToolbar';
 
 export const ReadabilityLabels = ['Very Complex', 'Complex', 'Challenging', 'Somewhat Challenging', 'Moderately Accessible', 'Accessible', 'Highly Accessible'];
 // state.ts
@@ -66,10 +67,18 @@ export const renderReadModeOverlay = (
     </div>
   `;
 
+  // First wait for the DOM to be fully rendered, then show the floating toolbar
+  setTimeout(() => {
+    showFloatingToolbar(shadowRoot);
+  }, 100);
+
   // Attach event listener to the close button.
   const closeButton = shadowRoot.getElementById('read-mode-close');
   if (closeButton) {
-    closeButton.addEventListener('click', disableReadMode);
+    closeButton.addEventListener('click', () => {
+      hideFloatingToolbar();
+      disableReadMode();
+    });
   }
 
   // Attach event listener(s) to the select element.

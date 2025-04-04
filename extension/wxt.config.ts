@@ -16,7 +16,7 @@ export default defineConfig({
     "manifest_version": 3,
     "name": "LumiRead",
     "version": "1.0.0",
-    "host_permissions": ["http://*/*", "https://*/*"],
+    "host_permissions": ["https://www.cbc.ca/news/politics/carney-preston-manning-western-independence-1.7502033"],
     "action": {},
     "permissions": [
         "activeTab",
