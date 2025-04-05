@@ -1,27 +1,14 @@
-import React, { useRef, useEffect } from 'react';
-import { LENGTH_OPTIONS } from './types';
+import React, { useState, useRef, useEffect } from 'react';
+import { TrackMarkerProps } from './types';
+import { LENGTH_OPTIONS, CENTER_POSITION } from './constants';
 
-interface LengthAdjustmentProps {
-  selectedLengthOption: number;
-  hasBeenDragged: boolean;
-  isDragging: boolean;
-  setIsDragging: (dragging: boolean) => void;
-  setSelectedLengthOption: (option: number) => void;
-  setHasBeenDragged: (dragged: boolean) => void;
-  onSendClick: () => void;
-  onCloseClick: () => void;
-}
-
-const LengthAdjustment: React.FC<LengthAdjustmentProps> = ({
-  selectedLengthOption,
-  hasBeenDragged,
-  isDragging,
-  setIsDragging,
-  setSelectedLengthOption,
-  setHasBeenDragged,
+const TrackMarker: React.FC<TrackMarkerProps> = ({
+  selectedOption,
+  onOptionChange,
   onSendClick,
-  onCloseClick,
 }) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [hasBeenDragged, setHasBeenDragged] = useState(false);
   const dragHandleRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
@@ -30,6 +17,16 @@ const LengthAdjustment: React.FC<LengthAdjustmentProps> = ({
     setIsDragging(true);
     e.preventDefault();
   };
+
+  // Check if current position is different from center
+  const isNonCenterPosition = selectedOption !== CENTER_POSITION;
+
+  // Reset drag state if we move back to center position
+  useEffect(() => {
+    if (selectedOption === CENTER_POSITION) {
+      setHasBeenDragged(false);
+    }
+  }, [selectedOption]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -46,10 +43,11 @@ const LengthAdjustment: React.FC<LengthAdjustmentProps> = ({
 
         // Convert to one of the 5 options (0 to 4)
         const optionIndex = Math.floor(relativeY * 5);
-        setSelectedLengthOption(Math.min(4, optionIndex));
+        const newOption = Math.min(4, optionIndex);
+        onOptionChange(newOption);
 
-        // Mark as dragged for showing send arrow later
-        if (!hasBeenDragged) {
+        // Mark as dragged only if not moving to center position
+        if (newOption !== CENTER_POSITION) {
           setHasBeenDragged(true);
         }
       }
@@ -68,19 +66,13 @@ const LengthAdjustment: React.FC<LengthAdjustmentProps> = ({
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [
-    isDragging,
-    hasBeenDragged,
-    setIsDragging,
-    setSelectedLengthOption,
-    setHasBeenDragged,
-  ]);
+  }, [isDragging, onOptionChange]);
 
   return (
-    <div className="flex items-center">
+    <>
       {/* Text label that shows current selection - always visible */}
       <div className="absolute right-full mr-2 whitespace-nowrap rounded-md bg-black px-2 py-1 text-sm text-white">
-        {LENGTH_OPTIONS[selectedLengthOption]}
+        {LENGTH_OPTIONS[selectedOption]}
       </div>
 
       {/* Vertical track with draggable handle */}
@@ -96,7 +88,7 @@ const LengthAdjustment: React.FC<LengthAdjustmentProps> = ({
               <div key={idx} className="flex justify-center">
                 <div
                   className={`w-3 h-3 rounded-full ${
-                    idx === selectedLengthOption ? 'bg-gray-800' : 'bg-gray-400'
+                    idx === selectedOption ? 'bg-gray-800' : 'bg-gray-400'
                   }`}
                 />
               </div>
@@ -108,12 +100,12 @@ const LengthAdjustment: React.FC<LengthAdjustmentProps> = ({
             ref={dragHandleRef}
             className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10"
             style={{
-              top: `calc(${(selectedLengthOption / 4) * 100}% * 0.8 + 10%)`,
+              top: `calc(${(selectedOption / 4) * 100}% * 0.8 + 10%)`,
             }}
             onMouseDown={handleMouseDown}
           >
-            {hasBeenDragged ? (
-              // Send arrow button after dragging
+            {hasBeenDragged && isNonCenterPosition ? (
+              // Send arrow button - only show when dragged and not in center position
               <button
                 onClick={onSendClick}
                 className="p-2 bg-black text-white rounded-full hover:bg-gray-800"
@@ -134,7 +126,10 @@ const LengthAdjustment: React.FC<LengthAdjustmentProps> = ({
               </button>
             ) : (
               // Regular adjust length button
-              <button className="p-2 bg-white rounded-full shadow-md">
+              <button
+                className="p-2 bg-white rounded-full shadow-md"
+                disabled={hasBeenDragged && !isNonCenterPosition}
+              >
                 <svg
                   className="w-5 h-5 text-gray-500"
                   fill="none"
@@ -186,30 +181,9 @@ const LengthAdjustment: React.FC<LengthAdjustmentProps> = ({
             )}
           </div>
         </div>
-
-        {/* Close button */}
-        <button
-          onClick={onCloseClick}
-          className="mt-2 p-2 hover:bg-gray-100 rounded-full"
-        >
-          <svg
-            className="w-5 h-5 text-gray-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
-            ></path>
-          </svg>
-        </button>
       </div>
-    </div>
+    </>
   );
 };
 
-export default LengthAdjustment;
+export default TrackMarker;

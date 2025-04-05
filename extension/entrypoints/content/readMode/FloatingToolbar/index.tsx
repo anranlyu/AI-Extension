@@ -1,80 +1,76 @@
-import React, { useState, useCallback } from 'react';
-import { useFloating, offset, flip, shift } from '@floating-ui/react';
+import React, { useState, useEffect } from 'react';
+import { useFloating, shift, offset } from '@floating-ui/react';
+import { FloatingToolbarProps } from './types';
 import StandardToolbar from './StandardToolbar';
-import LengthAdjustment from './LengthAdjustment';
-import { FloatingToolbarProps, LENGTH_OPTIONS } from './types';
+import LengthAdjustmentToolbar from './LengthAdjustmentToolbar';
+import { CENTER_POSITION } from './constants';
 
 const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   referenceElement,
 }) => {
-  // Main state for toolbar
-  const [isLengthAdjustMode, setIsLengthAdjustMode] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [hasBeenDragged, setHasBeenDragged] = useState(false);
-  const [selectedLengthOption, setSelectedLengthOption] = useState(2); // Default to "keep current length"
+  const [isLengthAdjustMode, setIsLengthAdjustMode] = useState(false);
+  const [resetTooltips, setResetTooltips] = useState(false);
 
-  // Floating UI setup
-  const { x, y, strategy, refs } = useFloating({
-    placement: 'left',
-    middleware: [offset(10), flip(), shift()],
+  const { refs, floatingStyles } = useFloating({
+    placement: 'bottom-end',
+    middleware: [
+      offset({ mainAxis: 16, crossAxis: 16 }),
+      shift({ padding: 8 }),
+    ],
     elements: {
       reference: referenceElement ?? undefined,
     },
   });
 
-  // Toggle minimize state
-  const handleMinimizeToggle = useCallback(() => {
-    setIsMinimized(!isMinimized);
-  }, [isMinimized]);
+  // Track mode changes to reset tooltips
+  useEffect(() => {
+    // When length adjust mode changes, set resetTooltips to true
+    if (!isLengthAdjustMode) {
+      setResetTooltips(true);
+      // Reset the flag after a short delay to prevent continuous resets
+      const timer = setTimeout(() => {
+        setResetTooltips(false);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLengthAdjustMode]);
 
-  // Handle length adjustment mode
-  const handleAdjustLengthClick = useCallback(() => {
+  // Handle length adjustment button click
+  const handleAdjustLengthClick = () => {
     setIsLengthAdjustMode(true);
-  }, []);
+  };
 
-  // Handle closing length adjustment mode
-  const handleCloseAdjustLength = useCallback(() => {
+  // Handle close button click in length adjustment mode
+  const handleCloseAdjustMode = () => {
     setIsLengthAdjustMode(false);
-    setHasBeenDragged(false);
-  }, []);
-
-  // Handle send button click
-  const handleSendClick = useCallback(() => {
-    // Here you would implement the logic for sending with the selected length
-    console.log(
-      `Send with length option: ${LENGTH_OPTIONS[selectedLengthOption]}`
-    );
-    // Note: We don't exit length adjust mode anymore - the user must click X
-  }, [selectedLengthOption]);
+  };
 
   return (
     <div
       ref={refs.setFloating}
       style={{
-        position: strategy,
-        top: y ?? 0,
-        left: x ?? 0,
-        zIndex: 1000,
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        zIndex: 999999,
+        transition: 'all 0.3s ease',
       }}
-      className="bg-white rounded-lg shadow-lg p-2"
+      className={`bg-white rounded-full shadow-lg py-4 flex flex-col items-center ${
+        isMinimized ? 'w-14' : ''
+      } ${isLengthAdjustMode ? 'w-auto' : ''}`}
     >
       {isLengthAdjustMode ? (
-        <LengthAdjustment
-          selectedLengthOption={selectedLengthOption}
-          hasBeenDragged={hasBeenDragged}
-          isDragging={isDragging}
-          setIsDragging={setIsDragging}
-          setSelectedLengthOption={setSelectedLengthOption}
-          setHasBeenDragged={setHasBeenDragged}
-          onSendClick={handleSendClick}
-          onCloseClick={handleCloseAdjustLength}
+        <LengthAdjustmentToolbar
+          onClose={handleCloseAdjustMode}
+          initialOption={CENTER_POSITION} // Default to "keep current length"
         />
       ) : (
         <StandardToolbar
           isMinimized={isMinimized}
+          setIsMinimized={setIsMinimized}
           onAdjustLengthClick={handleAdjustLengthClick}
-          onMinimizeToggle={handleMinimizeToggle}
+          resetTooltips={resetTooltips}
         />
       )}
     </div>
