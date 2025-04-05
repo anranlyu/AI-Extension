@@ -94,3 +94,19 @@ export const ReadModePrompts = [
    **TEXT TO REWRITE**:
    `
 ];
+// Length adjustment prompts for different options
+export const LengthAdjustmentPrompts = [
+
+  // Option 0: Shorter
+  `Condense this text to approximately 60-70% of its original length.
+   Remove redundancies and less essential information while preserving all key points, main arguments, and critical details.
+   Prioritize clarity and conciseness while maintaining the original meaning.
+   Format the output as HTML with appropriate paragraph tags.`,
+  
+  // Option 1: Shortest
+  `Summarize this text to approximately 40-50% of its original length.
+   Focus only on the most essential information, main arguments, and key points.
+   Eliminate details, examples, and explanations that aren't absolutely necessary.
+   Prioritize brevity while ensuring the core message remains clear and accurate.
+   Format the output as HTML with appropriate paragraph tags.`
+];

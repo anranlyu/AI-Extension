@@ -7,6 +7,7 @@ import { CENTER_POSITION } from './constants';
 
 const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   referenceElement,
+  textContent = '',
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isLengthAdjustMode, setIsLengthAdjustMode] = useState(false);
@@ -64,6 +65,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         <LengthAdjustmentToolbar
           onClose={handleCloseAdjustMode}
           initialOption={CENTER_POSITION} // Default to "keep current length"
+          textContent={textContent}
         />
       ) : (
         <StandardToolbar

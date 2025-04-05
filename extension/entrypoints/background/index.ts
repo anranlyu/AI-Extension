@@ -3,7 +3,7 @@
  * Handles authentication, text processing, and communication between content scripts and popup.
  */
 
-import { Prompt, ReadModePrompts, translatePrompt } from "../service/Prompt";
+import { Prompt, LengthAdjustmentPrompts, translatePrompt } from "../service/Prompt";
 import getTextFromDeepseek from "../service/getTextFromDeepseek";
 import { Message } from "../service/type";
 import generateTTS from "../service/tts_openai";
@@ -77,7 +77,7 @@ export default defineBackground(() => {
    * Handles messages from content scripts and popup
    * Processes text for simplification, translation, and read mode
    */
-  chrome.runtime.onMessage.addListener(async (message: Message, sender) => {
+  chrome.runtime.onMessage.addListener(async (message: Message, sender, sendResponse) => {
     if (message.type === 'selected_text') {
       chrome.storage.local.get(['simplifyTextEnabled', "translateEnabled", "targetLanguage"], async (result) => {
         const simplifyTextEnabled = result.simplifyTextEnabled || false;
@@ -103,19 +103,33 @@ export default defineBackground(() => {
         }
       });
     }
-    if (message.type === 'readMode_text') {
-      console.log("get raw read mode text")
-      const processedText = await getTextFromDeepseek({
-        prompt: ReadModePrompts[message.selectedLevel],
-        text: message.text,
-      })
-      console.log("Got new read mode text from llm" + processedText)
-      if (sender.tab?.id) {
-        chrome.tabs.sendMessage(sender.tab.id, {
-          type: 'simplified_readMode_text',
-          text: processedText,
-          level: message.selectedLevel
+    
+    if (message.type === 'readMode_text_length_adjustment') {
+      console.log("Processing read mode text for level:", message.selectedLevel);
+      try {
+        const processedText = await getTextFromDeepseek({
+          prompt: LengthAdjustmentPrompts[message.selectedLevel - 1],
+          text: message.text,
         });
+        console.log("Got new read mode text from LLM:", processedText);
+        
+        if (sender.tab?.id) {
+          // Send back to the tab that requested the processing
+          chrome.tabs.sendMessage(sender.tab.id, {
+            type: 'simplified_readMode_text',
+            text: processedText,
+            level: message.selectedLevel,
+            success: true
+          });
+        }
+      } catch (error) {
+        console.error("Error processing read mode text:", error);
+        if (sendResponse) {
+          sendResponse({
+            success: false,
+            error: error instanceof Error ? error.message : "Unknown error"
+          });
+        }
       }
     }
 

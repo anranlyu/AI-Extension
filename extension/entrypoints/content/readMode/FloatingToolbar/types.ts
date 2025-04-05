@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 
 export interface FloatingToolbarProps {
   referenceElement: HTMLElement | null;
+  textContent?: string;
 }
 
 export interface ToolbarButtonProps {
@@ -17,6 +18,7 @@ export interface ToolbarButtonProps {
 export interface LengthAdjustmentToolbarProps {
   onClose: () => void;
   initialOption?: number;
+  textContent?: string;
 }
 
 export interface StandardToolbarProps {

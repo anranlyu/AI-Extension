@@ -121,10 +121,7 @@ export default defineContentScript({
           showFloatingOverlay(text);
         } else if (type === 'translated_text' && text) {
           showFloatingOverlay(text);
-        } else if (type === 'simplified_readMode_text') {
-          console.log('content script get new readmode text');
-          updateReadModeContent(text, level);
-        }
+        } 
       }
     );
   },

@@ -41,9 +41,9 @@ const TrackMarker: React.FC<TrackMarkerProps> = ({
         // Constrain to track bounds (0 to 1)
         relativeY = Math.max(0, Math.min(1, relativeY));
 
-        // Convert to one of the 5 options (0 to 4)
-        const optionIndex = Math.floor(relativeY * 5);
-        const newOption = Math.min(4, optionIndex);
+        // Convert to one of the 3 options (0 to 2)
+        const optionIndex = Math.floor(relativeY * 3);
+        const newOption = Math.min(2, optionIndex);
         onOptionChange(newOption);
 
         // Mark as dragged only if not moving to center position
@@ -71,7 +71,7 @@ const TrackMarker: React.FC<TrackMarkerProps> = ({
   return (
     <>
       {/* Text label that shows current selection - always visible */}
-      <div className="absolute right-full mr-2 whitespace-nowrap rounded-md bg-black px-2 py-1 text-sm text-white">
+      <div className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 whitespace-nowrap rounded-md bg-black px-2 py-1 text-sm text-white">
         {LENGTH_OPTIONS[selectedOption]}
       </div>
 
@@ -84,7 +84,7 @@ const TrackMarker: React.FC<TrackMarkerProps> = ({
         >
           {/* Track markers */}
           <div className="absolute inset-0 flex flex-col justify-between py-6">
-            {[0, 1, 2, 3, 4].map((idx) => (
+            {[0, 1, 2].map((idx) => (
               <div key={idx} className="flex justify-center">
                 <div
                   className={`w-3 h-3 rounded-full ${
@@ -100,7 +100,7 @@ const TrackMarker: React.FC<TrackMarkerProps> = ({
             ref={dragHandleRef}
             className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10"
             style={{
-              top: `calc(${(selectedOption / 4) * 100}% * 0.8 + 10%)`,
+              top: `calc(${(selectedOption / 2) * 100}% * 0.8 + 10%)`,
             }}
             onMouseDown={handleMouseDown}
           >

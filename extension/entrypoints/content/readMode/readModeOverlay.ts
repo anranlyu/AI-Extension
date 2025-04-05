@@ -69,7 +69,7 @@ export const renderReadModeOverlay = (
 
   // First wait for the DOM to be fully rendered, then show the floating toolbar
   setTimeout(() => {
-    showFloatingToolbar(shadowRoot);
+    showFloatingToolbar(shadowRoot, textContent);
   }, 100);
 
   // Attach event listener to the close button.

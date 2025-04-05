@@ -4,8 +4,16 @@ import FloatingToolbar from './FloatingToolbar';
 
 // Store a reference to the root
 let toolbarRoot: any = null;
+// Store the text content for later use
+let currentTextContent: string = '';
 
-export function showFloatingToolbar(shadowRoot: ShadowRoot) {
+export function showFloatingToolbar(
+  shadowRoot: ShadowRoot,
+  textContent: string = ''
+) {
+  // Store the text content
+  currentTextContent = textContent;
+
   // Clear previous toolbar if it exists
   if (toolbarRoot) {
     hideFloatingToolbar();
@@ -32,7 +40,12 @@ export function showFloatingToolbar(shadowRoot: ShadowRoot) {
   // Create root once
   toolbarRoot = createRoot(container);
 
-  toolbarRoot.render(<FloatingToolbar referenceElement={referenceElement} />);
+  toolbarRoot.render(
+    <FloatingToolbar
+      referenceElement={referenceElement}
+      textContent={currentTextContent}
+    />
+  );
 }
 
 export function hideFloatingToolbar() {
