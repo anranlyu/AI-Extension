@@ -9,13 +9,23 @@ const TrackMarker: React.FC<TrackMarkerProps> = ({
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [hasBeenDragged, setHasBeenDragged] = useState(false);
+  const [wasDragging, setWasDragging] = useState(false);
   const dragHandleRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
   // Handle mouse events for dragging
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
+    setWasDragging(false);
     e.preventDefault();
+  };
+
+  // Handle click on send button, but only if not released from dragging
+  const handleSendClick = (e: React.MouseEvent) => {
+    if (!wasDragging) {
+      onSendClick();
+    }
+    setWasDragging(false);
   };
 
   // Check if current position is different from center
@@ -31,6 +41,7 @@ const TrackMarker: React.FC<TrackMarkerProps> = ({
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (isDragging && trackRef.current && dragHandleRef.current) {
+        setWasDragging(true);
         const trackRect = trackRef.current.getBoundingClientRect();
         const trackHeight = trackRect.height;
         const trackTop = trackRect.top;
@@ -55,6 +66,10 @@ const TrackMarker: React.FC<TrackMarkerProps> = ({
 
     const handleMouseUp = () => {
       setIsDragging(false);
+      // Keep wasDragging state for a short time to prevent immediate clicks
+      setTimeout(() => {
+        setWasDragging(false);
+      }, 300);
     };
 
     if (isDragging) {
@@ -107,7 +122,7 @@ const TrackMarker: React.FC<TrackMarkerProps> = ({
             {hasBeenDragged && isNonCenterPosition ? (
               // Send arrow button - only show when dragged and not in center position
               <button
-                onClick={onSendClick}
+                onClick={handleSendClick}
                 className="p-2 bg-black text-white rounded-full hover:bg-gray-800"
               >
                 <svg

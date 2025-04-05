@@ -210,18 +210,13 @@ export const updateReadModeContent = (newText: string, selectedLevel: number) =>
   }
 
   // Update UI elements
-  const rewriteBtn = shadowRoot.getElementById('rewrite-btn');
+  
   const noticePanel = shadowRoot.getElementById('notice-panel');
-  const dropdown = shadowRoot.getElementById('read-mode-dropdown') as HTMLSelectElement;
 
-  if (rewriteBtn && noticePanel) {
+  if (noticePanel) {
     // Only hide button/show panel for the CURRENTLY ACTIVE level
-    const currentLevel = parseInt(dropdown.value);
-    if (currentLevel === selectedLevel) {
-      rewriteBtn.classList.add('hidden');
-      noticePanel.classList.remove('hidden');
-      noticePanel.textContent = `This article has been rewritten by AI to ${ReadabilityLabels[selectedLevel]}, which may impact its accuracy. Please verify information using the original article.`;
-    }
+    
+    noticePanel.classList.remove('hidden');
   }
 };
 
