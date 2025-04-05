@@ -24,7 +24,7 @@ const LengthAdjustmentToolbar: React.FC<LengthAdjustmentToolbarProps> = ({
         message.level === selectedOption
       ) {
         // Update content
-        updateReadModeContent(message.text, message.level);
+        updateReadModeContent(message.text);
         // Reset processing state
         setIsProcessing(false);
         // Return to standard toolbar

@@ -179,9 +179,8 @@ function processContent(html: string): string {
 /**
  * Updates the read mode content with new text and updates UI elements accordingly
  * @param newText - The new text content to display
- * @param selectedLevel - The selected readability level
  */
-export const updateReadModeContent = (newText: string, selectedLevel: number) => {
+export const updateReadModeContent = (newText: string) => {
   const container = document.getElementById('read-mode-shadow-container');
   if (!container) {
     console.warn('Read Mode container not found.');
@@ -197,11 +196,6 @@ export const updateReadModeContent = (newText: string, selectedLevel: number) =>
   const processedText = processContent(
     newText.replace(/\n/g, '<br>') // Preserve single newlines
   );
-
-  // Update state with new rewritten content
-  rewrittenLevels.set(selectedLevel, {
-    content: processedText
-  });
 
   // Update displayed content
   const contentElement = shadowRoot.querySelector('#mainContent');
