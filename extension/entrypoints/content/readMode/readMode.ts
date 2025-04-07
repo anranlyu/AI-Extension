@@ -2,7 +2,7 @@ import { isProbablyReaderable, Readability} from "@mozilla/readability";
 import { ReadabilityLabels, renderReadModeOverlay, rewrittenLevels } from "./readModeOverlay";
 // import rs from 'text-readability';
 import { getFleschReadingEase } from "./readability";
-import { showFloatingOverlay } from "../translate";
+
 
 /**
  * Checks if the current page is readable using Mozilla's Readability
@@ -58,7 +58,7 @@ const fetchContent = async (url: string) => {
  */
 const extractReadableContent = async () => {
   if (!isPageReadable()) {
-    showFloatingOverlay('This page is not supported for Read Mode.');
+    console.warn('This page is not supported for Read Mode.');
     return null;
   }
 
@@ -66,7 +66,7 @@ const extractReadableContent = async () => {
   const article = await fetchContent(url);
   
   if (!article) {
-    showFloatingOverlay('Unable to extract readable content from this page.');
+    console.warn('Unable to extract readable content from this page.');
     return null;
   }
 
@@ -179,9 +179,8 @@ function processContent(html: string): string {
 /**
  * Updates the read mode content with new text and updates UI elements accordingly
  * @param newText - The new text content to display
- * @param selectedLevel - The selected readability level
  */
-export const updateReadModeContent = (newText: string, selectedLevel: number) => {
+export const updateReadModeContent = (newText: string) => {
   const container = document.getElementById('read-mode-shadow-container');
   if (!container) {
     console.warn('Read Mode container not found.');
@@ -198,11 +197,6 @@ export const updateReadModeContent = (newText: string, selectedLevel: number) =>
     newText.replace(/\n/g, '<br>') // Preserve single newlines
   );
 
-  // Update state with new rewritten content
-  rewrittenLevels.set(selectedLevel, {
-    content: processedText
-  });
-
   // Update displayed content
   const contentElement = shadowRoot.querySelector('#mainContent');
   if (contentElement) {
@@ -210,18 +204,13 @@ export const updateReadModeContent = (newText: string, selectedLevel: number) =>
   }
 
   // Update UI elements
-  const rewriteBtn = shadowRoot.getElementById('rewrite-btn');
+  
   const noticePanel = shadowRoot.getElementById('notice-panel');
-  const dropdown = shadowRoot.getElementById('read-mode-dropdown') as HTMLSelectElement;
 
-  if (rewriteBtn && noticePanel) {
+  if (noticePanel) {
     // Only hide button/show panel for the CURRENTLY ACTIVE level
-    const currentLevel = parseInt(dropdown.value);
-    if (currentLevel === selectedLevel) {
-      rewriteBtn.classList.add('hidden');
-      noticePanel.classList.remove('hidden');
-      noticePanel.textContent = `This article has been rewritten by AI to ${ReadabilityLabels[selectedLevel]}, which may impact its accuracy. Please verify information using the original article.`;
-    }
+    
+    noticePanel.classList.remove('hidden');
   }
 };
 
