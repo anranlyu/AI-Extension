@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 export interface FloatingToolbarProps {
   referenceElement: HTMLElement | null;
   textContent?: string;
+  readingLevel?: number;
 }
 
 export interface ToolbarButtonProps {
@@ -21,10 +22,18 @@ export interface LengthAdjustmentToolbarProps {
   textContent?: string;
 }
 
+export interface ReadingLevelAdjustmentToolbarProps {
+  onClose: () => void;
+  initialOption?: number;
+  textContent?: string;
+  readingLevel: number;
+}
+
 export interface StandardToolbarProps {
   isMinimized: boolean;
   setIsMinimized: (isMinimized: boolean) => void;
   onAdjustLengthClick: () => void;
+  onReadingLevelClick: () => void;
   resetTooltips?: boolean;
 }
 
@@ -32,4 +41,5 @@ export interface TrackMarkerProps {
   selectedOption: number;
   onOptionChange: (option: number) => void;
   onSendClick: () => void;
+  options: string[];
 } 

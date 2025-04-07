@@ -17,7 +17,7 @@ export const renderReadModeOverlay = (
   author: string,
   htmlContent: string,
   textContent:string,
-  numOptions: number,
+  readingLevel: number,
 ) => {
 
   originalHtmlContent = htmlContent;
@@ -57,7 +57,7 @@ export const renderReadModeOverlay = (
 
   // First wait for the DOM to be fully rendered, then show the floating toolbar
   setTimeout(() => {
-    showFloatingToolbar(shadowRoot, textContent);
+    showFloatingToolbar(shadowRoot, textContent, readingLevel);
   }, 100);
 
   // Attach event listener to the close button.

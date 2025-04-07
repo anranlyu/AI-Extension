@@ -2,55 +2,53 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import FloatingToolbar from './FloatingToolbar';
 
-// Store a reference to the root
+let toolbarContainer: HTMLDivElement | null = null;
 let toolbarRoot: any = null;
-// Store the text content for later use
-let currentTextContent: string = '';
 
-export function showFloatingToolbar(
+/**
+ * Shows a floating toolbar in the read mode overlay
+ * @param shadowRoot - The shadow root of the read mode overlay
+ * @param textContent - The text content of the read mode
+ * @param readingLevel - The reading level of the content
+ */
+export const showFloatingToolbar = (
   shadowRoot: ShadowRoot,
-  textContent: string = ''
-) {
-  // Store the text content
-  currentTextContent = textContent;
+  textContent: string,
+  readingLevel: number = 0
+) => {
+  // Clean up any existing toolbar first
+  hideFloatingToolbar();
 
-  // Clear previous toolbar if it exists
-  if (toolbarRoot) {
-    hideFloatingToolbar();
-  }
+  // Create the toolbar container
+  toolbarContainer = document.createElement('div');
+  toolbarContainer.id = 'floating-toolbar-container';
+  shadowRoot.appendChild(toolbarContainer);
 
-  // Get the overlay element as reference
+  // Get the reference element (the read mode overlay)
   const referenceElement = shadowRoot.getElementById('read-mode-overlay');
 
-  if (!referenceElement) {
-    console.error('Read mode overlay not found for toolbar positioning');
-    return;
-  }
-
-  // Create container inside the shadow root
-  let container = shadowRoot.getElementById('floating-toolbar-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'floating-toolbar-container';
-    container.style.position = 'fixed';
-    container.style.zIndex = '999999';
-    shadowRoot.appendChild(container);
-  }
-
-  // Create root once
-  toolbarRoot = createRoot(container);
-
+  // Create the toolbar
+  toolbarRoot = createRoot(toolbarContainer);
   toolbarRoot.render(
     <FloatingToolbar
       referenceElement={referenceElement}
-      textContent={currentTextContent}
+      textContent={textContent}
+      readingLevel={readingLevel}
     />
   );
-}
+};
 
-export function hideFloatingToolbar() {
+/**
+ * Hides the floating toolbar
+ */
+export const hideFloatingToolbar = () => {
   if (toolbarRoot) {
     toolbarRoot.unmount();
     toolbarRoot = null;
   }
-}
+
+  if (toolbarContainer && toolbarContainer.parentElement) {
+    toolbarContainer.parentElement.removeChild(toolbarContainer);
+    toolbarContainer = null;
+  }
+};

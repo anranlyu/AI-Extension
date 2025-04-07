@@ -13,6 +13,7 @@ const StandardToolbar: React.FC<StandardToolbarProps> = ({
   isMinimized,
   setIsMinimized,
   onAdjustLengthClick,
+  onReadingLevelClick,
   resetTooltips = false,
 }) => {
   return (
@@ -24,6 +25,7 @@ const StandardToolbar: React.FC<StandardToolbarProps> = ({
           <ToolbarButton
             icon={<ReadingLevelIcon />}
             label="Reading Level"
+            onClick={onReadingLevelClick}
             resetTooltip={resetTooltips}
           />
 
