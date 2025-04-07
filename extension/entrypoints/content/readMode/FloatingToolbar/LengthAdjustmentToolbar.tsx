@@ -19,7 +19,7 @@ const LengthAdjustmentToolbar: React.FC<LengthAdjustmentToolbarProps> = ({
     const messageListener = (message: any) => {
       // Listen for the response from the background script
       if (
-        message.type === 'simplified_readMode_text' &&
+        message.type === 'proceesed_read_mode_text' &&
         message.success &&
         message.level === selectedOption
       ) {

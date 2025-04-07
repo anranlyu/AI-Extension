@@ -3,7 +3,7 @@
  * Handles authentication, text processing, and communication between content scripts and popup.
  */
 
-import { Prompt, LengthAdjustmentPrompts, translatePrompt } from "../service/Prompt";
+import { Prompt, LengthAdjustmentPrompts, translatePrompt, ReadingLevelAdjustmentPrompts } from "../service/Prompt";
 import getTextFromDeepseek from "../service/getTextFromDeepseek";
 import { Message } from "../service/type";
 import generateTTS from "../service/tts_openai";
@@ -116,7 +116,36 @@ export default defineBackground(() => {
         if (sender.tab?.id) {
           // Send back to the tab that requested the processing
           chrome.tabs.sendMessage(sender.tab.id, {
-            type: 'simplified_readMode_text',
+            type: 'proceesed_read_mode_text',
+            text: processedText,
+            level: message.selectedLevel,
+            success: true
+          });
+        }
+      } catch (error) {
+        console.error("Error processing read mode text:", error);
+        if (sendResponse) {
+          sendResponse({
+            success: false,
+            error: error instanceof Error ? error.message : "Unknown error"
+          });
+        }
+      }
+    }
+
+    if (message.type === 'readMode_text_reading_level') {
+      console.log("Processing read mode text for level:", message.selectedLevel);
+      try {
+        const processedText = await getTextFromDeepseek({
+          prompt: ReadingLevelAdjustmentPrompts[message.selectedLevel + 1],
+          text: message.text,
+        });
+        console.log("Got new read mode text from LLM:", processedText);
+        
+        if (sender.tab?.id) {
+          // Send back to the tab that requested the processing
+          chrome.tabs.sendMessage(sender.tab.id, {
+            type: 'proceesed_read_mode_text',
             text: processedText,
             level: message.selectedLevel,
             success: true

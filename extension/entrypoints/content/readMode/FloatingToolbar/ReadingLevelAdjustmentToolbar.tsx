@@ -24,11 +24,7 @@ const ReadingLevelAdjustmentToolbar: React.FC<
   useEffect(() => {
     const messageListener = (message: any) => {
       // Listen for the response from the background script
-      if (
-        message.type === 'simplified_readMode_text_reading_level' &&
-        message.success &&
-        message.level === selectedOption
-      ) {
+      if (message.type === 'proceesed_read_mode_text' && message.success) {
         // Update content
         updateReadModeContent(message.text);
         // Reset processing state
@@ -51,13 +47,11 @@ const ReadingLevelAdjustmentToolbar: React.FC<
     // Only process if not in center position and we have text content
     if (selectedOption !== CURRENT_LEVEL_POSITION && textContent) {
       setIsProcessing(true);
-
       // Send message to background script
       chrome.runtime.sendMessage({
         type: 'readMode_text_reading_level',
         text: textContent,
-        selectedLevel: selectedOption,
-        readingLevel: readingLevel,
+        selectedLevel: selectedOption + readingLevel,
       });
     }
   };

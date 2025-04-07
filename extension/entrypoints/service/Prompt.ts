@@ -1,6 +1,6 @@
 export const Prompt = "Rewrite the following paragraph so that it is easier to understand for people with lower literacy. Use simple language, short sentences, and clear instructions. Avoid complex words, jargon, or long sentences. Break down the information into small chunks if needed, and add examples for clarity. Avoid adding extra comments, introductions, or explanations. Only provide the simplified version of the text. Here's the text:"
 export const translatePrompt = "Translate the following text to the target language, stay true to the context.";
-export const ReadModePrompts = [
+export const ReadingLevelAdjustmentPrompts = [
   // Index 0: Very Complex (Flesch score < 30)
   `You are an expert writer focusing on advanced academic or technical language. 
    Rewrite the following text to have a Flesch Reading Ease score below 30 ("Very Complex").
