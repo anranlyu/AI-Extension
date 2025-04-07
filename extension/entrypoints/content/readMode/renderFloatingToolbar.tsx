@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import FloatingToolbar from './FloatingToolbar';
+import FloatingToolbar from './FloatingToolbar/FloatingToolbar';
 
 let toolbarContainer: HTMLDivElement | null = null;
 let toolbarRoot: any = null;

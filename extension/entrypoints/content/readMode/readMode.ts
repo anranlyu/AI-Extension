@@ -2,7 +2,7 @@ import { isProbablyReaderable, Readability} from "@mozilla/readability";
 import { ReadabilityLabels, renderReadModeOverlay, rewrittenLevels } from "./readModeOverlay";
 // import rs from 'text-readability';
 import { getFleschReadingEase } from "./readability";
-import { showFloatingOverlay } from "../translate";
+
 
 /**
  * Checks if the current page is readable using Mozilla's Readability
@@ -58,7 +58,7 @@ const fetchContent = async (url: string) => {
  */
 const extractReadableContent = async () => {
   if (!isPageReadable()) {
-    showFloatingOverlay('This page is not supported for Read Mode.');
+    console.warn('This page is not supported for Read Mode.');
     return null;
   }
 
@@ -66,7 +66,7 @@ const extractReadableContent = async () => {
   const article = await fetchContent(url);
   
   if (!article) {
-    showFloatingOverlay('Unable to extract readable content from this page.');
+    console.warn('Unable to extract readable content from this page.');
     return null;
   }
 
