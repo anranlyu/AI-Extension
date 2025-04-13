@@ -20,7 +20,7 @@ const isPageReadable = () => {
 const fetchContent = async (url: string) => {
   try {
     // Try backend API first
-    const res = await fetch(`http://localhost:5000/parse?url=${encodeURIComponent(url)}`);
+    const res = await fetch(`https://ai-extension-5vii.onrender.com/parse?url=${encodeURIComponent(url)}`);
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
@@ -36,6 +36,7 @@ const fetchContent = async (url: string) => {
 
   // Fallback to Readability
   try {
+    console.log("Falling back to Readability");
     const article = new Readability(document.cloneNode(true) as Document).parse();
     if (article) {
       return {

@@ -6,6 +6,11 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   vite: () => ({
     plugins: [tailwindcss()],
+    define: {
+      'process.env.BACKEND_URL': JSON.stringify(process.env.NODE_ENV === 'production' 
+        ? 'https://ai-extension-5vii.onrender.com' // Replace with your actual production URL
+        : 'http://localhost:5001')
+    }
   }),
   extensionApi: 'chrome',
   modules: ['@wxt-dev/module-react', '@wxt-dev/auto-icons'],

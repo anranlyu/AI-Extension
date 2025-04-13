@@ -1,36 +1,34 @@
-import OpenAI from "openai/index.mjs";
-
-
 interface props {
     prompt: string,
-    text: string
+    text: string,
+    model?: string
 }
 
-const getTextFromDeepseek = async ({ prompt, text }: props) => {
-    
-
-    const getOpenAi = async (): Promise<OpenAI> => {
-        const { apiKey } = await chrome.storage.local.get(['apiKey']); 
-
-        return new OpenAI({
-            baseURL: 'https://api.deepseek.com',
-            apiKey: apiKey || '', 
+const getTextFromDeepseek = async ({ prompt, text, model = "deepseek-chat" }: props) => {
+    try {
+        // Get the backend URL from the environment or use a default
+        const backendUrl = process.env.BACKEND_URL || 'http://localhost:5001';
+        
+        // Call our backend API instead of DeepSeek directly
+        const response = await fetch(`${backendUrl}/api/deepseek`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ prompt, text, model })
         });
-    };
 
-    const openai = await getOpenAi();
-    
-    
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Backend API error: ${errorData.error || response.statusText}`);
+        }
 
-    const completion = await openai.chat.completions.create({
-        messages: [{ role: "system", content: prompt + text }],
-        model: "deepseek-chat",
-    });
-
-    const newText = completion.choices[0].message.content;
-    return newText || "got nothing from deepseek";
-
-
+        const data = await response.json();
+        return data.content || "got nothing from deepseek";
+    } catch (error) {
+        console.error('Error calling backend service:', error);
+        return `Error processing text: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    }
 }
 
 export default getTextFromDeepseek;

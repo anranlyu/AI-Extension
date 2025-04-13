@@ -6,6 +6,8 @@
 const express = require('express');
 const Parser = require('@postlight/parser');
 const cors = require('cors');
+const axios = require('axios');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -40,6 +42,89 @@ app.get('/parse', async (req, res) => {
     console.error('Parsing error:', error);
     res.status(500).json({ error: 'Failed to parse URL', details: error.message });
   }
+});
+
+/**
+ * Endpoint to handle DeepSeek API requests
+ * 
+ * @route POST /api/deepseek
+ * @param {string} prompt - The prompt for DeepSeek
+ * @param {string} text - The text content to process
+ * @param {string} model - Optional model to use (defaults to deepseek-chat)
+ * @returns {Object} Processed text from the DeepSeek API
+ * @throws {Error} 400 if required parameters are missing
+ * @throws {Error} 500 if API request fails
+ */
+app.post('/api/deepseek', async (req, res) => {
+  const { prompt, text, model = "deepseek-chat" } = req.body;
+  
+  if (!prompt || !text) {
+    return res.status(400).json({ error: 'Both prompt and text are required' });
+  }
+
+  // Ensure API key is trimmed of any whitespace
+  const apiKey = process.env.DEEPSEEK_API_KEY ? process.env.DEEPSEEK_API_KEY.trim() : '';
+  
+  if (!apiKey) {
+    return res.status(500).json({ error: 'DeepSeek API key is not configured' });
+  }
+  
+  try {
+    console.log(`Making request to DeepSeek API with model: ${model}`);
+    
+    const response = await axios.post('https://api.deepseek.com/v1/chat/completions', {
+      messages: [
+        { role: "system", content: prompt },
+        { role: "user", content: text }
+      ],
+      model: model,
+      temperature: 0.7,
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      }
+    });
+
+    res.json({ 
+      content: response.data.choices[0].message.content 
+    });
+  } catch (error) {
+    console.error('DeepSeek API error:', error.response?.data || error.message);
+    
+    // Log request details for debugging (excluding the full API key)
+    console.log('Request details:', {
+      url: 'https://api.deepseek.com/v1/chat/completions',
+      model: model,
+      apiKeyProvided: !!apiKey,
+      apiKeyLength: apiKey.length
+    });
+    
+    res.status(500).json({ 
+      error: 'Failed to process with DeepSeek API', 
+      details: error.response?.data || error.message 
+    });
+  }
+});
+
+/**
+ * Test endpoint to verify API key is loaded correctly
+ * Only shows first/last few characters for security
+ * 
+ * @route GET /api/test-config
+ */
+app.get('/api/test-config', (req, res) => {
+  const apiKey = process.env.DEEPSEEK_API_KEY || '';
+  const maskedKey = apiKey ? 
+    `${apiKey.substring(0, 5)}...${apiKey.substring(apiKey.length - 5)}` : 
+    'not found';
+  
+  res.json({
+    apiKeyStatus: apiKey ? 'loaded' : 'missing',
+    apiKeyMasked: maskedKey,
+    apiKeyLength: apiKey.length,
+    nodeEnv: process.env.NODE_ENV || 'not set'
+  });
 });
 
 /**
