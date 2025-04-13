@@ -3,7 +3,7 @@
  * Handles authentication, text processing, and communication between content scripts and popup.
  */
 
-import { Prompt, LengthAdjustmentPrompts, translatePrompt, ReadingLevelAdjustmentPrompts } from "../service/Prompt";
+import {LengthAdjustmentPrompts, translatePrompt, ReadingLevelAdjustmentPrompts } from "../service/Prompt";
 import getTextFromDeepseek from "../service/getTextFromDeepseek";
 import { Message } from "../service/type";
 import generateTTS from "../service/tts_openai";
@@ -78,31 +78,6 @@ export default defineBackground(() => {
    * Processes text for simplification, translation, and read mode
    */
   chrome.runtime.onMessage.addListener(async (message: Message, sender, sendResponse) => {
-    if (message.type === 'selected_text') {
-      chrome.storage.local.get(['simplifyTextEnabled', "translateEnabled", "targetLanguage"], async (result) => {
-        const simplifyTextEnabled = result.simplifyTextEnabled || false;
-        const translateEnabled = result.translateEnabled || false;
-        const targetLanguage = result.targetLanguage || "";
-
-        if (simplifyTextEnabled) {
-          console.log('Processing simplification for selected text.');
-          const selectedText = message.text;
-          const simplifiedText = `[ ${await getTextFromDeepseek({ prompt: Prompt, text: selectedText })} ]`;
-          console.log(`Got simplified text in background:${simplifiedText}`);
-          sendTextToContentScript('simplified_text', simplifiedText);
-        } else if (translateEnabled) {
-          const selectedText = message.text;
-          const translatedText = await getTextFromDeepseek({
-            prompt: `${translatePrompt} to ${targetLanguage}:`,
-            text: selectedText,
-          });
-          console.log(`Got translated text in background: ${translatedText}`);
-          sendTextToContentScript('translated_text', translatedText);
-        } else {
-          console.log("No processing toggle enabled.")
-        }
-      });
-    }
     
     if (message.type === 'readMode_text_length_adjustment') {
       console.log("Processing read mode text for level:", message.selectedLevel);

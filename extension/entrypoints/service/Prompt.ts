@@ -1,4 +1,3 @@
-export const Prompt = "Rewrite the following paragraph so that it is easier to understand for people with lower literacy. Use simple language, short sentences, and clear instructions. Avoid complex words, jargon, or long sentences. Break down the information into small chunks if needed, and add examples for clarity. Avoid adding extra comments, introductions, or explanations. Only provide the simplified version of the text. Here's the text:"
 export const translatePrompt = "Translate the following text to the target language, stay true to the context.";
 export const ReadingLevelAdjustmentPrompts = [
   // Index 0: Very Complex (Flesch score < 30)
@@ -16,7 +15,7 @@ export const ReadingLevelAdjustmentPrompts = [
    `,
 
   // Index 1: Complex (Flesch score 30–49)
-  `You are an expert writer with a focus on sophisticated communication. 
+  `You are an expert writer with a focus on sophisticated communication.
    Rewrite the text to have a Flesch Reading Ease score between 30 and 49 ("Complex").
 
    **Important guidelines**:
@@ -25,6 +24,7 @@ export const ReadingLevelAdjustmentPrompts = [
    3. Preserve all key details and context from the original text.
    4. Avoid unnecessary jargon, but do not overly simplify either.
    5. Aim for a level suitable for well-educated or professional readers.
+   6. Do not add any comments, introductions, or explanations.
 
    **TEXT TO REWRITE**:
    `,
@@ -38,6 +38,7 @@ export const ReadingLevelAdjustmentPrompts = [
    2. Keep sentences moderately complex; vary length but ensure logical flow.
    3. Use some advanced vocabulary while preserving overall clarity.
    4. Retain the original meaning, context, and tone as much as possible.
+   5. Do not add any comments, introductions, or explanations.
 
    **TEXT TO REWRITE**:
    `,
@@ -51,6 +52,7 @@ export const ReadingLevelAdjustmentPrompts = [
    2. Use sentence structures that are clear, with some variation in length.
    3. Ensure the main ideas are well-organized and easy to follow.
    4. Maintain important details, context, and overall tone.
+   5. Do not add any comments, introductions, or explanations.
 
    **TEXT TO REWRITE**:
    `,
@@ -64,6 +66,7 @@ export const ReadingLevelAdjustmentPrompts = [
    2. Employ familiar vocabulary, with occasional advanced words if truly needed.
    3. Keep paragraphs well-structured and focused.
    4. Preserve the original meaning, but make the content more approachable.
+   5. Do not add any comments, introductions, or explanations.
 
    **TEXT TO REWRITE**:
    `,
@@ -77,12 +80,13 @@ export const ReadingLevelAdjustmentPrompts = [
    2. Provide clear transitions and simple explanations for any complex ideas.
    3. Maintain the key points, but remove any unnecessary complexity or jargon.
    4. Preserve the overall tone and intent.
+   5. Do not add any comments, introductions, or explanations.
 
    **TEXT TO REWRITE**:
    `,
 
   // Index 6: Highly Accessible (Flesch score ≥ 90)
-  `You are a plain-language specialist aiming for very high readability. 
+  `You are a plain-language specialist aiming for very high readability.
    Rewrite the text to have a Flesch Reading Ease score of 90 or higher ("Highly Accessible").
 
    **Important guidelines**:
@@ -90,6 +94,7 @@ export const ReadingLevelAdjustmentPrompts = [
    2. Avoid technical jargon or specialized terms; if necessary, explain them briefly.
    3. Ensure the text can be understood by readers of almost any level.
    4. Keep the tone friendly, straightforward, and supportive.
+   5. Do not add any comments, introductions, or explanations.
 
    **TEXT TO REWRITE**:
    `
@@ -101,12 +106,12 @@ export const LengthAdjustmentPrompts = [
   `Condense this text to approximately 60-70% of its original length.
    Remove redundancies and less essential information while preserving all key points, main arguments, and critical details.
    Prioritize clarity and conciseness while maintaining the original meaning.
-   Format the output as HTML with appropriate paragraph tags.`,
+   Do not add any comments, introductions, or explanations.`,
   
   // Option 1: Shortest
   `Summarize this text to approximately 40-50% of its original length.
    Focus only on the most essential information, main arguments, and key points.
    Eliminate details, examples, and explanations that aren't absolutely necessary.
    Prioritize brevity while ensuring the core message remains clear and accurate.
-   Format the output as HTML with appropriate paragraph tags.`
+   Do not add any comments, introductions, or explanations.`
 ];

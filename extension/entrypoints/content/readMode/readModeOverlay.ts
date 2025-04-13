@@ -41,7 +41,7 @@ export const renderReadModeOverlay = (
         <h1 class="text-3xl font-bold mb-2">${title}</h1>
         <div class="button-container">
           <div id="notice-panel" class="bg-blue-100 border border-blue-300 text-blue-800 p-4 rounded mt-4 hidden flex justify-between items-center">
-            <div>This article has been rewritten by AI to a new reading level, which may impact its accuracy.</div>
+            <div>This article has been rewritten by AI, which may impact its accuracy. Please verify information using the original article.</div>
             <button id="restore-original" class="ml-4 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200">
               Restore Original
             </button>
