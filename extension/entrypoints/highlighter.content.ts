@@ -141,10 +141,10 @@ async function createHighlighter(ctx: ContentScriptContext) {
     // Now retrieve the values, which should include our defaults if they were missing
     const { highlightColor = '#81C3D7', highlightHeight = '20', highlightOpacity = '0.4' } = 
         await getLocalStorage([
-            'highlightColor',
-            'highlightHeight',
+        'highlightColor',
+        'highlightHeight',
             'highlightOpacity',
-        ]);
+    ]);
 
     return createShadowRootUi(ctx, {
         name: 'tailwind-shadow-root-highlighter',
