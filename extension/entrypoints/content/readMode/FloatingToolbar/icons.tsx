@@ -2,7 +2,7 @@ import React from 'react';
 
 export const ReadingLevelIcon = () => (
   <svg
-    className="w-5 h-5 text-gray-500"
+    className="w-6 h-6 text-gray-500"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -19,7 +19,7 @@ export const ReadingLevelIcon = () => (
 
 export const AdjustLengthIcon = () => (
   <svg
-    className="w-5 h-5 text-gray-500"
+    className="w-6 h-6 text-gray-500"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -69,7 +69,7 @@ export const AdjustLengthIcon = () => (
 
 export const TranslateIcon = () => (
   <svg
-    className="w-5 h-5 text-gray-500"
+    className="w-6 h-6 text-gray-500"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -86,7 +86,7 @@ export const TranslateIcon = () => (
 
 export const MinimizeIcon = () => (
   <svg
-    className="w-5 h-5 text-gray-500"
+    className="w-6 h-6 text-gray-500"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -103,7 +103,7 @@ export const MinimizeIcon = () => (
 
 export const MaximizeIcon = () => (
   <svg
-    className="w-5 h-5 text-gray-500"
+    className="w-6 h-6 text-gray-500"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -120,7 +120,7 @@ export const MaximizeIcon = () => (
 
 export const CloseIcon = () => (
   <svg
-    className="w-5 h-5 text-gray-500"
+    className="w-6 h-6 text-gray-500"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -137,7 +137,7 @@ export const CloseIcon = () => (
 
 export const SendIcon = () => (
   <svg
-    className="w-5 h-5"
+    className="w-6 h-6"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -153,7 +153,7 @@ export const SendIcon = () => (
 
 export const LoadingSpinner = () => (
   <svg
-    className="animate-spin h-8 w-8 text-gray-700"
+    className="animate-spin h-9 w-9 text-gray-700"
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"

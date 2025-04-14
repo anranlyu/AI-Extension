@@ -117,7 +117,7 @@ const Toggles: React.FC = () => {
   };
 
   return (
-    <div className="p-4 bg-gray-100 rounded-lg shadow-md space-y-4 w-xs">
+    <div className="p-4 bg-gray-100 shadow-md space-y-4 w-xs">
       {/* Dyslexia-Friendly Font Toggle */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-gray-700">Dyslexia Font</span>

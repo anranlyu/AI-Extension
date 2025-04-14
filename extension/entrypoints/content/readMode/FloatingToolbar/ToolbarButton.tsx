@@ -22,12 +22,12 @@ const ToolbarButton: React.FC<ToolbarButtonProps> = ({
   return (
     <div className="relative">
       {showLabel && label && (
-        <div className="absolute right-full mr-2 whitespace-nowrap rounded-md bg-black px-2 py-1 text-sm text-white">
+        <div className="absolute right-full mr-3 whitespace-nowrap rounded-md bg-[#3A7CA5] px-3 py-1.5 text-base text-white shadow-lg">
           {label}
         </div>
       )}
       <button
-        className={`p-2 hover:bg-gray-100 rounded-full ${
+        className={`p-2.5 hover:bg-[gray-100] rounded-full transition-colors duration-200 ${
           isActive ? 'bg-gray-100' : ''
         } ${className}`}
         onClick={onClick}

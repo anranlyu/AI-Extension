@@ -39,7 +39,7 @@ export const HighlightSettings: React.FC = () => {
           type="color"
           value={color}
           onInput={handleColorInput}
-          className="w-12 h-6 cursor-pointer rounded-lg border-none bg-transparent"
+          className="w-12 h-6 rounded-md cursor-pointer rounded-lg border-none bg-transparent"
         />
       </div>
 

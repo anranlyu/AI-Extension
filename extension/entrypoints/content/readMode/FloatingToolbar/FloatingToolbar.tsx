@@ -19,8 +19,8 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   const { refs, floatingStyles } = useFloating({
     placement: 'bottom-end',
     middleware: [
-      offset({ mainAxis: 16, crossAxis: 16 }),
-      shift({ padding: 8 }),
+      offset({ mainAxis: 18, crossAxis: 18 }),
+      shift({ padding: 9 }),
     ],
     elements: {
       reference: referenceElement ?? undefined,
@@ -63,13 +63,15 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
       ref={refs.setFloating}
       style={{
         position: 'fixed',
-        bottom: '20px',
-        right: '20px',
+        bottom: '23px',
+        right: '23px',
         zIndex: 999999,
         transition: 'all 0.3s ease',
+        transform: 'scale(1.1)',
+        transformOrigin: 'bottom right',
       }}
-      className={`bg-white rounded-full shadow-lg py-4 flex flex-col items-center ${
-        isMinimized ? 'w-14' : ''
+      className={`bg-[#D9DCD6] rounded-full shadow-lg py-2 flex flex-col items-center ${
+        isMinimized ? 'w-16' : ''
       } ${isLengthAdjustMode || isReadingLevelMode ? 'w-auto' : ''}`}
     >
       {isLengthAdjustMode ? (

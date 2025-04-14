@@ -8,7 +8,7 @@ export default defineConfig({
     plugins: [tailwindcss()],
     define: {
       'process.env.BACKEND_URL': JSON.stringify(process.env.NODE_ENV === 'production' 
-        ? 'https://ai-extension-5vii.onrender.com' // Replace with your actual production URL
+        ? 'https://ai-extension-5vii.onrender.com' // production URL
         : 'http://localhost:5001')
     }
   }),

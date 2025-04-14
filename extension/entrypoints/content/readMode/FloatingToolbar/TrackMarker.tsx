@@ -85,18 +85,18 @@ const TrackMarker: React.FC<TrackMarkerProps> = ({
     };
   }, [isDragging, onOptionChange, totalOptions]);
 
+  // Calculate the position for the handle
+  const handlePosition = `calc(${
+    (selectedOption / (totalOptions - 1)) * 100
+  }% * 0.8 + 10%)`;
+
   return (
     <>
-      {/* Text label that shows current selection - always visible */}
-      <div className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 whitespace-nowrap rounded-md bg-black px-2 py-1 text-sm text-white">
-        {options[selectedOption]}
-      </div>
-
       {/* Vertical track with draggable handle */}
       <div className="flex flex-col items-center">
         <div
           ref={trackRef}
-          className="bg-gray-200 w-10 h-72 rounded-lg relative my-2 flex flex-col items-center"
+          className="bg-[#D9DCD6] w-10 h-72 rounded-lg relative my-2 flex flex-col items-center"
           style={{ padding: '18px 0' }}
         >
           {/* Track markers */}
@@ -117,12 +117,15 @@ const TrackMarker: React.FC<TrackMarkerProps> = ({
             ref={dragHandleRef}
             className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10"
             style={{
-              top: `calc(${
-                (selectedOption / (totalOptions - 1)) * 100
-              }% * 0.8 + 10%)`,
+              top: handlePosition,
             }}
             onMouseDown={handleMouseDown}
           >
+            {/* Text label that follows the handle position */}
+            <div className="absolute right-full mr-3 whitespace-nowrap rounded-md bg-[#3A7CA5] px-3 py-1.5 text-base text-white shadow-lg">
+              {options[selectedOption]}
+            </div>
+
             {hasBeenDragged && isNonCenterPosition ? (
               // Send arrow button - only show when dragged and not in center position
               <button

@@ -17,7 +17,7 @@ const StandardToolbar: React.FC<StandardToolbarProps> = ({
   resetTooltips = false,
 }) => {
   return (
-    <div className="flex flex-col gap-3 px-2">
+    <div className="flex flex-col gap-4 px-1">
       {/* Conditional rendering based on isMinimized state */}
       {!isMinimized && (
         <>
