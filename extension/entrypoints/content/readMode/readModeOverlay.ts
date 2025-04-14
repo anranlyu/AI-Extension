@@ -32,8 +32,8 @@ export const renderReadModeOverlay = (
   shadowRoot.innerHTML = `
   
     <style>${contentCss}</style>
-    <div id="read-mode-overlay" class="fixed inset-0 bg-white text-gray-900 z-[99999] flex flex-col gap-4 justify-between items-center p-8 overflow-y-auto">
-      <button id="read-mode-close" class="fixed top-8 right-4 px-4 py-2 bg-[#3A7CA5] text-white text-lg font-bold rounded-md hover:bg-[#2F6690] transition duration-200 shadow-lg z-[999999]">
+    <div id="read-mode-overlay" class="fixed inset-0 bg-white text-gray-900 z-[1000000] flex flex-col gap-4 justify-between items-center p-8 overflow-y-auto">
+      <button id="read-mode-close" class="fixed top-8 right-4 px-4 py-2 bg-[#3A7CA5] text-white text-lg font-bold rounded-md hover:bg-[#2F6690] transition duration-200 shadow-lg z-[2147483646]">
         Close
       </button>
       

@@ -32,7 +32,7 @@ export default defineConfig({
     ],
     "web_accessible_resources": [
       {
-        "resources": [ "fonts/OpenDyslexicMono-Regular.otf","auth.html","popup.html" ],
+        "resources": [ "fonts/regular.otf","fonts/bold.otf","fonts/italic.otf","auth.html","popup.html" ],
         "matches": [ "http://*/*", "https://*/*" ]
       }
     ],

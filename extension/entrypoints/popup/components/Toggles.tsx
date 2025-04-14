@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { StorageValues } from '../../service/type';
 import { HighlightSettings } from './HighlightSettings';
+import { DyslexiaFontSettings } from './DyslexiaFontSettings';
 
 const Toggles: React.FC = () => {
   const [dyslexiaFontEnabled, setDyslexiaFontEnabled] = useState(false);
   const [readModeEnabled, setReadModeEnabled] = useState(false);
   const [TTSenabled, setTTSEnabled] = useState(false);
   const [highlightEnabled, setHighlightEnabled] = useState(false);
-  const [hasLLMConfig, setHasLLMConfig] = useState(false);
-  const [targetLanguage, setTargetLanguage] = useState('');
 
   // Utility functions for applying Tailwind classes
   const toggleButtonClass = (enabled: boolean) =>
     `relative w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none ${
-      enabled ? 'bg-blue-600' : 'bg-gray-300'
+      enabled ? 'bg-[#81C3D7]' : 'bg-gray-300'
     }`;
   const toggleDotClass = (enabled: boolean) =>
     `absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ${
@@ -33,10 +32,8 @@ const Toggles: React.FC = () => {
       'highlightEnabled',
     ])) as StorageValues;
 
-    setHasLLMConfig(!!res.llm && !!res.apiKey);
     setDyslexiaFontEnabled(!!res.dyslexiaFontEnabled);
     setReadModeEnabled(!!res.readModeEnabled);
-    setTargetLanguage(res.targetLanguage || '');
     setHighlightEnabled(!!res.highlightEnabled);
     setTTSEnabled(!!res.TTSenabled);
   };
@@ -49,11 +46,6 @@ const Toggles: React.FC = () => {
     const handleStorageChange = (changes: {
       [key: string]: chrome.storage.StorageChange;
     }) => {
-      if ('llm' in changes || 'apiKey' in changes) {
-        const newLLM = changes.llm?.newValue;
-        const newApiKey = changes.apiKey?.newValue;
-        setHasLLMConfig(!!newLLM && !!newApiKey);
-      }
       if ('dyslexiaFontEnabled' in changes) {
         setDyslexiaFontEnabled(changes.dyslexiaFontEnabled.newValue);
       }
@@ -62,9 +54,6 @@ const Toggles: React.FC = () => {
       }
       if ('TTSenabled' in changes) {
         setTTSEnabled(changes.TTSenabled.newValue);
-      }
-      if ('targetLanguage' in changes) {
-        setTargetLanguage(changes.targetLanguage.newValue);
       }
     };
 
@@ -108,30 +97,11 @@ const Toggles: React.FC = () => {
     chrome.storage.local.set({ highlightEnabled: newState });
   };
 
-  const handleTargetLanguageChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const targetLanguage = event.target.value;
-    setTargetLanguage(targetLanguage);
-    chrome.storage.local.set({ targetLanguage: targetLanguage });
-  };
-
   return (
     <div className="p-4 bg-gray-100 shadow-md space-y-4 w-xs">
-      {/* Dyslexia-Friendly Font Toggle */}
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-700">Dyslexia Font</span>
-        <button
-          onClick={handleDyslexiaFontToggle}
-          className={toggleButtonClass(dyslexiaFontEnabled)}
-        >
-          <div className={toggleDotClass(dyslexiaFontEnabled)} />
-        </button>
-      </div>
-
       {/* Read Mode Toggle */}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-700">Read Mode</span>
+        <span className="text-base font-medium text-gray-700">Read Mode</span>
         <button
           onClick={handleReadModeToggle}
           className={toggleButtonClass(readModeEnabled)}
@@ -142,7 +112,7 @@ const Toggles: React.FC = () => {
 
       {/* TTS Toggle*/}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-700">
+        <span className="text-base font-medium text-gray-700">
           Text to Speech
         </span>
         <button
@@ -153,9 +123,23 @@ const Toggles: React.FC = () => {
         </button>
       </div>
 
+      {/* Dyslexia-Friendly Font Toggle */}
+      <div className="flex items-center justify-between">
+        <span className="text-base font-medium text-gray-700">
+          Dyslexia Font
+        </span>
+        <button
+          onClick={handleDyslexiaFontToggle}
+          className={toggleButtonClass(dyslexiaFontEnabled)}
+        >
+          <div className={toggleDotClass(dyslexiaFontEnabled)} />
+        </button>
+      </div>
+      {dyslexiaFontEnabled && <DyslexiaFontSettings />}
+
       {/* Highlighter Toggle*/}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-700">Highlighter</span>
+        <span className="text-base font-medium text-gray-700">Highlighter</span>
         <button
           onClick={handleHighlightToggle}
           className={toggleButtonClass(highlightEnabled)}

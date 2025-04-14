@@ -65,7 +65,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         position: 'fixed',
         bottom: '23px',
         right: '23px',
-        zIndex: 999999,
+        zIndex: 2147483646,
         transition: 'all 0.3s ease',
         transform: 'scale(1.1)',
         transformOrigin: 'bottom right',

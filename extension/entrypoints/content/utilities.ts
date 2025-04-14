@@ -47,17 +47,45 @@ export function getLocalStorage<T extends string | string[] | object>(
  * @description
  * Converts a hex color code to an RGBA color string with the specified opacity.
  * Handles hex codes both with and without the # prefix.
+ * Provides a default blue color if hex is undefined or invalid.
  * 
  * @example
  * hexToRgba('#FF0000', 0.5) // returns 'rgba(255, 0, 0, 0.5)'
  * hexToRgba('FF0000', 0.5)  // returns 'rgba(255, 0, 0, 0.5)'
  */
-export function hexToRgba(hex: string, alpha: number): string {
+export function hexToRgba(hex: string | undefined, alpha: number): string {
+  // Default color if hex is undefined or invalid
+  const defaultColor = '#81C3D7'; // Default blue color
+  
+  // Make sure we have a valid hex color
+  if (!hex || hex.length < 6) {
+    hex = defaultColor;
+  }
+  
   const sanitizedHex = hex.replace(/^#/, '');
-  const r = parseInt(sanitizedHex.substring(0, 2), 16);
-  const g = parseInt(sanitizedHex.substring(2, 4), 16);
-  const b = parseInt(sanitizedHex.substring(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  
+  try {
+    const r = parseInt(sanitizedHex.substring(0, 2), 16);
+    const g = parseInt(sanitizedHex.substring(2, 4), 16);
+    const b = parseInt(sanitizedHex.substring(4, 6), 16);
+    
+    // Check if parsing was successful
+    if (isNaN(r) || isNaN(g) || isNaN(b)) {
+      // Use default color if parsing failed
+      const defaultR = parseInt(defaultColor.substring(1, 3), 16);
+      const defaultG = parseInt(defaultColor.substring(3, 5), 16);
+      const defaultB = parseInt(defaultColor.substring(5, 7), 16);
+      return `rgba(${defaultR}, ${defaultG}, ${defaultB}, ${alpha})`;
+    }
+    
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  } catch (e) {
+    // Fallback to default color on any error
+    const defaultR = parseInt(defaultColor.substring(1, 3), 16);
+    const defaultG = parseInt(defaultColor.substring(3, 5), 16);
+    const defaultB = parseInt(defaultColor.substring(5, 7), 16);
+    return `rgba(${defaultR}, ${defaultG}, ${defaultB}, ${alpha})`;
+  }
 }
 
 
