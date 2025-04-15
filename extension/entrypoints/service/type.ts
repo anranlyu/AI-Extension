@@ -1,11 +1,13 @@
 export interface Message {
-  auth: any;
+  auth?: any;
   type: string;
-  text: string;
-  dyslexiaFontEnabled: boolean;
-  readModeEnabled: boolean;
-  translateEnabled: boolean;
-  selectedLevel: number;
+  text?: string;
+  dyslexiaFontEnabled?: boolean;
+  readModeEnabled?: boolean;
+  translateEnabled?: boolean;
+  selectedLevel?: number;
+  tabId?: number;
+  enabled?: boolean;
 }
 
 
@@ -16,7 +18,8 @@ export interface StorageValues {
   dyslexiaFontEnabled?: boolean;
   readModeEnabled?: boolean;
   highlightEnabled?: boolean;
-  translateEnabled: boolean;
-  targetLanguage: string;
-  TTSenabled: boolean;
+  translateEnabled?: boolean;
+  targetLanguage?: string;
+  TTSenabled?: boolean;
+  readModeTabStates?: Record<number, boolean>;
 }

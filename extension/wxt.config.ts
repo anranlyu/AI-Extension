@@ -21,7 +21,6 @@ export default defineConfig({
     "manifest_version": 3,
     "name": "LumiRead",
     "version": "1.0.0",
-    "host_permissions": ["http://*/*", "https://*/*"],
     "action": {},
     "permissions": [
         "activeTab",

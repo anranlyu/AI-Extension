@@ -8,6 +8,7 @@ const Toggles: React.FC = () => {
   const [readModeEnabled, setReadModeEnabled] = useState(false);
   const [TTSenabled, setTTSEnabled] = useState(false);
   const [highlightEnabled, setHighlightEnabled] = useState(false);
+  const [currentTabId, setCurrentTabId] = useState<number | null>(null);
 
   // Utility functions for applying Tailwind classes
   const toggleButtonClass = (enabled: boolean) =>
@@ -21,19 +22,28 @@ const Toggles: React.FC = () => {
 
   // Helper to read from Chrome storage once, then sync component state
   const syncFromStorage = async () => {
+    // Get the current tab ID
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tabs[0]?.id) {
+      setCurrentTabId(tabs[0].id);
+
+      // Get tab-specific ReadMode state
+      const { readModeTabStates = {} } = await chrome.storage.local.get(
+        'readModeTabStates'
+      );
+      setReadModeEnabled(!!readModeTabStates[tabs[0].id]);
+    }
+
     const res = (await chrome.storage.local.get([
       'llm',
       'apiKey',
       'dyslexiaFontEnabled',
-      'readModeEnabled',
-      'translateEnabled',
       'targetLanguage',
       'TTSenabled',
       'highlightEnabled',
     ])) as StorageValues;
 
     setDyslexiaFontEnabled(!!res.dyslexiaFontEnabled);
-    setReadModeEnabled(!!res.readModeEnabled);
     setHighlightEnabled(!!res.highlightEnabled);
     setTTSEnabled(!!res.TTSenabled);
   };
@@ -49,11 +59,12 @@ const Toggles: React.FC = () => {
       if ('dyslexiaFontEnabled' in changes) {
         setDyslexiaFontEnabled(changes.dyslexiaFontEnabled.newValue);
       }
-      if ('readModeEnabled' in changes) {
-        setReadModeEnabled(changes.readModeEnabled.newValue);
-      }
       if ('TTSenabled' in changes) {
         setTTSEnabled(changes.TTSenabled.newValue);
+      }
+      if ('readModeTabStates' in changes && currentTabId) {
+        const tabStates = changes.readModeTabStates.newValue || {};
+        setReadModeEnabled(!!tabStates[currentTabId]);
       }
     };
 
@@ -62,7 +73,7 @@ const Toggles: React.FC = () => {
     return () => {
       chrome.storage.onChanged.removeListener(handleStorageChange);
     };
-  }, []);
+  }, [currentTabId]);
 
   // --- Handlers ---
   const handleTTSToggle = () => {
@@ -82,7 +93,15 @@ const Toggles: React.FC = () => {
 
   const handleReadModeToggle = () => {
     const newState = !readModeEnabled;
-    chrome.storage.local.set({ readModeEnabled: newState });
+    setReadModeEnabled(newState);
+
+    if (currentTabId) {
+      chrome.runtime.sendMessage({
+        type: 'toggle_read_mode_for_tab',
+        tabId: currentTabId,
+        enabled: newState,
+      });
+    }
   };
 
   const handleDyslexiaFontToggle = () => {

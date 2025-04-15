@@ -74,14 +74,70 @@ export default defineBackground(() => {
   };
 
   /**
+   * Handles ReadMode state for a specific tab
+   * @param tabId - The tab ID
+   * @param enabled - Whether ReadMode should be enabled
+   */
+  const setReadModeForTab = async (tabId: number, enabled: boolean) => {
+    try {
+      // Get current tab states
+      const { readModeTabStates = {} } = await chrome.storage.local.get('readModeTabStates');
+      
+      // Update state for this tab
+      if (enabled) {
+        readModeTabStates[tabId] = true;
+      } else {
+        delete readModeTabStates[tabId];
+      }
+      
+      // Save updated states
+      await chrome.storage.local.set({ readModeTabStates });
+      
+      // Send message to the tab to update its UI
+      chrome.tabs.sendMessage(tabId, { 
+        type: 'toggle_read_mode', 
+        enabled 
+      });
+    } catch (error) {
+      console.error('Error updating ReadMode state:', error);
+    }
+  };
+
+  /**
    * Handles messages from content scripts and popup
    * Processes text for simplification, translation, and read mode
    */
   chrome.runtime.onMessage.addListener(async (message: Message, sender, sendResponse) => {
+    // Handle get_tab_id requests from content scripts
+    if (message.type === 'get_tab_id') {
+      if (sender.tab?.id) {
+        sendResponse({ tabId: sender.tab.id });
+      } else {
+        sendResponse({ error: 'No tab ID available' });
+      }
+      return true;
+    }
+    
+    // Handle toggle_read_mode requests from popup
+    if (message.type === 'toggle_read_mode_for_tab') {
+      const { tabId, enabled } = message;
+      if (tabId && enabled !== undefined) {
+        await setReadModeForTab(tabId, enabled);
+        sendResponse({ success: true });
+      } else {
+        sendResponse({ error: 'No tab ID provided or enabled state missing' });
+      }
+      return true;
+    }
     
     if (message.type === 'readMode_text_length_adjustment') {
       console.log("Processing read mode text for level:", message.selectedLevel);
       try {
+        // Ensure we have the required values
+        if (message.selectedLevel === undefined || message.text === undefined) {
+          throw new Error('Missing required parameters: selectedLevel or text');
+        }
+        
         const processedText = await getTextFromDeepseek({
           prompt: LengthAdjustmentPrompts[message.selectedLevel - 1],
           text: message.text,
@@ -111,6 +167,11 @@ export default defineBackground(() => {
     if (message.type === 'readMode_text_reading_level') {
       console.log("Processing read mode text for level:", message.selectedLevel);
       try {
+        // Ensure we have the required values
+        if (message.selectedLevel === undefined || message.text === undefined) {
+          throw new Error('Missing required parameters: selectedLevel or text');
+        }
+        
         const processedText = await getTextFromDeepseek({
           prompt: ReadingLevelAdjustmentPrompts[message.selectedLevel + 1],
           text: message.text,
@@ -139,7 +200,9 @@ export default defineBackground(() => {
 
     if (message.type === 'SET_AUTH') {
       console.log(message);
-      await chrome.storage.local.set(message.auth);
+      if (message.auth) {
+        await chrome.storage.local.set(message.auth);
+      }
     }
   });
 
@@ -152,6 +215,10 @@ export default defineBackground(() => {
       console.log('TTS request received:', message.text);
       (async () => {
         try {
+          if (!message.text) {
+            throw new Error("No text provided for TTS");
+          }
+          
           const ttsResult = await generateTTS(message.text, "alloy");
           if (ttsResult.success && ttsResult.audioBlob) {
             const reader = new FileReader();
@@ -173,6 +240,21 @@ export default defineBackground(() => {
         }
       })();
       return true;
+    }
+  });
+
+  /**
+   * Handle tab removal to clean up ReadMode state
+   */
+  chrome.tabs.onRemoved.addListener(async (tabId) => {
+    try {
+      const { readModeTabStates = {} } = await chrome.storage.local.get('readModeTabStates');
+      if (readModeTabStates[tabId]) {
+        delete readModeTabStates[tabId];
+        await chrome.storage.local.set({ readModeTabStates });
+      }
+    } catch (error) {
+      console.error('Error cleaning up ReadMode state:', error);
     }
   });
 });

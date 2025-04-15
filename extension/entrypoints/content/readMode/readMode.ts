@@ -89,7 +89,6 @@ const extractReadableContent = async () => {
  * 2. Extracting readable content
  * 3. Calculating reading level
  * 4. Displaying processed content
- * 5. Saving read mode state
  */
 export const enableReadMode = async () => {
   document.body.style.overflow = 'hidden';
@@ -100,7 +99,6 @@ export const enableReadMode = async () => {
   }
   const readingLevel = getFleschReadingEase(extractedData.textContent);
   displayProcessedText(extractedData.title, extractedData.author, extractedData.htmlContent, extractedData.textContent,readingLevel);
-  chrome.storage.local.set({ readModeEnabled: true });
 };
 
 /**
@@ -130,7 +128,6 @@ export const displayProcessedText = (title: string, author: string, rawHtmlConte
  * Disables read mode by:
  * 1. Removing the shadow container
  * 2. Restoring page scroll
- * 3. Saving read mode state
  */
 export const disableReadMode = () => {
   // Remove the shadow container that holds the read mode overlay.
@@ -138,8 +135,6 @@ export const disableReadMode = () => {
   if (container) {
     container.remove();
   }
-
-  chrome.storage.local.set({ readModeEnabled: false });
 
   document.body.style.overflow = '';
 };
