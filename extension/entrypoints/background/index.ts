@@ -61,16 +61,21 @@ export default defineBackground(() => {
   });
 
   /**
-   * Sends text content to the active tab's content script
-   * @param type - The type of message to send
-   * @param text - The text content to send
+   * Sends a message to the active tab
+   * @param message - The message to send
+   * @returns Promise that resolves with the tab ID if message was sent
    */
-  const sendTextToContentScript = (type: string, text: string) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  const sendMessageToActiveTab = async (message: any): Promise<number | undefined> => {
+    try {
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tabs[0]?.id) {
-        chrome.tabs.sendMessage(tabs[0].id, { type, text });
+        chrome.tabs.sendMessage(tabs[0].id, message);
+        return tabs[0].id;
       }
-    });
+    } catch (error) {
+      console.error('Error sending message to active tab:', error);
+    }
+    return undefined;
   };
 
   /**
@@ -104,21 +109,69 @@ export default defineBackground(() => {
   };
 
   /**
+   * Get tab ID from sender or active tab
+   * @param sender - The message sender
+   * @returns Promise resolving to the tab ID
+   */
+  const getTabId = async (sender: chrome.runtime.MessageSender): Promise<number | undefined> => {
+    if (sender.tab?.id) {
+      return sender.tab.id;
+    }
+    
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    return tabs[0]?.id;
+  };
+
+  /**
+   * Process text with DeepSeek API
+   * @param prompt - The prompt to use
+   * @param text - The text to process
+   * @param tabId - The tab ID to send results to
+   * @param responseType - The response message type
+   * @param level - The selected level
+   */
+  const processTextWithDeepseek = async (
+    prompt: string, 
+    text: string, 
+    tabId: number,
+    responseType: string,
+    level: number
+  ) => {
+    try {
+      const processedText = await getTextFromDeepseek({
+        prompt,
+        text,
+      });
+      
+      chrome.tabs.sendMessage(tabId, {
+        type: responseType,
+        text: processedText,
+        level,
+        success: true
+      });
+    } catch (error) {
+      console.error("Error processing text:", error);
+      chrome.tabs.sendMessage(tabId, {
+        type: responseType,
+        error: error instanceof Error ? error.message : "Unknown error",
+        success: false
+      });
+    }
+  };
+
+  /**
    * Handles messages from content scripts and popup
    * Processes text for simplification, translation, and read mode
    */
   chrome.runtime.onMessage.addListener(async (message: Message, sender, sendResponse) => {
-    // Handle get_tab_id requests from content scripts
+    // Handle get_tab_id requests
     if (message.type === 'get_tab_id') {
-      if (sender.tab?.id) {
-        sendResponse({ tabId: sender.tab.id });
-      } else {
-        sendResponse({ error: 'No tab ID available' });
-      }
+      const tabId = sender.tab?.id;
+      sendResponse({ tabId, error: !tabId ? 'No tab ID available' : undefined });
       return true;
     }
     
-    // Handle toggle_read_mode requests from popup
+    // Handle toggle_read_mode_for_tab requests
     if (message.type === 'toggle_read_mode_for_tab') {
       const { tabId, enabled } = message;
       if (tabId && enabled !== undefined) {
@@ -130,89 +183,92 @@ export default defineBackground(() => {
       return true;
     }
     
+    // Handle TTS in ReadMode
+    if (message.type === 'toggle_tts_in_read_mode') {
+      const tabId = await getTabId(sender);
+      if (tabId) {
+        chrome.tabs.sendMessage(tabId, {
+          type: 'toggle_tts_in_read_mode',
+          enabled: message.enabled
+        });
+        sendResponse({ success: true });
+      } else {
+        sendResponse({ error: 'No active tab found' });
+      }
+      return true;
+    }
+    
+    // Handle TTS state changes
+    if (message.type === 'tts_state_change') {
+      const tabId = await getTabId(sender);
+      if (tabId) {
+        chrome.tabs.sendMessage(tabId, message);
+      }
+      return true;
+    }
+    
+    // Handle ReadMode state updates from the content script
+    if (message.type === 'update_read_mode_state') {
+      const tabId = sender.tab?.id;
+      const enabled = message.enabled === true; // Ensure it's a boolean
+      
+      if (tabId) {
+        await setReadModeForTab(tabId, enabled);
+        sendResponse({ success: true });
+      } else {
+        sendResponse({ error: 'No tab ID available' });
+      }
+      return true;
+    }
+    
+    // Handle text length adjustment
     if (message.type === 'readMode_text_length_adjustment') {
-      console.log("Processing read mode text for level:", message.selectedLevel);
-      try {
-        // Ensure we have the required values
-        if (message.selectedLevel === undefined || message.text === undefined) {
-          throw new Error('Missing required parameters: selectedLevel or text');
-        }
-        
-        const processedText = await getTextFromDeepseek({
-          prompt: LengthAdjustmentPrompts[message.selectedLevel - 1],
-          text: message.text,
-        });
-        console.log("Got new read mode text from LLM:", processedText);
-        
-        if (sender.tab?.id) {
-          // Send back to the tab that requested the processing
-          chrome.tabs.sendMessage(sender.tab.id, {
-            type: 'proceesed_read_mode_text',
-            text: processedText,
-            level: message.selectedLevel,
-            success: true
-          });
-        }
-      } catch (error) {
-        console.error("Error processing read mode text:", error);
-        if (sendResponse) {
-          sendResponse({
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error"
-          });
-        }
+      if (!message.selectedLevel || !message.text || !sender.tab?.id) {
+        sendResponse({ error: 'Missing required parameters' });
+        return true;
       }
+      
+      await processTextWithDeepseek(
+        LengthAdjustmentPrompts[message.selectedLevel - 1],
+        message.text,
+        sender.tab.id,
+        'proceesed_read_mode_text',
+        message.selectedLevel
+      );
+      return true;
     }
 
+    // Handle reading level adjustment
     if (message.type === 'readMode_text_reading_level') {
-      console.log("Processing read mode text for level:", message.selectedLevel);
-      try {
-        // Ensure we have the required values
-        if (message.selectedLevel === undefined || message.text === undefined) {
-          throw new Error('Missing required parameters: selectedLevel or text');
-        }
-        
-        const processedText = await getTextFromDeepseek({
-          prompt: ReadingLevelAdjustmentPrompts[message.selectedLevel + 1],
-          text: message.text,
-        });
-        console.log("Got new read mode text from LLM:", processedText);
-        
-        if (sender.tab?.id) {
-          // Send back to the tab that requested the processing
-          chrome.tabs.sendMessage(sender.tab.id, {
-            type: 'proceesed_read_mode_text',
-            text: processedText,
-            level: message.selectedLevel,
-            success: true
-          });
-        }
-      } catch (error) {
-        console.error("Error processing read mode text:", error);
-        if (sendResponse) {
-          sendResponse({
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error"
-          });
-        }
+      if (!message.selectedLevel || !message.text || !sender.tab?.id) {
+        sendResponse({ error: 'Missing required parameters' });
+        return true;
       }
+      
+      await processTextWithDeepseek(
+        ReadingLevelAdjustmentPrompts[message.selectedLevel + 1],
+        message.text,
+        sender.tab.id,
+        'proceesed_read_mode_text',
+        message.selectedLevel
+      );
+      return true;
     }
 
+    // Handle auth updates
     if (message.type === 'SET_AUTH') {
-      console.log(message);
       if (message.auth) {
         await chrome.storage.local.set(message.auth);
       }
+      return true;
     }
   });
 
   /**
    * Handles text-to-speech requests
-   * Converts text to audio and sends it back to the content script
    */
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message.type === 'tts_request') {
-      console.log('TTS request received:', message.text);
       (async () => {
         try {
           if (!message.text) {
@@ -225,7 +281,6 @@ export default defineBackground(() => {
             reader.onloadend = () => {
               const base64Audio = reader.result;
               sendResponse({ success: true, audioUrl: base64Audio });
-              console.log('Sending TTS audio URL to content script...');
             };
             reader.readAsDataURL(ttsResult.audioBlob);
           } else {
@@ -266,10 +321,9 @@ export default defineBackground(() => {
 const openLumiRead = async (tab: chrome.tabs.Tab) => {
   const storageContent = await chrome.storage.local.get(null);
   const { refresh_token } = storageContent;
-  console.log(storageContent);
+  
   const session = await supabase.auth.refreshSession({ refresh_token });
-  console.log('background script')
-  console.log(session);
+  
   if (session.error) {
     await Promise.all([chrome.storage.local.clear(), supabase.auth.signOut()]);
     await openLoginPage();
@@ -312,8 +366,6 @@ const finishUserAuth = async (url: string) => {
 
     await chrome.storage.local.set({ session: data.session});
     chrome.tabs.update({ url: 'https://lumiread.netlify.app' });
-
-    console.log(`finished handling user Auth callback`);
   } catch (error) {
     console.error(error);
   }

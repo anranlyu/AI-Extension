@@ -62,8 +62,24 @@ export const renderReadModeOverlay = (
   const closeButton = shadowRoot.getElementById('read-mode-close');
   if (closeButton) {
     closeButton.addEventListener('click', () => {
+      // First handle the TTS state - notify that TTS should be disabled if it's active
+      chrome.runtime.sendMessage({
+        type: 'toggle_tts_in_read_mode',
+        enabled: false
+      });
+      
+      // Hide the floating toolbar
       hideFloatingToolbar();
+      
+      // Disable read mode
       disableReadMode();
+      
+      // Synchronize the ReadMode toggle state with the popup
+      // by sending a message to the background script
+      chrome.runtime.sendMessage({
+        type: 'update_read_mode_state',
+        enabled: false
+      });
     });
   }
 

@@ -7,6 +7,7 @@ import {
   TranslateIcon,
   MinimizeIcon,
   MaximizeIcon,
+  TTSIcon,
 } from './icons';
 
 const StandardToolbar: React.FC<StandardToolbarProps> = ({
@@ -14,7 +15,9 @@ const StandardToolbar: React.FC<StandardToolbarProps> = ({
   setIsMinimized,
   onAdjustLengthClick,
   onReadingLevelClick,
+  onTTSClick,
   resetTooltips = false,
+  isTTSActive = false,
 }) => {
   return (
     <div className="flex flex-col gap-4 px-1">
@@ -37,7 +40,16 @@ const StandardToolbar: React.FC<StandardToolbarProps> = ({
             resetTooltip={resetTooltips}
           />
 
-          {/* 3. Translate Button */}
+          {/* 3. TTS Button */}
+          <ToolbarButton
+            icon={<TTSIcon />}
+            label="Text to Speech"
+            onClick={onTTSClick}
+            resetTooltip={resetTooltips}
+            isActive={isTTSActive}
+          />
+
+          {/* 4. Translate Button */}
           <ToolbarButton
             icon={<TranslateIcon />}
             label="Translate"

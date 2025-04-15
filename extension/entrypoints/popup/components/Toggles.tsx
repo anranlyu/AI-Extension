@@ -6,7 +6,6 @@ import { DyslexiaFontSettings } from './DyslexiaFontSettings';
 const Toggles: React.FC = () => {
   const [dyslexiaFontEnabled, setDyslexiaFontEnabled] = useState(false);
   const [readModeEnabled, setReadModeEnabled] = useState(false);
-  const [TTSenabled, setTTSEnabled] = useState(false);
   const [highlightEnabled, setHighlightEnabled] = useState(false);
   const [currentTabId, setCurrentTabId] = useState<number | null>(null);
 
@@ -38,14 +37,11 @@ const Toggles: React.FC = () => {
       'llm',
       'apiKey',
       'dyslexiaFontEnabled',
-      'targetLanguage',
-      'TTSenabled',
       'highlightEnabled',
     ])) as StorageValues;
 
     setDyslexiaFontEnabled(!!res.dyslexiaFontEnabled);
     setHighlightEnabled(!!res.highlightEnabled);
-    setTTSEnabled(!!res.TTSenabled);
   };
 
   useEffect(() => {
@@ -58,9 +54,6 @@ const Toggles: React.FC = () => {
     }) => {
       if ('dyslexiaFontEnabled' in changes) {
         setDyslexiaFontEnabled(changes.dyslexiaFontEnabled.newValue);
-      }
-      if ('TTSenabled' in changes) {
-        setTTSEnabled(changes.TTSenabled.newValue);
       }
       if ('readModeTabStates' in changes && currentTabId) {
         const tabStates = changes.readModeTabStates.newValue || {};
@@ -76,21 +69,6 @@ const Toggles: React.FC = () => {
   }, [currentTabId]);
 
   // --- Handlers ---
-  const handleTTSToggle = () => {
-    const newState = !TTSenabled;
-    setTTSEnabled(newState);
-    chrome.storage.local.set({ TTSenabled: newState });
-
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0].id) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          type: 'toggle_tts_card',
-          enabled: newState,
-        });
-      }
-    });
-  };
-
   const handleReadModeToggle = () => {
     const newState = !readModeEnabled;
     setReadModeEnabled(newState);
@@ -126,19 +104,6 @@ const Toggles: React.FC = () => {
           className={toggleButtonClass(readModeEnabled)}
         >
           <div className={toggleDotClass(readModeEnabled)} />
-        </button>
-      </div>
-
-      {/* TTS Toggle*/}
-      <div className="flex items-center justify-between">
-        <span className="text-base font-medium text-gray-700">
-          Text to Speech
-        </span>
-        <button
-          onClick={handleTTSToggle}
-          className={toggleButtonClass(TTSenabled)}
-        >
-          <div className={toggleDotClass(TTSenabled)} />
         </button>
       </div>
 

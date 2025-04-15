@@ -34,7 +34,9 @@ export interface StandardToolbarProps {
   setIsMinimized: (isMinimized: boolean) => void;
   onAdjustLengthClick: () => void;
   onReadingLevelClick: () => void;
+  onTTSClick: () => void;
   resetTooltips?: boolean;
+  isTTSActive?: boolean;
 }
 
 export interface TrackMarkerProps {

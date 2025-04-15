@@ -13,7 +13,7 @@ export async function createTTSFloatingUI(ctx: any) {
             container.style.top = '100px'; // Offset from the top
             container.style.right = '100px'; // Offset from the right
             container.style.padding = '10px'; // Add some padding
-            container.style.zIndex = '9999';
+            container.style.zIndex = '2147483646';
             // Make sure it's on top of everything 
             // Create a root for React to render into
             const root = ReactDOM.createRoot(container);
