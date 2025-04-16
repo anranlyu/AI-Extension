@@ -13,6 +13,14 @@ function Home() {
                 LumiRead
               </span>
             </Link>
+            <nav>
+              <Link
+                to="/download"
+                className="text-blue-600 hover:text-blue-800 font-medium"
+              >
+                Download
+              </Link>
+            </nav>
           </div>
         </header>
 
@@ -26,7 +34,7 @@ function Home() {
               LumiRead is an inclusive, user-focused tool built to make the
               internet more accessible for everyone. By working closely with the
               visually impaired community, we continually refine our features to
-              ensure a smoother, more intuitive reading experience. We’re
+              ensure a smoother, more intuitive reading experience. We're
               excited to share that LumiRead will soon be available on the
               Chrome Web Store, bringing next-level accessibility to users.
             </p>
@@ -115,6 +123,16 @@ function Home() {
                   </p>
                 </div>
               </div>
+            </div>
+
+            {/* Download CTA */}
+            <div className="max-w-5xl mx-auto mb-16 px-4">
+              <Link
+                to="/download"
+                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-md shadow-md transition duration-200 ease-in-out text-xl"
+              >
+                Download LumiRead Now
+              </Link>
             </div>
           </div>
         </main>
