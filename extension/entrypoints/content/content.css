@@ -1,1 +1,23 @@
 @import "tailwindcss";
+
+#read-mode-overlay {
+  user-select: text;
+  pointer-events: auto;
+}
+
+#read-mode-overlay * {
+  user-select: text;
+  pointer-events: auto;
+}
+
+#read-mode-overlay button,
+#read-mode-overlay input,
+#read-mode-overlay select {
+  user-select: none;
+  pointer-events: auto;
+}
+
+#mainContent {
+  user-select: text;
+  pointer-events: auto;
+}

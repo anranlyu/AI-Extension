@@ -47,6 +47,27 @@ export function showFloatingUI(
       console.warn("No valid selection for tooltip positioning");
       return false;
     }
+
+    // Get the shadow root from the reference element
+    let shadowRoot = referenceEl.getRootNode() as ShadowRoot;
+    if (!shadowRoot || !(shadowRoot instanceof ShadowRoot)) {
+      // If no shadow root, try to find the read mode container
+      const readModeContainer = document.getElementById('read-mode-shadow-container');
+      if (readModeContainer?.shadowRoot) {
+        shadowRoot = readModeContainer.shadowRoot;
+      } else {
+        console.warn("Could not find shadow root for tooltip");
+        return false;
+      }
+    }
+
+    // Create tooltip container in the shadow root if it doesn't exist
+    let tooltipContainer = shadowRoot.querySelector('.floating-tooltip-container');
+    if (!tooltipContainer) {
+      tooltipContainer = document.createElement('div');
+      tooltipContainer.className = 'floating-tooltip-container';
+      shadowRoot.appendChild(tooltipContainer);
+    }
     
     // Show the tooltip with the specified options
     showTooltip({
@@ -60,10 +81,15 @@ export function showFloatingUI(
     // Wait for the next tick to ensure the tooltip is rendered
     setTimeout(() => {
       // Store the current tooltip element
-      currentTooltip = document.querySelector('.floating-tooltip-container');
+      currentTooltip = shadowRoot.querySelector('.floating-tooltip-container');
+      
+      if (!currentTooltip) {
+        console.warn("Failed to find tooltip container after rendering");
+        return;
+      }
       
       // Listen for drag start/end if draggable is enabled
-      if (mergedOptions.draggable && currentTooltip) {
+      if (mergedOptions.draggable) {
         setupDraggable(currentTooltip, mergedOptions);
       }
       

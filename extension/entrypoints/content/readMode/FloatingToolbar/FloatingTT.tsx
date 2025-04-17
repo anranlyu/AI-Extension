@@ -163,20 +163,22 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
       style={{
         color: 'white',
         position: 'fixed',
-        top: `${positionRef.current.y}px`, // Use ref instead of state
-        left: `${positionRef.current.x}px`, // Use ref instead of state
-        transform: 'none', // Explicitly disable transform
-        pointerEvents: 'auto', // Ensure it captures mouse events
-        backgroundColor: 	'#16775c', 
-        border: '3px solid #97c481', 
+        top: `${positionRef.current.y}px`,
+        left: `${positionRef.current.x}px`,
+        transform: 'none',
+        pointerEvents: 'auto',
+        backgroundColor: '#16775c',
+        border: '3px solid #97c481',
         cursor: isDragging ? 'grabbing' : 'grab',
         userSelect: 'none',
-        zIndex: 99999,
+        zIndex: 2147483646, // Ensure it's above everything else
         boxShadow: '0 6px 20px rgba(0, 0, 0, 0.25)',
-        width: `${TOOLTIP_WIDTH}px`, // Fixed width
-        maxHeight: '70vh', // Maximum height as percentage of viewport
+        width: `${TOOLTIP_WIDTH}px`,
+        maxHeight: '70vh',
         display: 'flex',
         flexDirection: 'column',
+        opacity: 1, // Ensure it's visible
+        visibility: 'visible', // Ensure it's visible
       }}
       onMouseDown={handleMouseDown}
     >
@@ -184,8 +186,10 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
       <div
         style={{
           position: 'relative',
-          height: '40px', // Fixed height for the header
+          height: '40px',
           width: '100%',
+          backgroundColor: '#16775c',
+          borderBottom: '2px solid #97c481',
         }}
       >
         <button
@@ -201,7 +205,7 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
             fontSize: '18px',
             color: '#fff',
             zIndex: 2,
-            padding: '5px', // Larger click area
+            padding: '5px',
           }}
           onMouseOver={(e) => (e.currentTarget.style.color = '#e0e0e0')}
           onMouseOut={(e) => (e.currentTarget.style.color = '#fff')}
@@ -214,9 +218,10 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
       <div 
         className="overflow-auto w-full"
         style={{
-          padding: '0 20px 20px 20px', // Add padding around content, but not at top (header handles that)
+          padding: '20px',
           zIndex: 1,
-          maxHeight: 'calc(70vh - 40px)', // Adjust for header height
+          maxHeight: 'calc(70vh - 40px)',
+          backgroundColor: '#16775c',
         }}
       >
         {content}

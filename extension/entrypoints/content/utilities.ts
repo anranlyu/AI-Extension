@@ -91,25 +91,51 @@ export function hexToRgba(hex: string | undefined, alpha: number): string {
 
 export function createReferenceFromSelection(): HTMLElement | null {
   const selection = window.getSelection();
-  if (!selection || selection.isCollapsed) return null;
-  
-  try {
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-    
-    const dummy = document.createElement("div");
-    dummy.style.position = "absolute";
-    dummy.style.top = `${rect.top + window.scrollY}px`;
-    dummy.style.left = `${rect.left + window.scrollX}px`;
-    dummy.style.width = `${rect.width}px`;
-    dummy.style.height = `${rect.height}px`;
-    dummy.style.pointerEvents = "none";
-    dummy.style.opacity = "0";
-    
-    document.body.appendChild(dummy);
-    return dummy;
-  } catch (error) {
-    console.error("Error creating reference element:", error);
+  if (!selection || selection.rangeCount === 0) {
     return null;
-  }}
+  }
+
+  const range = selection.getRangeAt(0);
+  if (!range) {
+    return null;
+  }
+
+  // Create a temporary span element
+  const referenceEl = document.createElement('span');
+  referenceEl.style.cssText = `
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    visibility: hidden;
+  `;
+
+  // Get the common ancestor container
+  const container = range.commonAncestorContainer;
+  
+  // If the container is in a shadow root, get the shadow host
+  let parentElement = container.nodeType === Node.ELEMENT_NODE 
+    ? container as Element 
+    : container.parentElement;
+  
+  while (parentElement && !parentElement.shadowRoot) {
+    parentElement = parentElement.parentElement;
+  }
+
+  // If we found a shadow root, append to its host
+  if (parentElement?.shadowRoot) {
+    parentElement.shadowRoot.appendChild(referenceEl);
+  } else {
+    // Otherwise append to the main document
+    document.body.appendChild(referenceEl);
+  }
+
+  // Set the reference element's position to match the selection
+  const rect = range.getBoundingClientRect();
+  referenceEl.style.left = `${rect.left}px`;
+  referenceEl.style.top = `${rect.top}px`;
+  referenceEl.style.width = `${rect.width}px`;
+  referenceEl.style.height = `${rect.height}px`;
+
+  return referenceEl;
+}
 

@@ -14,6 +14,7 @@ let tooltipRoot: any = null;
 let referenceElementCleanup: HTMLElement | null = null;
 
 export function showTooltip(data: TooltipData) {
+  // Get the container in the correct DOM context
   const container = getTooltipContainer();
   
   // Store reference for cleanup
@@ -31,13 +32,16 @@ export function showTooltip(data: TooltipData) {
     hideTooltip();
   };
 
-  tooltipRoot.render(
-    <FloatingTooltip
-      content={data.content}
-      referenceElement={data.referenceElement}
-      onClose={closeTooltip}
-    />
-  );
+  // Render the tooltip with a small delay to ensure the container is ready
+  setTimeout(() => {
+    tooltipRoot.render(
+      <FloatingTooltip
+        content={data.content}
+        referenceElement={data.referenceElement}
+        onClose={closeTooltip}
+      />
+    );
+  }, 0);
 }
 
 export function hideTooltip() {
