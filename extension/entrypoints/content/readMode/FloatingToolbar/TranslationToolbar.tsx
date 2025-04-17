@@ -46,7 +46,7 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
   // Set up message listener for when content is updated
   useEffect(() => {
     const messageListener = (message: any) => {
-      if (message.type === 'processed_read_mode_text') {
+      if (message.type === 'proceesed_read_mode_text') {
         if (message.success) {
           // Show the translation in a floating window
           showFloatingUI(
@@ -142,7 +142,7 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
       <div className="flex flex-col items-center justify-center p-4">
         <div className="text-center">
           <LoadingSpinner />
-          <p className="mt-2 text-sm text-gray-600">Translating...</p>
+          <p className="mt-2 text-sm text-white">Translating...</p>
         </div>
       </div>
     );

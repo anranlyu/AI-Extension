@@ -57,20 +57,23 @@ export function showFloatingUI(
       ...(mergedOptions.preserveReference ? { preserveReferenceElement: true } as any : {})
     });
     
-    // Store the current tooltip element
-    currentTooltip = document.querySelector('.floating-tooltip-container');
-    
-    // Listen for drag start/end if draggable is enabled
-    if (mergedOptions.draggable && currentTooltip) {
-      setupDraggable(currentTooltip, mergedOptions);
-    }
-    
-    // Set auto-hide if enabled
-    if (mergedOptions.autoHideAfter && !isDragging) {
-      hideTimeout = window.setTimeout(() => {
-        hideFloatingUI();
-      }, mergedOptions.autoHideAfter);
-    }
+    // Wait for the next tick to ensure the tooltip is rendered
+    setTimeout(() => {
+      // Store the current tooltip element
+      currentTooltip = document.querySelector('.floating-tooltip-container');
+      
+      // Listen for drag start/end if draggable is enabled
+      if (mergedOptions.draggable && currentTooltip) {
+        setupDraggable(currentTooltip, mergedOptions);
+      }
+      
+      // Set auto-hide if enabled
+      if (mergedOptions.autoHideAfter && !isDragging) {
+        hideTimeout = window.setTimeout(() => {
+          hideFloatingUI();
+        }, mergedOptions.autoHideAfter);
+      }
+    }, 0);
     
     return true;
   } catch (error) {

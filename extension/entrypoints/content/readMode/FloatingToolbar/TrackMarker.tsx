@@ -96,7 +96,7 @@ const TrackMarker: React.FC<TrackMarkerProps> = ({
       <div className="flex flex-col items-center">
         <div
           ref={trackRef}
-          className="bg-[#D9DCD6] w-10 h-72 rounded-lg relative my-2 flex flex-col items-center"
+          className="bg-[#2f6690] w-10 h-72 rounded-lg relative my-2 flex flex-col items-center"
           style={{ padding: '18px 0' }}
         >
           {/* Track markers */}

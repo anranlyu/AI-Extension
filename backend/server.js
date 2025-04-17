@@ -99,11 +99,22 @@ app.post('/api/deepseek', async (req, res) => {
       }
     });
 
+    console.log('DeepSeek API response:', {
+      status: response.status,
+      statusText: response.statusText,
+      hasContent: !!response.data?.choices?.[0]?.message?.content
+    });
+
     res.json({ 
       content: response.data.choices[0].message.content 
     });
   } catch (error) {
-    console.error('DeepSeek API error:', error.response?.data || error.message);
+    console.error('DeepSeek API error:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      statusText: error.response?.statusText
+    });
     
     // Log request details for debugging (excluding the full API key)
     console.log('Request details:', {

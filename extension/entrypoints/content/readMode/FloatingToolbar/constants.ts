@@ -1,8 +1,8 @@
 // Length adjustment options
 export const LENGTH_OPTIONS = [
-  'keep current length',
-  'shorter',
-  'shortest',
+  'Keep current length',
+  'Shorter',
+  'Shortest',
 ];
 
 // Position index for "keep current length"
@@ -56,7 +56,6 @@ export const CURRENT_LEVEL_POSITION = 0;
 
 // Translation options
 export const TRANSLATION_OPTIONS = [
-  'Keep original language',
   'Arabic',
   'Bulgarian',
   'Chinese (Simplified)',
@@ -86,5 +85,4 @@ export const TRANSLATION_OPTIONS = [
   'Turkish',
   'Ukrainian',
   'Vietnamese',
-  'Other',
 ]; 
