@@ -149,8 +149,9 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
   }
 
   return (
-    <div className="flex flex-col items-center p-4">
-      <div className="bg-[#16425B] p-4 w-64">
+    <div className="flex items-center">
+      {/* Language Selector Card */}
+      <div className="bg-[#16425B] p-4 w-64 rounded-lg shadow-lg mr-2">
         {/* Language Dropdown */}
         <div className="mb-4">
           <label htmlFor="language-select" className="block text-sm font-medium text-white mb-1">
@@ -201,11 +202,9 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
           Translate
         </button>
       </div>
-      
-      {/* Close button at the bottom */}
-      <div className="mt-3">
-        <ToolbarButton icon={<CloseIcon />} onClick={onClose} />
-      </div>
+
+      {/* Close button */}
+      <ToolbarButton icon={<CloseIcon />} onClick={onClose} />
     </div>
   );
 };

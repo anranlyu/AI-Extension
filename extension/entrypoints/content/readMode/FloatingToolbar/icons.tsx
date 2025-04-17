@@ -2,7 +2,7 @@ import React from 'react';
 
 export const ReadingLevelIcon = () => (
   <svg
-    className="w-6 h-6 text-gray-500"
+    className="w-6 h-6 text-white"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -19,7 +19,7 @@ export const ReadingLevelIcon = () => (
 
 export const AdjustLengthIcon = () => (
   <svg
-    className="w-6 h-6 text-gray-500"
+    className="w-6 h-6 text-white"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -69,7 +69,7 @@ export const AdjustLengthIcon = () => (
 
 export const TranslateIcon = () => (
   <svg
-    className="w-6 h-6 text-gray-500"
+    className="w-6 h-6 text-white"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -86,7 +86,7 @@ export const TranslateIcon = () => (
 
 export const MinimizeIcon = () => (
   <svg
-    className="w-6 h-6 text-gray-500"
+    className="w-6 h-6 text-white"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -103,7 +103,7 @@ export const MinimizeIcon = () => (
 
 export const MaximizeIcon = () => (
   <svg
-    className="w-6 h-6 text-gray-500"
+    className="w-6 h-6 text-white"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -120,7 +120,7 @@ export const MaximizeIcon = () => (
 
 export const CloseIcon = () => (
   <svg
-    className="w-6 h-6 text-gray-500"
+    className="w-6 h-6 text-white"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -137,7 +137,7 @@ export const CloseIcon = () => (
 
 export const SendIcon = () => (
   <svg
-    className="w-6 h-6"
+    className="w-6 h-6 text-white"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -153,7 +153,7 @@ export const SendIcon = () => (
 
 export const LoadingSpinner = () => (
   <svg
-    className="animate-spin h-9 w-9 text-gray-700"
+    className="animate-spin h-9 w-9 text-white"
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
@@ -177,18 +177,24 @@ export const LoadingSpinner = () => (
 export const TTSIcon = () => {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      className="w-6 h-6 text-white"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
     >
-      <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
-      <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M3 18v-6a9 9 0 0 1 18 0v6"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"
+      />
     </svg>
   );
 };

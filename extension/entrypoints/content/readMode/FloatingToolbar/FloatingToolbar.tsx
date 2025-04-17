@@ -96,6 +96,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   const handleCloseAdjustMode = () => {
     setIsLengthAdjustMode(false);
     setIsReadingLevelMode(false);
+    setIsTranslateActive(false);
   };
 
   return (
@@ -110,7 +111,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         transform: 'scale(1.1)',
         transformOrigin: 'bottom right',
       }}
-      className={`bg-[#D9DCD6] rounded-full shadow-lg py-2 flex flex-col items-center ${
+      className={`bg-[#2f6690] rounded-full shadow-lg py-2 flex flex-col items-center ${
         isMinimized ? 'w-16' : ''
       } ${isLengthAdjustMode || isReadingLevelMode ? 'w-auto' : ''}`}
     >
