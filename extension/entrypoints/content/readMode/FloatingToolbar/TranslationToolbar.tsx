@@ -150,11 +150,10 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
 
   return (
     <div className="flex flex-col items-center p-4">
-      <div className="bg-white rounded-lg shadow-lg p-4 w-64">
+      <div className="bg-[#16425B] p-4 w-64">
         {/* Language Dropdown */}
         <div className="mb-4">
-          <label htmlFor="language-select" className="block text-sm font-medium text-gray-700 mb-1">
-            Select Target Language
+          <label htmlFor="language-select" className="block text-sm font-medium text-white mb-1">
           </label>
           <select
             id="language-select"
@@ -163,7 +162,7 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
               setSelectedLanguage(e.target.value);
               setError(null);
             }}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-[#81C3D7] focus:border-[#81C3D7]"
+            className="w-full p-2 border border-white/20 rounded-lg focus:ring-0 focus:border-white/40 bg-[#16425B] text-white"
           >
             <option value="">Select a language</option>
             {TRANSLATION_OPTIONS.map((language) => (
@@ -176,16 +175,16 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
 
         {/* Selected Text Preview */}
         {selectedText && (
-          <div className="mb-4 p-2 bg-gray-50 rounded">
-            <p className="text-sm text-gray-600">Selected Text:</p>
-            <p className="text-sm text-gray-800 mt-1">{selectedText}</p>
+          <div className="mb-4 p-2 bg-white/10 rounded">
+            <p className="text-sm text-white/80">Selected Text:</p>
+            <p className="text-sm text-white mt-1">{selectedText}</p>
           </div>
         )}
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 p-2 bg-red-50 rounded">
-            <p className="text-sm text-red-600">{error}</p>
+          <div className="mb-4 p-2 bg-red-500/20 rounded">
+            <p className="text-sm text-red-200">{error}</p>
           </div>
         )}
 
@@ -195,15 +194,18 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
           disabled={!selectedText || !selectedLanguage}
           className={`w-full py-2 px-4 rounded-lg transition-colors ${
             selectedText && selectedLanguage
-              ? 'bg-[#81C3D7] text-white hover:bg-[#6BA8C0]'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              ? 'bg-white text-[#16425B] hover:bg-white/90'
+              : 'bg-white/20 text-white/50 cursor-not-allowed'
           }`}
         >
           Translate
         </button>
       </div>
       
-      <ToolbarButton icon={<CloseIcon />} onClick={onClose} />
+      {/* Close button at the bottom */}
+      <div className="mt-3">
+        <ToolbarButton icon={<CloseIcon />} onClick={onClose} />
+      </div>
     </div>
   );
 };
