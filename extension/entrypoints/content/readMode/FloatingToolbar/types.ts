@@ -29,14 +29,38 @@ export interface ReadingLevelAdjustmentToolbarProps {
   readingLevel: number;
 }
 
+export interface TranslationToolbarProps {
+  onClose: () => void;
+  initialOption?: number;
+  textContent?: string;
+}
+
+export interface TranslationState {
+  // Per-tab state
+  tabStates: Record<number, {
+    enabled: boolean;
+    targetLanguage: string;
+    lastUsedLanguage?: string;
+  }>;
+  
+  // Global preferences
+  preferences: {
+    defaultLanguage: string;
+    recentLanguages: string[];
+    maxRecentLanguages: number; // 5
+  };
+}
+
 export interface StandardToolbarProps {
   isMinimized: boolean;
   setIsMinimized: (isMinimized: boolean) => void;
   onAdjustLengthClick: () => void;
   onReadingLevelClick: () => void;
   onTTSClick: () => void;
+  onTranslateClick: () => void;
   resetTooltips?: boolean;
   isTTSActive?: boolean;
+  isTranslateActive?: boolean;
 }
 
 export interface TrackMarkerProps {

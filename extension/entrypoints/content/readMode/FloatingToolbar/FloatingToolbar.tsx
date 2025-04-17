@@ -4,6 +4,7 @@ import { FloatingToolbarProps } from './types';
 import StandardToolbar from './StandardToolbar';
 import LengthAdjustmentToolbar from './LengthAdjustmentToolbar';
 import ReadingLevelAdjustmentToolbar from './ReadingLevelAdjustmentToolbar';
+import TranslationToolbar from './TranslationToolbar';
 import { CENTER_POSITION, CURRENT_LEVEL_POSITION } from './constants';
 
 const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
@@ -16,6 +17,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   const [isReadingLevelMode, setIsReadingLevelMode] = useState(false);
   const [resetTooltips, setResetTooltips] = useState(false);
   const [isTTSActive, setIsTTSActive] = useState(false);
+  const [isTranslateActive, setIsTranslateActive] = useState(false);
 
   const { refs, floatingStyles } = useFloating({
     placement: 'bottom-end',
@@ -82,6 +84,14 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     });
   };
 
+  // Handle translate button click
+  const handleTranslateClick = () => {
+    const newTranslateState = !isTranslateActive;
+    setIsTranslateActive(newTranslateState);
+    setIsLengthAdjustMode(false);
+    setIsReadingLevelMode(false);
+  };
+
   // Handle close button click in adjustment modes
   const handleCloseAdjustMode = () => {
     setIsLengthAdjustMode(false);
@@ -117,6 +127,11 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           textContent={textContent}
           readingLevel={readingLevel}
         />
+      ) : isTranslateActive ? (
+        <TranslationToolbar
+          onClose={handleCloseAdjustMode}
+          textContent={textContent}
+        />
       ) : (
         <StandardToolbar
           isMinimized={isMinimized}
@@ -124,8 +139,10 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           onAdjustLengthClick={handleAdjustLengthClick}
           onReadingLevelClick={handleReadingLevelClick}
           onTTSClick={handleTTSClick}
+          onTranslateClick={handleTranslateClick}
           resetTooltips={resetTooltips}
           isTTSActive={isTTSActive}
+          isTranslateActive={isTranslateActive}
         />
       )}
     </div>

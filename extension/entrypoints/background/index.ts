@@ -255,6 +255,23 @@ export default defineBackground(() => {
       return true;
     }
 
+    // Handle translation requests
+    if (message.type === 'readMode_text_translation') {
+      if (!message.text || !message.targetLanguage || !sender.tab?.id) {
+        sendResponse({ error: 'Missing required parameters' });
+        return true;
+      }
+      
+      await processTextWithDeepseek(
+        translatePrompt(message.targetLanguage),
+        message.text,
+        sender.tab.id,
+        'proceesed_read_mode_text',
+        0 // No level needed for translation
+      );
+      return true;
+    }
+
     // Handle auth updates
     if (message.type === 'SET_AUTH') {
       if (message.auth) {

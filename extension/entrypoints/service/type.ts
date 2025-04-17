@@ -8,6 +8,7 @@ export interface Message {
   selectedLevel?: number;
   tabId?: number;
   enabled?: boolean;
+  targetLanguage?: string;
 }
 
 

@@ -18,6 +18,8 @@ const StandardToolbar: React.FC<StandardToolbarProps> = ({
   onTTSClick,
   resetTooltips = false,
   isTTSActive = false,
+  isTranslateActive = false,
+  onTranslateClick,
 }) => {
   return (
     <div className="flex flex-col gap-4 px-1">
@@ -53,6 +55,7 @@ const StandardToolbar: React.FC<StandardToolbarProps> = ({
           <ToolbarButton
             icon={<TranslateIcon />}
             label="Translate"
+            onClick={onTranslateClick}
             resetTooltip={resetTooltips}
           />
         </>

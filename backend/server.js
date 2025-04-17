@@ -9,6 +9,12 @@ const cors = require('cors');
 const axios = require('axios');
 require('dotenv').config();
 
+// Debug logging for environment variables
+console.log('Environment variables loaded:');
+console.log('DEEPSEEK_API_KEY exists:', !!process.env.DEEPSEEK_API_KEY);
+console.log('DEEPSEEK_API_KEY length:', process.env.DEEPSEEK_API_KEY ? process.env.DEEPSEEK_API_KEY.length : 0);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
 const app = express();
 const PORT = process.env.PORT || 5001;
 
@@ -62,10 +68,17 @@ app.post('/api/deepseek', async (req, res) => {
     return res.status(400).json({ error: 'Both prompt and text are required' });
   }
 
+  // Debug logging for API key
+  console.log('DeepSeek API request received:');
+  console.log('API Key exists:', !!process.env.DEEPSEEK_API_KEY);
+  console.log('API Key length:', process.env.DEEPSEEK_API_KEY ? process.env.DEEPSEEK_API_KEY.length : 0);
+  console.log('Request details:', { prompt, text, model });
+
   // Ensure API key is trimmed of any whitespace
   const apiKey = process.env.DEEPSEEK_API_KEY ? process.env.DEEPSEEK_API_KEY.trim() : '';
   
   if (!apiKey) {
+    console.error('API Key is missing or empty');
     return res.status(500).json({ error: 'DeepSeek API key is not configured' });
   }
   
@@ -97,7 +110,8 @@ app.post('/api/deepseek', async (req, res) => {
       url: 'https://api.deepseek.com/v1/chat/completions',
       model: model,
       apiKeyProvided: !!apiKey,
-      apiKeyLength: apiKey.length
+      apiKeyLength: apiKey.length,
+      error: error.message
     });
     
     res.status(500).json({ 

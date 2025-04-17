@@ -52,4 +52,39 @@ export const READING_LEVEL_OPTIONS = [
 ];
 
 // Position index for "Keep current level"
-export const CURRENT_LEVEL_POSITION = 0; 
+export const CURRENT_LEVEL_POSITION = 0;
+
+// Translation options
+export const TRANSLATION_OPTIONS = [
+  'Keep original language',
+  'Arabic',
+  'Bulgarian',
+  'Chinese (Simplified)',
+  'Chinese (Traditional)',
+  'Croatian',
+  'Czech',
+  'Danish',
+  'Dutch',
+  'English',
+  'Estonian',
+  'Finnish',
+  'French',
+  'German',
+  'Greek',
+  'Hungarian',
+  'Italian',
+  'Japanese',
+  'Korean',
+  'Latvian',
+  'Lithuanian',
+  'Macedonian',
+  'Portuguese', 
+  'Romanian',
+  'Russian',
+  'Spanish',
+  'Swedish',
+  'Turkish',
+  'Ukrainian',
+  'Vietnamese',
+  'Other',
+]; 
