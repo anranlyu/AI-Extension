@@ -9,17 +9,12 @@ export function getTooltipContainer(): HTMLElement {
         if (!container) {
             container = document.createElement('div');
             container.id = containerId;
+            container.className = 'floating-tooltip-container'; // Add this class to match contentFloating.ts
             readModeContainer.shadowRoot.appendChild(container);
         }
         return container as HTMLElement;
     }
     
-    // Fallback to main document if no shadow root found
-    let container = document.getElementById(containerId);
-    if (!container) {
-        container = document.createElement('div');
-        container.id = containerId;
-        document.body.appendChild(container);
-    }
-    return container;
+    // If no shadow root found, throw an error as we need the shadow DOM
+    throw new Error('Could not find read mode shadow container');
 }

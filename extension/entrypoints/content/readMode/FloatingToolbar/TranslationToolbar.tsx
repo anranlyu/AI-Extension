@@ -5,6 +5,7 @@ import ToolbarButton from './ToolbarButton';
 import { CloseIcon, LoadingSpinner } from './icons';
 import { TRANSLATION_OPTIONS } from './constants';
 import { showFloatingUI } from './contentFloating';
+import FloatingTT from './FloatingTT';
 
 const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
   onClose,
@@ -48,22 +49,33 @@ const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
     const messageListener = (message: any) => {
       if (message.type === 'proceesed_read_mode_text') {
         if (message.success) {
+          // Get the selected text range
+          const selection = window.getSelection();
+          const range = selection?.getRangeAt(0);
+          const referenceElement = range ? document.createElement('div') : null;
+          
+          if (referenceElement && range) {
+            const rect = range.getBoundingClientRect();
+            referenceElement.style.position = 'absolute';
+            referenceElement.style.left = `${rect.left}px`;
+            referenceElement.style.top = `${rect.top}px`;
+            referenceElement.style.width = `${rect.width}px`;
+            referenceElement.style.height = `${rect.height}px`;
+            document.body.appendChild(referenceElement);
+          }
+
           // Show the translation in a floating window
           showFloatingUI(
-            <div className="flex flex-col gap-4 p-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-1">Original Text</h3>
-                <p className="text-gray-800">{selectedText}</p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-1">Translation</h3>
-                <p className="text-gray-800">{message.text}</p>
-              </div>
-            </div>,
-            {
-              draggable: true,
-              preserveReference: true
-            }
+            <FloatingTT 
+              content={message.text}
+              originalText={selectedText}
+              referenceElement={referenceElement}
+              onClose={() => {
+                if (referenceElement) {
+                  document.body.removeChild(referenceElement);
+                }
+              }}
+            />
           );
           setError(null);
         } else {

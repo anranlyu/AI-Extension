@@ -3,6 +3,7 @@ import { useFloating, offset, flip, shift } from '@floating-ui/react';
 
 interface FloatingTooltipProps {
   content: React.ReactNode;
+  originalText: string;
   referenceElement: HTMLElement | null;
   onClose: () => void;
   theme?: 'light' | 'dark'; // for future preference?
@@ -10,6 +11,7 @@ interface FloatingTooltipProps {
 
 const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
   content,
+  originalText,
   referenceElement,
   onClose,
 }) => {
@@ -167,18 +169,18 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
         left: `${positionRef.current.x}px`,
         transform: 'none',
         pointerEvents: 'auto',
-        backgroundColor: '#16775c',
-        border: '3px solid #97c481',
+        backgroundColor: '#2f6690',
+        border: '3px solid #16425B',
         cursor: isDragging ? 'grabbing' : 'grab',
         userSelect: 'none',
-        zIndex: 2147483646, // Ensure it's above everything else
+        zIndex: 2147483646,
         boxShadow: '0 6px 20px rgba(0, 0, 0, 0.25)',
         width: `${TOOLTIP_WIDTH}px`,
         maxHeight: '70vh',
         display: 'flex',
         flexDirection: 'column',
-        opacity: 1, // Ensure it's visible
-        visibility: 'visible', // Ensure it's visible
+        opacity: 1,
+        visibility: 'visible',
       }}
       onMouseDown={handleMouseDown}
     >
@@ -188,8 +190,8 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
           position: 'relative',
           height: '40px',
           width: '100%',
-          backgroundColor: '#16775c',
-          borderBottom: '2px solid #97c481',
+          backgroundColor: 'transparent',
+          borderBottom: 'none',
         }}
       >
         <button
@@ -197,18 +199,31 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
           aria-label="Close"
           style={{
             position: 'absolute',
-            top: '10px',
-            right: '10px',
+            top: '8px',
+            right: '8px',
             background: 'transparent',
             border: 'none',
             cursor: 'pointer',
-            fontSize: '18px',
+            fontSize: '24px',
             color: '#fff',
             zIndex: 2,
-            padding: '5px',
+            padding: '4px',
+            width: '28px',
+            height: '28px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '50%',
+            transition: 'all 0.2s ease',
           }}
-          onMouseOver={(e) => (e.currentTarget.style.color = '#e0e0e0')}
-          onMouseOut={(e) => (e.currentTarget.style.color = '#fff')}
+          onMouseOver={(e) => {
+            e.currentTarget.style.color = '#e0e0e0';
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.color = '#fff';
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
         >
           ✕
         </button>
@@ -221,10 +236,18 @@ const FloatingTooltip: React.FC<FloatingTooltipProps> = ({
           padding: '20px',
           zIndex: 1,
           maxHeight: 'calc(70vh - 40px)',
-          backgroundColor: '#16775c',
+          backgroundColor: '#2f6690',
+          color: 'white',
+          fontSize: '16px',
+          lineHeight: '1.6',
         }}
       >
-        {content}
+        <div>
+          <div style={{ fontWeight: 'bold', marginBottom: '12px', color: 'white', fontSize: '18px' }}>Original Text:</div>
+          <div style={{ color: 'white', marginBottom: '8px', fontSize: '16px' }}>{originalText}</div>
+          <div style={{ fontWeight: 'bold', marginBottom: '12px', color: 'white', fontSize: '18px' }}>Translation:</div>
+          <div style={{ color: 'white', marginBottom: '8px', fontSize: '16px' }}>{content}</div>
+        </div>
       </div>
     </div>
   );

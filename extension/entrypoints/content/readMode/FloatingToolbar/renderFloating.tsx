@@ -17,31 +17,36 @@ export function showTooltip(data: TooltipData) {
   // Get the container in the correct DOM context
   const container = getTooltipContainer();
   
-  // Store reference for cleanup
-  referenceElementCleanup = data.referenceElement;
-
   // Clear previous tooltip if it exists
   if (tooltipRoot) {
-    hideTooltip();
+    tooltipRoot.unmount();
+    tooltipRoot = null;
   }
 
-  // Create root once
+  // Clean up previous reference element
+  if (referenceElementCleanup) {
+    referenceElementCleanup.remove();
+    referenceElementCleanup = null;
+  }
+
+  // Store new reference for cleanup
+  referenceElementCleanup = data.referenceElement;
+
+  // Create new root
   tooltipRoot = createRoot(container);
 
   const closeTooltip = () => {
     hideTooltip();
   };
 
-  // Render the tooltip with a small delay to ensure the container is ready
-  setTimeout(() => {
-    tooltipRoot.render(
-      <FloatingTooltip
-        content={data.content}
-        referenceElement={data.referenceElement}
-        onClose={closeTooltip}
-      />
-    );
-  }, 0);
+  // Render the tooltip
+  tooltipRoot.render(
+    <FloatingTooltip
+      content={data.content}
+      referenceElement={data.referenceElement}
+      onClose={closeTooltip}
+    />
+  );
 }
 
 export function hideTooltip() {

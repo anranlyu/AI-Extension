@@ -61,14 +61,14 @@ export function showFloatingUI(
       }
     }
 
-    // Create tooltip container in the shadow root if it doesn't exist
-    let tooltipContainer = shadowRoot.querySelector('.floating-tooltip-container');
-    if (!tooltipContainer) {
-      tooltipContainer = document.createElement('div');
-      tooltipContainer.className = 'floating-tooltip-container';
-      shadowRoot.appendChild(tooltipContainer);
+    // Ensure the container exists in the shadow root
+    let container = shadowRoot.querySelector('.floating-tooltip-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'floating-tooltip-container';
+      shadowRoot.appendChild(container);
     }
-    
+
     // Show the tooltip with the specified options
     showTooltip({
       content,
@@ -78,28 +78,20 @@ export function showFloatingUI(
       ...(mergedOptions.preserveReference ? { preserveReferenceElement: true } as any : {})
     });
     
-    // Wait for the next tick to ensure the tooltip is rendered
-    setTimeout(() => {
-      // Store the current tooltip element
-      currentTooltip = shadowRoot.querySelector('.floating-tooltip-container');
-      
-      if (!currentTooltip) {
-        console.warn("Failed to find tooltip container after rendering");
-        return;
-      }
-      
-      // Listen for drag start/end if draggable is enabled
-      if (mergedOptions.draggable) {
-        setupDraggable(currentTooltip, mergedOptions);
-      }
-      
-      // Set auto-hide if enabled
-      if (mergedOptions.autoHideAfter && !isDragging) {
-        hideTimeout = window.setTimeout(() => {
-          hideFloatingUI();
-        }, mergedOptions.autoHideAfter);
-      }
-    }, 0);
+    // Store the current tooltip element
+    currentTooltip = container as HTMLElement;
+    
+    // Listen for drag start/end if draggable is enabled
+    if (mergedOptions.draggable) {
+      setupDraggable(currentTooltip, mergedOptions);
+    }
+    
+    // Set auto-hide if enabled
+    if (mergedOptions.autoHideAfter && !isDragging) {
+      hideTimeout = window.setTimeout(() => {
+        hideFloatingUI();
+      }, mergedOptions.autoHideAfter);
+    }
     
     return true;
   } catch (error) {
