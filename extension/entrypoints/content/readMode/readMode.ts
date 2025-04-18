@@ -1,5 +1,5 @@
 import { isProbablyReaderable, Readability} from "@mozilla/readability";
-import { ReadabilityLabels, renderReadModeOverlay, rewrittenLevels } from "./readModeOverlay";
+import { ReadabilityLabels, renderReadModeOverlay, rewrittenLevels, unsupportedReadModeOverlay } from "./readModeOverlay";
 // import rs from 'text-readability';
 import { getFleschReadingEase } from "./readability";
 
@@ -93,35 +93,39 @@ const extractReadableContent = async () => {
 export const enableReadMode = async () => {
   document.body.style.overflow = 'hidden';
   const extractedData = await extractReadableContent();
-  if (!extractedData) {
-    console.warn('No readable content found.');
-    return;
-  }
-  const readingLevel = getFleschReadingEase(extractedData.textContent);
-  displayProcessedText(extractedData.title, extractedData.author, extractedData.htmlContent, extractedData.textContent,readingLevel);
-};
-
-/**
- * Displays processed text in a shadow DOM container with proper styling
- * @param title - The article title
- * @param author - The article author
- * @param rawHtmlContent - The raw HTML content to be processed
- * @param textContent - The plain text content
- * @param readingLevel - The calculated reading level
- */
-export const displayProcessedText = (title: string, author: string, rawHtmlContent: string, textContent:string,readingLevel:number) => {
+  
+  // Create container for shadow DOM regardless of content extraction success
   let container = document.getElementById('read-mode-shadow-container');
   if (!container) {
     container = document.createElement('div');
     container.id = 'read-mode-shadow-container';
     document.body.appendChild(container);
   }
-
+  
   const shadowRoot = container.shadowRoot || container.attachShadow({ mode: 'open' });
-  const htmlContent = processContent(rawHtmlContent);
+  
+  if (!extractedData) {
+    // Display "not supported" message when content extraction fails
+    console.warn('No readable content found.');
+    
+    // Create a simpler overlay without toolbar for unsupported pages
+    unsupportedReadModeOverlay(shadowRoot);
 
-  // Render the overlay using the separate module.
-  renderReadModeOverlay(shadowRoot, title, author, htmlContent,textContent,readingLevel);
+  } else {
+    // Process readable content as normal
+    const readingLevel = getFleschReadingEase(extractedData.textContent);
+    const htmlContent = processContent(extractedData.htmlContent);
+  
+    // Render the overlay using the separate module
+    renderReadModeOverlay(
+      shadowRoot, 
+      extractedData.title, 
+      extractedData.author, 
+      htmlContent, 
+      extractedData.textContent, 
+      readingLevel
+    );
+  }
 };
 
 /**

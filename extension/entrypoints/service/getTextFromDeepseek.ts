@@ -9,7 +9,7 @@ const getTextFromDeepseek = async ({ prompt, text, model = "deepseek-chat" }: pr
         // Get the backend URL from the environment or use a default
         const backendUrl = process.env.BACKEND_URL || 'http://localhost:5001';
         
-        // Call our backend API instead of DeepSeek directly
+        // Call our backend
         const response = await fetch(`${backendUrl}/api/deepseek`, {
             method: 'POST',
             headers: {
