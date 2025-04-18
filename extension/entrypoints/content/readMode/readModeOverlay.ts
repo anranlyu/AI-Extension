@@ -99,5 +99,32 @@ export const renderReadModeOverlay = (
   }
 };
 
-
+export const unsupportedReadModeOverlay = (shadowRoot: ShadowRoot) => {
+    shadowRoot.innerHTML = `
+      <style>${contentCss}</style>
+      <div id="error-overlay" class="fixed inset-0 bg-white text-gray-900 z-[1000000] flex flex-col items-center justify-center">
+        <div class="max-w-md p-8 rounded-lg shadow-lg text-center">
+          <h1 class="text-3xl font-bold mb-6">Sorry!</h1>
+          <p class="text-xl mb-8">This page is not supported by Read Mode</p>
+          <button id="read-mode-close" class="px-4 py-2 bg-[#3A7CA5] text-white text-lg font-bold rounded-md hover:bg-[#2F6690] transition duration-200 shadow-lg">
+            Close
+          </button>
+        </div>
+      </div>
+    `;
+    
+    // Add event listener to close button
+    const closeButton = shadowRoot.getElementById('read-mode-close');
+    if (closeButton) {
+      closeButton.addEventListener('click', () => {
+        disableReadMode();
+        
+        // Synchronize the ReadMode toggle state with the popup
+        chrome.runtime.sendMessage({
+          type: 'update_read_mode_state',
+          enabled: false
+        });
+      });
+    }
+}
 
