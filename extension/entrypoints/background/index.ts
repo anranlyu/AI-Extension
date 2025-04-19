@@ -3,8 +3,8 @@
  * Handles authentication, text processing, and communication between content scripts and popup.
  */
 
-import {LengthAdjustmentPrompts, translatePrompt, ReadingLevelAdjustmentPrompts } from "../service/Prompt";
-import getTextFromDeepseek from "../service/getTextFromDeepseek";
+import {LengthAdjustmentPrompts, translatePrompt, ReadingLevelAdjustmentPrompts } from "./Prompt";
+import getTextFromDeepseek from "./getTextFromDeepseek";
 import { Message } from "../service/type";
 import generateTTS from "../service/tts_openai";
 import { createClient } from '@supabase/supabase-js';
@@ -60,23 +60,6 @@ export default defineBackground(() => {
     }
   });
 
-  /**
-   * Sends a message to the active tab
-   * @param message - The message to send
-   * @returns Promise that resolves with the tab ID if message was sent
-   */
-  const sendMessageToActiveTab = async (message: any): Promise<number | undefined> => {
-    try {
-      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tabs[0]?.id) {
-        chrome.tabs.sendMessage(tabs[0].id, message);
-        return tabs[0].id;
-      }
-    } catch (error) {
-      console.error('Error sending message to active tab:', error);
-    }
-    return undefined;
-  };
 
   /**
    * Handles ReadMode state for a specific tab
