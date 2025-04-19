@@ -4,10 +4,10 @@ import ToolbarButton from './ToolbarButton';
 import {
   ReadingLevelIcon,
   AdjustLengthIcon,
+  TTSIcon,
   TranslateIcon,
   MinimizeIcon,
   MaximizeIcon,
-  TTSIcon,
 } from './icons';
 
 const StandardToolbar: React.FC<StandardToolbarProps> = ({
@@ -15,12 +15,14 @@ const StandardToolbar: React.FC<StandardToolbarProps> = ({
   setIsMinimized,
   onAdjustLengthClick,
   onReadingLevelClick,
+  onTranslateClick,
   onTTSClick,
   resetTooltips = false,
   isTTSActive = false,
+  isTranslationMode = false,
 }) => {
   return (
-    <div className="flex flex-col gap-4 px-1">
+    <div className="flex flex-col gap-3 px-2">
       {/* Conditional rendering based on isMinimized state */}
       {!isMinimized && (
         <>
@@ -30,6 +32,7 @@ const StandardToolbar: React.FC<StandardToolbarProps> = ({
             label="Reading Level"
             onClick={onReadingLevelClick}
             resetTooltip={resetTooltips}
+            className="text-white"
           />
 
           {/* 2. Adjust the Length Button */}
@@ -38,22 +41,25 @@ const StandardToolbar: React.FC<StandardToolbarProps> = ({
             label="Adjust the Length"
             onClick={onAdjustLengthClick}
             resetTooltip={resetTooltips}
+            className="text-white"
           />
-
           {/* 3. TTS Button */}
           <ToolbarButton
             icon={<TTSIcon />}
             label="Text to Speech"
             onClick={onTTSClick}
             resetTooltip={resetTooltips}
+            className="text-white"
             isActive={isTTSActive}
           />
-
           {/* 4. Translate Button */}
           <ToolbarButton
             icon={<TranslateIcon />}
             label="Translate"
+            onClick={onTranslateClick}
             resetTooltip={resetTooltips}
+            className="text-white"
+            isActive={isTranslationMode}
           />
         </>
       )}
@@ -63,6 +69,7 @@ const StandardToolbar: React.FC<StandardToolbarProps> = ({
         icon={isMinimized ? <MaximizeIcon /> : <MinimizeIcon />}
         onClick={() => setIsMinimized(!isMinimized)}
         resetTooltip={resetTooltips}
+        className="text-white"
       />
     </div>
   );

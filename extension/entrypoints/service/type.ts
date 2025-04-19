@@ -1,11 +1,12 @@
 export interface Message {
-  auth?: any;
+  auth: any;
   type: string;
-  text?: string;
-  dyslexiaFontEnabled?: boolean;
-  readModeEnabled?: boolean;
-  translateEnabled?: boolean;
-  selectedLevel?: number;
+  text: string;
+  dyslexiaFontEnabled: boolean;
+  readModeEnabled: boolean;
+  translateEnabled: boolean;
+  selectedLevel: number;
+  targetLanguage?: string;
   tabId?: number;
   enabled?: boolean;
 }

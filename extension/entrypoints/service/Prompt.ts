@@ -1,4 +1,4 @@
-export const translatePrompt = "Translate the following text to the target language, stay true to the context.";
+export const translatePrompt = (targetLanguage: string) => `Translate the following text to ${targetLanguage}. Stay true to the original context and meaning. Do not add any comments, introductions, or explanations.`;
 export const ReadingLevelAdjustmentPrompts = [
   // Index 0: Very Complex (Flesch score < 30)
   `You are an expert writer focusing on advanced academic or technical language. 

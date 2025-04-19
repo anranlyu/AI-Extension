@@ -27,8 +27,8 @@ const ToolbarButton: React.FC<ToolbarButtonProps> = ({
         </div>
       )}
       <button
-        className={`p-2.5 hover:bg-[gray-100] rounded-full transition-colors duration-200 ${
-          isActive ? 'bg-gray-100' : ''
+        className={`p-2.5 hover:bg-[#81C3D7] rounded-full transition-colors duration-200 ${
+          isActive ? 'bg-[#16425b]' : ''
         } ${className}`}
         onClick={onClick}
         onMouseEnter={() => setShowLabel(true)}

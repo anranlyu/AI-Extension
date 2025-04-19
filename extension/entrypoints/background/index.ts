@@ -3,7 +3,7 @@
  * Handles authentication, text processing, and communication between content scripts and popup.
  */
 
-import {LengthAdjustmentPrompts, translatePrompt, ReadingLevelAdjustmentPrompts } from "../service/Prompt";
+import { LengthAdjustmentPrompts, translatePrompt, ReadingLevelAdjustmentPrompts } from "../service/Prompt";
 import getTextFromDeepseek from "../service/getTextFromDeepseek";
 import { Message } from "../service/type";
 import generateTTS from "../service/tts_openai";
@@ -253,6 +253,35 @@ export default defineBackground(() => {
         message.selectedLevel
       );
       return true;
+    }
+
+    // Handle translation
+    if (message.type === 'readMode_text_translation') {
+      console.log("Processing read mode text for translation to:", message.targetLanguage);
+      try {
+        const processedText = await getTextFromDeepseek({
+          prompt: `${translatePrompt} to ${message.targetLanguage}:`,
+          text: message.text,
+        });
+        console.log("Got translated text from LLM:", processedText);
+        
+        if (sender.tab?.id) {
+          // Send back to the tab that requested the translation
+          chrome.tabs.sendMessage(sender.tab.id, {
+            type: 'proceesed_read_mode_text',
+            text: processedText,
+            success: true
+          });
+        }
+      } catch (error) {
+        console.error("Error translating text:", error);
+        if (sendResponse) {
+          sendResponse({
+            success: false,
+            error: error instanceof Error ? error.message : "Unknown error"
+          });
+        }
+      }
     }
 
     // Handle auth updates

@@ -1,8 +1,8 @@
 // Length adjustment options
 export const LENGTH_OPTIONS = [
-  'keep current length',
-  'shorter',
-  'shortest',
+  'Keep current length',
+  'Shorter',
+  'Shortest',
 ];
 
 // Position index for "keep current length"
