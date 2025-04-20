@@ -78,7 +78,7 @@ app.post('/api/deepseek', async (req, res) => {
         { role: "user", content: text }
       ],
       model: model,
-      temperature: 0.7,
+      temperature: 1.3,
     }, {
       headers: {
         'Content-Type': 'application/json',
