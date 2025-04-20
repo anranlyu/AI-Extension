@@ -227,9 +227,8 @@ export default defineBackground(() => {
         sendResponse({ error: 'Missing required parameters' });
         return true;
       }
-      
       await processTextWithDeepseek(
-        ReadingLevelAdjustmentPrompts[message.selectedLevel + 1],
+        ReadingLevelAdjustmentPrompts[message.selectedLevel],
         message.text,
         sender.tab.id,
         'proceesed_read_mode_text',
