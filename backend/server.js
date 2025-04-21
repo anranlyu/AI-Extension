@@ -7,6 +7,7 @@ const express = require('express');
 const Parser = require('@postlight/parser');
 const cors = require('cors');
 const axios = require('axios');
+const { OpenAI } = require("openai");
 require('dotenv').config();
 
 const app = express();
@@ -108,24 +109,57 @@ app.post('/api/deepseek', async (req, res) => {
 });
 
 /**
- * Test endpoint to verify API key is loaded correctly
- * Only shows first/last few characters for security
- * 
- * @route GET /api/test-config
+ * Endpoint to handle OpenAI Text-to-Speech requests
+ *
+ * @route POST /api/tts
+ * @param {string} text - The text to convert to speech
+ * @param {string} voice - Optional voice model (defaults to 'alloy')
+ * @returns {Stream} Audio stream in mp3 format
+ * @throws {Error} 400 if text is missing
+ * @throws {Error} 500 if API key is missing or TTS generation fails
  */
-app.get('/api/test-config', (req, res) => {
-  const apiKey = process.env.DEEPSEEK_API_KEY || '';
-  const maskedKey = apiKey ? 
-    `${apiKey.substring(0, 5)}...${apiKey.substring(apiKey.length - 5)}` : 
-    'not found';
+app.post('/api/tts', async (req, res) => {
+  const { text, voice = 'alloy' } = req.body;
+
+  if (!text) {
+    return res.status(400).json({ error: 'Text parameter is required' });
+  }
+
+  // Initialize OpenAI client
+  const openaiApiKey = process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.trim() : '';
+  if (!openaiApiKey) {
+    return res.status(500).json({ error: 'OpenAI API key not found. Check environment variables.' });
+  }
   
-  res.json({
-    apiKeyStatus: apiKey ? 'loaded' : 'missing',
-    apiKeyMasked: maskedKey,
-    apiKeyLength: apiKey.length,
-    nodeEnv: process.env.NODE_ENV || 'not set'
-  });
+  const openai = new OpenAI({ apiKey: openaiApiKey });
+
+  try {
+    console.log(`Generating TTS for text: "${text.substring(0, 50)}..." with voice: ${voice}`);
+
+    const maxChars = 4000; // OpenAI TTS character limit
+    const limitedText = text.slice(0, maxChars);
+
+    const mp3 = await openai.audio.speech.create({
+      model: "tts-1",
+      voice: voice,
+      input: limitedText,
+      response_format: "mp3",
+    });
+
+    // Set headers for streaming audio
+    res.setHeader('Content-Type', 'audio/mpeg');
+    // Pipe the stream from OpenAI directly to the response
+    mp3.body.pipe(res);
+
+  } catch (error) {
+    console.error('OpenAI TTS API error:', error.response?.data || error.message);
+    res.status(500).json({
+      error: 'Failed to generate speech',
+      details: error.response?.data || error.message
+    });
+  }
 });
+
 
 /**
  * Starts the Express server
