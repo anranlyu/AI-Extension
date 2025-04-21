@@ -19,8 +19,13 @@ const isPageReadable = () => {
  */
 const fetchContent = async (url: string) => {
   try {
+    // Check if in development mode or production
+    const baseUrl = process.env.NODE_ENV === 'development' 
+      ? 'http://localhost:5001' 
+      : 'https://ai-extension-5vii.onrender.com';
+    
     // Try backend API first
-    const res = await fetch(`https://ai-extension-5vii.onrender.com/parse?url=${encodeURIComponent(url)}`);
+    const res = await fetch(`${baseUrl}/parse?url=${encodeURIComponent(url)}`);
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
