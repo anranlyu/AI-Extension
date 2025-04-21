@@ -18,7 +18,8 @@
     "axios": "^1.6.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "openai": "^4.28.0"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
