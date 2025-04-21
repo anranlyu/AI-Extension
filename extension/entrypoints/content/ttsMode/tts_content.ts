@@ -76,7 +76,7 @@ const extractReadableContent = () => {
  * @param textToRead Text to convert to speech
  * @returns Promise with the TTS response
  */
-const requestTTS = async (textToRead: string): Promise<{
+const requestTTS = async (textToRead: string, voice: string = 'alloy'): Promise<{
     success: boolean;
     audioUrl?: string;
     error?: string;
@@ -85,6 +85,7 @@ const requestTTS = async (textToRead: string): Promise<{
         const response = await chrome.runtime.sendMessage({
             type: "tts_request",
             text: textToRead,
+            voice: voice
         });
         
         if (!response || !response.success) {
@@ -105,7 +106,7 @@ const requestTTS = async (textToRead: string): Promise<{
 /**
  * Enables Text-to-Speech mode by extracting readable content and requesting TTS
  */
-export const enableTTSMode = async () => {
+export const enableTTSMode = async (voice: string = 'alloy') => {
     // Prevent multiple simultaneous TTS requests
     if (isProcessing) {
         return;
@@ -140,7 +141,7 @@ export const enableTTSMode = async () => {
         }
 
         // Request TTS from background script
-        const ttsResponse = await requestTTS(textToRead);
+        const ttsResponse = await requestTTS(textToRead, voice);
         if (!ttsResponse.success) {
             throw new Error(ttsResponse.error || "TTS request failed");
         }

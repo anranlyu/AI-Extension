@@ -9,8 +9,9 @@ interface TTSFloatingCardProps {
 // Available voice options
 const VOICE_OPTIONS = [
   { id: 'alloy', label: 'Alloy (Default)' },
-  { id: 'ballad', label: 'Ballad' },
+  { id: 'ash', label: 'Ash' },
   { id: 'nova', label: 'Nova' },
+  { id: 'echo', label: 'Echo' },
 ];
 
 const TTSFloatingCard: React.FC<TTSFloatingCardProps> = () => {
@@ -34,21 +35,26 @@ const TTSFloatingCard: React.FC<TTSFloatingCardProps> = () => {
     };
   }, []);
 
+
+  // In ttsFloatingCard.tsx
+  const handleVoiceSelect = (voice: (typeof VOICE_OPTIONS)[0]) => {
+    console.log('Voice selected:', voice.id);
+    setSelectedVoice(voice);
+    chrome.runtime.sendMessage({
+        type: 'update_tts_voice',
+        voice: voice.id
+    });
+  };
+
   const handlePlayPause = () => {
     const newPlayingState = !isPlaying;
     setIsPlaying(newPlayingState);
 
     if (newPlayingState) {
-      enableTTSMode();
+      enableTTSMode(selectedVoice.id);
     } else {
       stopRead();
     }
-  };
-
-  const handleVoiceSelect = (voice: (typeof VOICE_OPTIONS)[0]) => {
-    setSelectedVoice(voice);
-    // In the future, we could update the voice preference in storage
-    // and reload TTS with the new voice
   };
 
   return (
