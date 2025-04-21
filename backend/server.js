@@ -3,12 +3,14 @@
  * Provides URL parsing functionality using @postlight/parser to extract article content.
  */
 
-const express = require('express');
-const Parser = require('@postlight/parser');
-const cors = require('cors');
-const axios = require('axios');
-const { OpenAI } = require("openai");
-require('dotenv').config();
+import express from 'express';
+import Parser from '@postlight/parser';
+import cors from 'cors';
+import axios from 'axios';
+import OpenAI from 'openai';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -163,7 +165,7 @@ app.post('/api/tts', async (req, res) => {
 
 /**
  * Starts the Express server
- * Listens on the specified PORT (defaults to 5000 if not set in environment)
+ * Listens on the specified PORT (defaults to 5001 if not set in environment)
  */
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
