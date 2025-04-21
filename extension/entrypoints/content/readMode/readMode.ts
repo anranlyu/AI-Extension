@@ -62,7 +62,7 @@ const fetchContent = async (url: string) => {
  * Extracts readable content from the current page
  * @returns Promise containing the extracted content or null if extraction fails
  */
-const extractReadableContent = async () => {
+export const extractReadableContent = async () => {
   if (!isPageReadable()) {
     console.warn('This page is not supported for Read Mode.');
     return null;
