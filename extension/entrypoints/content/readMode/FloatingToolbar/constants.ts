@@ -1,8 +1,8 @@
 // Length adjustment options
 export const LENGTH_OPTIONS = [
-  'keep current length',
-  'shorter',
-  'shortest',
+  'Keep current length',
+  'Shorter',
+  'Shortest',
 ];
 
 // Position index for "keep current length"
@@ -52,4 +52,36 @@ export const READING_LEVEL_OPTIONS = [
 ];
 
 // Position index for "Keep current level"
-export const CURRENT_LEVEL_POSITION = 0; 
+export const CURRENT_LEVEL_POSITION = 0;
+
+export const TRANSLATION_OPTIONS = [
+  'Arabic',
+  'Bulgarian',
+  'Chinese (Simplified)',
+  'Chinese (Traditional)',
+  'Croatian',
+  'Czech',
+  'Danish',
+  'Dutch',
+  'English',
+  'Estonian',
+  'Finnish',
+  'French',
+  'German',
+  'Greek',
+  'Hungarian',
+  'Italian',
+  'Japanese',
+  'Korean',
+  'Latvian',
+  'Lithuanian',
+  'Macedonian',
+  'Portuguese', 
+  'Romanian',
+  'Russian',
+  'Spanish',
+  'Swedish',
+  'Turkish',
+  'Ukrainian',
+  'Vietnamese',
+]; 

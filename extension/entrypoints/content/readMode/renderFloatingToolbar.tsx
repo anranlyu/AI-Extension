@@ -16,6 +16,7 @@ export const showFloatingToolbar = (
   textContent: string,
   readingLevel: number = 0
 ) => {
+  console.log('Showing floating toolbar...');
   // Clean up any existing toolbar first
   hideFloatingToolbar();
 
@@ -26,6 +27,12 @@ export const showFloatingToolbar = (
 
   // Get the reference element (the read mode overlay)
   const referenceElement = shadowRoot.getElementById('read-mode-overlay');
+  console.log('Reference element:', referenceElement);
+
+  if (!referenceElement) {
+    console.error('Could not find read-mode-overlay element in shadow root');
+    return;
+  }
 
   // Create the toolbar
   toolbarRoot = createRoot(toolbarContainer);
@@ -36,6 +43,7 @@ export const showFloatingToolbar = (
       readingLevel={readingLevel}
     />
   );
+  console.log('Floating toolbar rendered');
 };
 
 /**
