@@ -86,35 +86,3 @@ export interface TrackMarkerProps {
   onSendClick: () => void;
   options: string[];
 }
-
-export const TRANSLATION_OPTIONS = [
-  'Arabic',
-  'Bulgarian',
-  'Chinese (Simplified)',
-  'Chinese (Traditional)',
-  'Croatian',
-  'Czech',
-  'Danish',
-  'Dutch',
-  'English',
-  'Estonian',
-  'Finnish',
-  'French',
-  'German',
-  'Greek',
-  'Hungarian',
-  'Italian',
-  'Japanese',
-  'Korean',
-  'Latvian',
-  'Lithuanian',
-  'Macedonian',
-  'Portuguese', 
-  'Romanian',
-  'Russian',
-  'Spanish',
-  'Swedish',
-  'Turkish',
-  'Ukrainian',
-  'Vietnamese',
-]; 
