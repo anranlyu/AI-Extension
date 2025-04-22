@@ -4,39 +4,7 @@ import TrackMarker from './TrackMarker';
 import ToolbarButton from './ToolbarButton';
 import { CloseIcon, LoadingSpinner } from './icons';
 import { updateReadModeContent } from '../readMode';
-
-// Available language options
-const TRANSLATION_OPTIONS = [
-  'Arabic',
-  'Bulgarian',
-  'Chinese (Simplified)',
-  'Chinese (Traditional)',
-  'Croatian',
-  'Czech',
-  'Danish',
-  'Dutch',
-  'English',
-  'Estonian',
-  'Finnish',
-  'French',
-  'German',
-  'Greek',
-  'Hungarian',
-  'Italian',
-  'Japanese',
-  'Korean',
-  'Latvian',
-  'Lithuanian',
-  'Macedonian',
-  'Portuguese', 
-  'Romanian',
-  'Russian',
-  'Spanish',
-  'Swedish',
-  'Turkish',
-  'Ukrainian',
-  'Vietnamese',
-];
+import { TRANSLATION_OPTIONS } from './constants';
 
 const TranslationToolbar: React.FC<TranslationToolbarProps> = ({
   onClose,

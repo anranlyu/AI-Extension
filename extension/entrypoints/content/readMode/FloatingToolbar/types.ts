@@ -52,7 +52,6 @@ export interface ReadingLevelAdjustmentToolbarProps {
 
 export interface TranslationToolbarProps {
   onClose: () => void;
-  initialOption?: number;
   textContent?: string;
 }
 
