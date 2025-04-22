@@ -87,10 +87,8 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     setIsTTSActive(newTTSState);
 
     // Send message to toggle TTS in the content script
-    chrome.runtime.sendMessage({
-      type: 'toggle_tts_in_read_mode',
-      enabled: newTTSState,
-    });
+    // TODO: Create the tts card
+
   };
 
   // Handle close button click in adjustment modes

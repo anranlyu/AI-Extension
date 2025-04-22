@@ -6,7 +6,7 @@
 import {LengthAdjustmentPrompts, translatePrompt, ReadingLevelAdjustmentPrompts } from "./Prompt";
 import getTextFromDeepseek from "./getTextFromDeepseek";
 import { Message } from "../service/type";
-import generateTTS from "../service/tts_openai";
+import generateTTS from "./tts_openai";
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client
@@ -142,75 +142,41 @@ export default defineBackground(() => {
     }
   };
 
-  /**
-   * Handles messages from content scripts and popup
-   * Processes text for simplification, translation, and read mode
-   */
-  chrome.runtime.onMessage.addListener(async (message: Message, sender, sendResponse) => {
-    // Handle get_tab_id requests
-    if (message.type === 'get_tab_id') {
+// Unified message handler
+chrome.runtime.onMessage.addListener(async (message: Message, sender, sendResponse) => {
+  switch (message.type) {
+    case 'get_tab_id': {
       const tabId = sender.tab?.id;
       sendResponse({ tabId, error: !tabId ? 'No tab ID available' : undefined });
-      return true;
+      break;
     }
-    
-    // Handle toggle_read_mode_for_tab requests
-    if (message.type === 'toggle_read_mode_for_tab') {
+    case 'toggle_read_mode_for_tab': {
       const { tabId, enabled } = message;
       if (tabId && enabled !== undefined) {
         await setReadModeForTab(tabId, enabled);
         sendResponse({ success: true });
-      } else {
-        sendResponse({ error: 'No tab ID provided or enabled state missing' });
-      }
-      return true;
+      } else sendResponse({ error: 'No tab ID or enabled flag' });
+      break;
     }
-    
-    // Handle TTS in ReadMode
-    if (message.type === 'toggle_tts_in_read_mode') {
+    case 'tts_state_change': {
       const tabId = await getTabId(sender);
-      if (tabId) {
-        chrome.tabs.sendMessage(tabId, {
-          type: 'toggle_tts_in_read_mode',
-          enabled: message.enabled
-        });
-        sendResponse({ success: true });
-      } else {
-        sendResponse({ error: 'No active tab found' });
-      }
-      return true;
+      if (tabId) chrome.tabs.sendMessage(tabId, message);
+      break;
     }
-    
-    // Handle TTS state changes
-    if (message.type === 'tts_state_change') {
-      const tabId = await getTabId(sender);
-      if (tabId) {
-        chrome.tabs.sendMessage(tabId, message);
-      }
-      return true;
-    }
-    
-    // Handle ReadMode state updates from the content script
-    if (message.type === 'update_read_mode_state') {
+    case 'update_read_mode_state': {
       const tabId = sender.tab?.id;
-      const enabled = message.enabled === true; // Ensure it's a boolean
-      
+      const enabled = message.enabled === true;
       if (tabId) {
         await setReadModeForTab(tabId, enabled);
         sendResponse({ success: true });
-      } else {
-        sendResponse({ error: 'No tab ID available' });
-      }
-      return true;
+      } else sendResponse({ error: 'No tab ID' });
+      break;
     }
-    
-    // Handle text length adjustment
-    if (message.type === 'readMode_text_length_adjustment') {
+    case 'readMode_text_length_adjustment': {
       if (!message.selectedLevel || !message.text || !sender.tab?.id) {
-        sendResponse({ error: 'Missing required parameters' });
-        return true;
+        sendResponse({ error: 'Missing params' });
+        break;
       }
-      
       await processTextWithDeepseek(
         LengthAdjustmentPrompts[message.selectedLevel - 1],
         message.text,
@@ -218,14 +184,12 @@ export default defineBackground(() => {
         'proceesed_read_mode_text',
         message.selectedLevel
       );
-      return true;
+      break;
     }
-
-    // Handle reading level adjustment
-    if (message.type === 'readMode_text_reading_level') {
+    case 'readMode_text_reading_level': {
       if (!message.selectedLevel || !message.text || !sender.tab?.id) {
-        sendResponse({ error: 'Missing required parameters' });
-        return true;
+        sendResponse({ error: 'Missing params' });
+        break;
       }
       await processTextWithDeepseek(
         ReadingLevelAdjustmentPrompts[message.selectedLevel],
@@ -234,96 +198,66 @@ export default defineBackground(() => {
         'proceesed_read_mode_text',
         message.selectedLevel
       );
-      return true;
+      break;
     }
-
-    // Handle translation
-    if (message.type === 'readMode_text_translation') {
-      console.log("Processing read mode text for translation to:", message.targetLanguage);
+    case 'readMode_text_translation': {
       try {
-        const processedText = await getTextFromDeepseek({
+        const processed = await getTextFromDeepseek({
           prompt: `${translatePrompt} to ${message.targetLanguage}:`,
-          text: message.text,
+          text: message.text
         });
-        console.log("Got translated text from LLM:", processedText);
-        
         if (sender.tab?.id) {
-          // Send back to the tab that requested the translation
-          chrome.tabs.sendMessage(sender.tab.id, {
-            type: 'proceesed_read_mode_text',
-            text: processedText,
-            success: true
-          });
+          chrome.tabs.sendMessage(sender.tab.id, { type: 'proceesed_read_mode_text', text: processed, success: true });
         }
-      } catch (error) {
-        console.error("Error translating text:", error);
-        if (sendResponse) {
-          sendResponse({
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error"
-          });
-        }
+      } catch (err) {
+        console.error('Error translating:', err);
+        sendResponse({ success: false, error: err instanceof Error ? err.message : 'Unknown error' });
       }
+      break;
+    }
+    case 'SET_AUTH': {
+      if (message.auth) await chrome.storage.local.set(message.auth);
+      break;
     }
 
-    // Handle auth updates
-    if (message.type === 'SET_AUTH') {
-      if (message.auth) {
-        await chrome.storage.local.set(message.auth);
-      }
-      return true;
-    }
-  });
-
-  /**
-   * Handles text-to-speech requests
-   */
-  chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    if (message.type === 'tts_request') {
-      (async () => {
-        try {
-          if (!message.text) {
-            throw new Error("No text provided for TTS");
-          }
-          
-          const ttsResult = await generateTTS(message.text, message.voice || "alloy");
-          if (ttsResult.success && ttsResult.audioBlob) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              const base64Audio = reader.result;
-              sendResponse({ success: true, audioUrl: base64Audio });
-            };
-            reader.readAsDataURL(ttsResult.audioBlob);
-          } else {
-            sendResponse({ success: false, error: "No audio Blob object received." });
-          }
-        } catch (error) {
-          console.error('Error generating TTS:', error);
-          sendResponse({
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error occurred"
-          });
+    // TTS request unified here
+    case 'toggle_tts_in_read_mode': {
+      try {
+        if (!message.text) throw new Error('No text for TTS in background script');
+        const ttsResult = await generateTTS(message.text, message.voice || 'alloy');
+        if (ttsResult.success && ttsResult.audioBlob) {
+          const reader = new FileReader();
+          reader.onloadend = () => sendResponse({ success: true, audioUrl: reader.result });
+          reader.readAsDataURL(ttsResult.audioBlob);
+        } else {
+          sendResponse({ success: false, error: 'No audio blob' });
         }
-      })();
-      return true;
-    }
-  });
-
-  /**
-   * Handle tab removal to clean up ReadMode state
-   */
-  chrome.tabs.onRemoved.addListener(async (tabId) => {
-    try {
-      const { readModeTabStates = {} } = await chrome.storage.local.get('readModeTabStates');
-      if (readModeTabStates[tabId]) {
-        delete readModeTabStates[tabId];
-        await chrome.storage.local.set({ readModeTabStates });
+      } catch (err) {
+        console.error('TTS error:', err);
+        sendResponse({ success: false, error: err instanceof Error ? err.message : 'Unknown error' });
       }
-    } catch (error) {
-      console.error('Error cleaning up ReadMode state:', error);
+      break;
     }
-  });
+    default:
+      break;
+  }
+  return true; // keeps sendResponse channel open
 });
+
+// Clean up on tab removal
+chrome.tabs.onRemoved.addListener(async (tabId) => {
+  try {
+    const { readModeTabStates = {} } = await chrome.storage.local.get('readModeTabStates');
+    if (readModeTabStates[tabId]) {
+      delete readModeTabStates[tabId];
+      await chrome.storage.local.set({ readModeTabStates });
+    }
+  } catch (err) {
+    console.error('Cleanup error:', err);
+  }
+});
+});
+
 
 /**
  * Opens the LumiRead popup or redirects to login

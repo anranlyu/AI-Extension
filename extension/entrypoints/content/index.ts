@@ -8,7 +8,7 @@ import {
   disableReadMode,
   enableReadMode,
 } from './readMode/readMode';
-import { enableTTSMode, stopRead } from './ttsMode/tts_content';
+// import { enableTTSMode, stopRead } from './ttsMode/tts_content';
 import { createTTSFloatingUI } from './ttsMode/tts_ui';
 import './content.css';
 
@@ -30,13 +30,6 @@ export default defineContentScript({
     let currentTabId: number;
     let isTTSActive = false;
 
-    /**
-     * Creates and mounts the Text-to-Speech floating UI
-     */
-    const createTTSUI = async () => {
-      ttsUI = await createTTSFloatingUI(ctx);
-      ttsUI.mount();
-    };
 
     /**
      * Removes the Text-to-Speech floating UI
@@ -52,7 +45,7 @@ export default defineContentScript({
      * Toggles TTS floating UI and functionality
      * @param enabled Whether TTS should be enabled
      */
-    const toggleTTS = async (enabled: boolean) => {
+    const toggleTTS = async (enabled: boolean, textContent:string) => {
       // If state already matches desired state, do nothing
       if ((enabled && isTTSActive) || (!enabled && !isTTSActive)) {
         return;
@@ -61,12 +54,13 @@ export default defineContentScript({
       isTTSActive = enabled;
       
       if (enabled) {
-        await createTTSUI();
-        enableTTSMode();
+        ttsUI = await createTTSFloatingUI(ctx, textContent);
+        ttsUI.mount();
+        // enableTTSMode();
         notifyTTSStateChange(true);
       } else {
         removeTTSUI();
-        stopRead();
+        // stopRead();
         notifyTTSStateChange(false);
       }
     };
@@ -99,7 +93,7 @@ export default defineContentScript({
         
         // If ReadMode is disabled, also disable TTS if it's active
         if (!message.enabled && isTTSActive) {
-          toggleTTS(false);
+          toggleTTS(false, message.textContent);
         }
         
         sendResponse({ success: true });
@@ -108,7 +102,7 @@ export default defineContentScript({
       
       // Handle TTS toggle
       if (message.type === 'toggle_tts_in_read_mode') {
-        toggleTTS(message.enabled);
+        toggleTTS(message.enabled,message.textContent);
         sendResponse({ success: true });
         return true;
       }
@@ -117,7 +111,7 @@ export default defineContentScript({
       if (message.type === 'update_read_mode_state' && !message.enabled) {
         // If ReadMode is being disabled and TTS is active, disable TTS as well
         if (isTTSActive) {
-          toggleTTS(false);
+          toggleTTS(false, message.textContent);
         }
         return true;
       }

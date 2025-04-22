@@ -3,7 +3,7 @@ import TTSFloatingCard from "./ttsFloatingCard";
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-export async function createTTSFloatingUI(ctx: any) {
+export async function createTTSFloatingUI(ctx: any, textContent: string) {
     const ui = await createShadowRootUi(ctx, {
         name: 'tts-floating-card',
         position: 'overlay',
@@ -18,7 +18,7 @@ export async function createTTSFloatingUI(ctx: any) {
             // Create a root for React to render into
             const root = ReactDOM.createRoot(container);
             // Render the React component into the container
-            root.render(React.createElement(TTSFloatingCard));
+            root.render(React.createElement(TTSFloatingCard, { textContent }));
 
             // Drag functionality
             let isDragging = false;

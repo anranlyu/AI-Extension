@@ -3,7 +3,7 @@ import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/react';
 import { requestTTS } from './tts_content';
 
 interface TTSFloatingCardProps {
-  container?: HTMLElement;
+  textContent?: string;
 }
 
 const VOICE_OPTIONS = [
@@ -13,7 +13,7 @@ const VOICE_OPTIONS = [
   { id: 'echo', label: 'Echo' },
 ];
 
-const TTSFloatingCard: React.FC<TTSFloatingCardProps> = () => {
+const TTSFloatingCard: React.FC<TTSFloatingCardProps> = ({ textContent }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState(VOICE_OPTIONS[0]);
@@ -44,6 +44,7 @@ const TTSFloatingCard: React.FC<TTSFloatingCardProps> = () => {
   };
 
   const handlePlayPause = async () => {
+    console.log('Play/Pause clicked', { isPlaying, isLoading });
     if (isLoading) return;
 
     if (isPlaying) {
@@ -63,12 +64,12 @@ const TTSFloatingCard: React.FC<TTSFloatingCardProps> = () => {
     // First-time play: fetch TTS and play
     setIsLoading(true);
     try {
-      const { extractReadableContent } = await import('../readMode/readMode');
-      const extractedData = await extractReadableContent();
-      if (!extractedData) throw new Error('No readable content found');
-      const textToRead = extractedData.textContent;
-
-      const resp = await requestTTS(textToRead, selectedVoice.id);
+      console.log(textContent);
+      if (!textContent) {
+        throw new Error('No readable content found');
+      }
+      
+      const resp = await requestTTS(textContent, selectedVoice.id);
       if (!resp.success || !resp.audioUrl) throw new Error(resp.error || 'TTS request failed');
 
       const audio = new Audio(resp.audioUrl);

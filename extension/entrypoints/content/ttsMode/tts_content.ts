@@ -22,7 +22,7 @@ export const requestTTS = async (
 ): Promise<{ success: boolean; audioUrl?: string; error?: string }> => {
   try {
     const response = await chrome.runtime.sendMessage({
-      type: 'tts_request',
+      type: 'toggle_tts_in_read_mode',
       text: textToRead,
       voice,
     });
@@ -48,78 +48,78 @@ export const requestTTS = async (
  * @param voice Voice to use for TTS
  * @param providedContent Optional pre-extracted content
  */
-export const enableTTSMode = async (
-  voice: string = 'alloy',
-  providedContent?: { content: string }
-) => {
-  if (isProcessing) return;
-  isProcessing = true;
+// export const enableTTSMode = async (
+//   voice: string = 'alloy',
+//   providedContent?: { content: string }
+// ) => {
+//   if (isProcessing) return;
+//   isProcessing = true;
 
-  try {
-    let textToRead: string;
+//   try {
+//     let textToRead: string;
 
-    if (providedContent?.content) {
-      textToRead = providedContent.content.trim();
-    } else {
-      const extractedData = await extractReadableContent();
-      if (!extractedData) throw new Error('No readable content found');
+//     if (providedContent?.content) {
+//       textToRead = providedContent.content.trim();
+//     } else {
+//       const extractedData = await extractReadableContent();
+//       if (!extractedData) throw new Error('No readable content found');
 
-      // Prefer plain text if available
-      textToRead =
-        (extractedData.textContent || extractedData.htmlContent || '')
-          .trim();
-    }
+//       // Prefer plain text if available
+//       textToRead =
+//         (extractedData.textContent || extractedData.htmlContent || '')
+//           .trim();
+//     }
 
-    if (!textToRead) throw new Error('No valid text to read');
+//     if (!textToRead) throw new Error('No valid text to read');
 
-    // Apply length limit if needed
-    if (MAX_TTS_LENGTH > 0 && textToRead.length > MAX_TTS_LENGTH) {
-      textToRead = textToRead.substring(0, MAX_TTS_LENGTH) + '...';
-    }
+//     // Apply length limit if needed
+//     if (MAX_TTS_LENGTH > 0 && textToRead.length > MAX_TTS_LENGTH) {
+//       textToRead = textToRead.substring(0, MAX_TTS_LENGTH) + '...';
+//     }
 
-    // Request TTS from background script
-    const ttsResponse = await requestTTS(textToRead, voice);
-    if (!ttsResponse.success) throw new Error(ttsResponse.error || 'TTS request failed');
+//     // Request TTS from background script
+//     const ttsResponse = await requestTTS(textToRead, voice);
+//     if (!ttsResponse.success) throw new Error(ttsResponse.error || 'TTS request failed');
 
-    // Handle audio playback
-    if (currentAudio) {
-      currentAudio.pause();
-    }
+//     // Handle audio playback
+//     if (currentAudio) {
+//       currentAudio.pause();
+//     }
 
-    currentAudio = new Audio(ttsResponse.audioUrl!);
+//     currentAudio = new Audio(ttsResponse.audioUrl!);
 
-    try {
-      await currentAudio.play();
-    } catch (err) {
-      // Handle autoplay blocking
-      if (err instanceof Error && err.name === 'NotAllowedError') {
-        document.body.addEventListener(
-          'click',
-          function playAfterInteraction() {
-            currentAudio?.play().then(() => {
-              document.body.removeEventListener('click', playAfterInteraction);
-            });
-          },
-          { once: true }
-        );
-      } else {
-        throw err;
-      }
-    }
-  } catch (error) {
-    console.error('TTS error:', error);
-  } finally {
-    isProcessing = false;
-  }
-};
+//     try {
+//       await currentAudio.play();
+//     } catch (err) {
+//       // Handle autoplay blocking
+//       if (err instanceof Error && err.name === 'NotAllowedError') {
+//         document.body.addEventListener(
+//           'click',
+//           function playAfterInteraction() {
+//             currentAudio?.play().then(() => {
+//               document.body.removeEventListener('click', playAfterInteraction);
+//             });
+//           },
+//           { once: true }
+//         );
+//       } else {
+//         throw err;
+//       }
+//     }
+//   } catch (error) {
+//     console.error('TTS error:', error);
+//   } finally {
+//     isProcessing = false;
+//   }
+// };
 
-/**
- * Stops TTS playback and resets state
- */
-export const stopRead = () => {
-  if (currentAudio) {
-    currentAudio.pause();
-    currentAudio.currentTime = 0;
-    currentAudio = null;
-  }
-};
+// /**
+//  * Stops TTS playback and resets state
+//  */
+// export const stopRead = () => {
+//   if (currentAudio) {
+//     currentAudio.pause();
+//     currentAudio.currentTime = 0;
+//     currentAudio = null;
+//   }
+// };
