@@ -286,7 +286,7 @@ export default defineBackground(() => {
             throw new Error("No text provided for TTS");
           }
           
-          const ttsResult = await generateTTS(message.text, "alloy");
+          const ttsResult = await generateTTS(message.text, message.voice || "alloy");
           if (ttsResult.success && ttsResult.audioBlob) {
             const reader = new FileReader();
             reader.onloadend = () => {

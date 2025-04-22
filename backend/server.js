@@ -12,6 +12,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+console.log("Loaded API Key:", process.env.OPENAI_API_KEY?.slice(0, 5) || 'Not Found');
+
+
 const app = express();
 const PORT = process.env.PORT || 5001;
 
@@ -114,50 +117,69 @@ app.post('/api/deepseek', async (req, res) => {
  * Endpoint to handle OpenAI Text-to-Speech requests
  *
  * @route POST /api/tts
- * @param {string} text - The text to convert to speech
+ * @param {string} input - The text to convert to speech (changed from text to input)
  * @param {string} voice - Optional voice model (defaults to 'alloy')
  * @returns {Stream} Audio stream in mp3 format
- * @throws {Error} 400 if text is missing
+ * @throws {Error} 400 if input is missing
  * @throws {Error} 500 if API key is missing or TTS generation fails
  */
 app.post('/api/tts', async (req, res) => {
-  const { text, voice = 'alloy' } = req.body;
-
-  if (!text) {
-    return res.status(400).json({ error: 'Text parameter is required' });
-  }
-
-  // Initialize OpenAI client
-  const openaiApiKey = process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.trim() : '';
-  if (!openaiApiKey) {
-    return res.status(500).json({ error: 'OpenAI API key not found. Check environment variables.' });
-  }
+  // Log the raw body for debugging
+  console.log('POST /api/tts received:', req.body);
   
+  const { text, input, voice = 'alloy' } = req.body;
+  const ttsInput = text || input;
+
+  if (!ttsInput) {
+    console.log('No input text provided');
+    return res.status(400).json({ error: 'Input text is required' });
+  }
+
+  // Trim to the max OpenAI TTS chars
+  const maxChars = 20;
+  const limitedText = ttsInput.slice(0, maxChars);
+  if (ttsInput.length > maxChars) {
+    console.log(`Text truncated from ${ttsInput.length} to ${maxChars} characters`);
+  }
+
+  // Ensure API key is loaded
+  const openaiApiKey = process.env.OPENAI_API_KEY?.trim();
+  if (!openaiApiKey) {
+    console.log('Server: OpenAI API key not found in environment variables');
+    return res.status(500).json({ error: 'Server: OpenAI API key not found. Check environment variables.' });
+  }
+
   const openai = new OpenAI({ apiKey: openaiApiKey });
-
   try {
-    console.log(`Generating TTS for text: "${text.substring(0, 50)}..." with voice: ${voice}`);
+    console.log(`Generating TTS for text: "${limitedText}" with voice: ${voice}`);
 
-    const maxChars = 4000; // OpenAI TTS character limit
-    const limitedText = text.slice(0, maxChars);
-
+    // **Use `input:` here, not `text:`**
     const mp3 = await openai.audio.speech.create({
       model: "tts-1",
-      voice: voice,
+      voice,
       input: limitedText,
       response_format: "mp3",
     });
 
-    // Set headers for streaming audio
+    // CORS & content-type
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', 'audio/mpeg');
-    // Pipe the stream from OpenAI directly to the response
-    mp3.body.pipe(res);
 
+    // Pipe the audio stream back
+    mp3.body.pipe(res);
+    mp3.body.on('error', err => {
+      console.error('Stream error:', err);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Error streaming audio', details: err.message });
+      }
+    });
   } catch (error) {
-    console.error('OpenAI TTS API error:', error.response?.data || error.message);
+    console.error('OpenAI TTS API error:', error);
     res.status(500).json({
       error: 'Failed to generate speech',
-      details: error.response?.data || error.message
+      details: error.response?.data || error.message,
+      errorType: error.name,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
