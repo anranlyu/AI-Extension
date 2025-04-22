@@ -136,7 +136,7 @@ app.post('/api/tts', async (req, res) => {
   }
 
   // Trim to the max OpenAI TTS chars
-  const maxChars = 20;
+  const maxChars = 1000;
   const limitedText = ttsInput.slice(0, maxChars);
   if (ttsInput.length > maxChars) {
     console.log(`Text truncated from ${ttsInput.length} to ${maxChars} characters`);

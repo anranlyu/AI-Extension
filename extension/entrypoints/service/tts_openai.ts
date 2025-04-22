@@ -6,11 +6,11 @@ const generateTTS = async (
 ) => {
     console.log("Generating TTS with voice:", voiceOption);
   try {
-    const maxChars = 100; // OpenAI TTS character limit
+    const maxChars = 1000; // OpenAI TTS character limit
     const limitedText = ttsText.slice(0, maxChars);
 
     // You can allow a fallback to process.env.BACKEND_URL if configured
-    const backendUrl = 'http://localhost:5001'; // or use import.meta.env.VITE_BACKEND_URL if using Vite
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5001';
 
     console.log(`Sending TTS request to backend with voice: ${voiceOption}`);
 
