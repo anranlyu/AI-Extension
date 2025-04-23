@@ -65,7 +65,8 @@ export const renderReadModeOverlay = (
       // First handle the TTS state - notify that TTS should be disabled if it's active
       chrome.runtime.sendMessage({
         type: 'toggle_tts_in_read_mode',
-        enabled: false
+        enabled: false,
+        textContent:''
       });
       
       // Hide the floating toolbar

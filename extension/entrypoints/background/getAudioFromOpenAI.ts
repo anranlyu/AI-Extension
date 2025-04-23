@@ -1,8 +1,9 @@
-type VoiceOption = "alloy" | "ash" | "coral" | "echo" | "fable" | "onyx" | "nova" | "sage" | "shimmer";
+import { VoiceOption } from "../service/type";
 
-const generateTTS = async (
+
+const getAudioFromOpenAI = async (
   ttsText: string,
-  voiceOption: VoiceOption = "alloy"
+  voiceOption: VoiceOption
 ) => {
     console.log("Generating TTS with voice:", voiceOption);
   try {
@@ -53,4 +54,4 @@ const generateTTS = async (
   }
 };
 
-export default generateTTS;
+export default getAudioFromOpenAI;

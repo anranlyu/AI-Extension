@@ -2,7 +2,10 @@ import { isProbablyReaderable, Readability} from "@mozilla/readability";
 import { ReadabilityLabels, renderReadModeOverlay, rewrittenLevels, unsupportedReadModeOverlay } from "./readModeOverlay";
 // import rs from 'text-readability';
 import { getFleschReadingEase } from "./readability";
+import { hideFloatingToolbar } from './renderFloatingToolbar'; // Import hideFloatingToolbar
 
+// Add a flag to track rendering state
+let isReadModeUIRendered = false;
 
 /**
  * Checks if the current page is readable using Mozilla's Readability
@@ -13,13 +16,12 @@ const isPageReadable = () => {
 };
 
 /**
- * Fetches content from the backend API with fallback to Readability
- * @param url The URL to fetch content from
- * @returns Promise containing the article data or null if both methods fail
+ * Fetches and parses content using backend or Readability fallback
+ * @param url - The URL of the page to parse
+ * @returns Parsed content object or null
  */
 const fetchContent = async (url: string) => {
   try {
-    // Check if in development mode or production
     const baseUrl = process.env.NODE_ENV === 'development' 
       ? 'http://localhost:5001' 
       : 'https://ai-extension-5vii.onrender.com';
@@ -90,34 +92,50 @@ export const extractReadableContent = async () => {
 
 /**
  * Enables read mode on the current page by:
- * 1. Hiding page scroll
- * 2. Extracting readable content
- * 3. Calculating reading level
- * 4. Displaying processed content
+ * 1. Checking if already rendered
+ * 2. Hiding page scroll
+ * 3. Extracting readable content
+ * 4. Calculating reading level
+ * 5. Displaying processed content
  */
 export const enableReadMode = async () => {
+  // Check if already enabled/rendered to prevent double execution
+  // Check specifically for the overlay element within the shadow root
+  if (isReadModeUIRendered && document.getElementById('read-mode-shadow-container')?.shadowRoot?.getElementById('read-mode-overlay')) {
+      console.log("[readMode.ts] enableReadMode called but UI already rendered. Skipping.");
+      return;
+  }
+  console.log("[readMode.ts] Enabling Read Mode UI...");
+
   document.body.style.overflow = 'hidden';
   const extractedData = await extractReadableContent();
   
   // Create container for shadow DOM regardless of content extraction success
   let container = document.getElementById('read-mode-shadow-container');
   if (!container) {
+    console.log("[readMode.ts] Creating shadow container.");
     container = document.createElement('div');
     container.id = 'read-mode-shadow-container';
     document.body.appendChild(container);
+  } else {
+    console.log("[readMode.ts] Found existing shadow container.");
   }
   
   const shadowRoot = container.shadowRoot || container.attachShadow({ mode: 'open' });
   
+  // Clear previous content just in case
+  shadowRoot.innerHTML = ''; 
+  hideFloatingToolbar(); // Ensure any orphaned toolbar is hidden before rendering new content
+
   if (!extractedData) {
     // Display "not supported" message when content extraction fails
-    console.warn('No readable content found.');
-    
-    // Create a simpler overlay without toolbar for unsupported pages
+    console.warn('No readable content found for Read Mode.');
     unsupportedReadModeOverlay(shadowRoot);
+    isReadModeUIRendered = true; // Mark as rendered even for unsupported
 
   } else {
     // Process readable content as normal
+    console.log("[readMode.ts] Rendering Read Mode content.");
     const readingLevel = getFleschReadingEase(extractedData.textContent);
     const htmlContent = processContent(extractedData.htmlContent);
   
@@ -130,22 +148,30 @@ export const enableReadMode = async () => {
       extractedData.textContent, 
       readingLevel
     );
+    isReadModeUIRendered = true; // Mark as rendered
   }
 };
 
 /**
  * Disables read mode by:
- * 1. Removing the shadow container
- * 2. Restoring page scroll
+ * 1. Hiding the floating toolbar
+ * 2. Removing the shadow container
+ * 3. Restoring page scroll
+ * 4. Resetting the rendered flag
  */
 export const disableReadMode = () => {
-  // Remove the shadow container that holds the read mode overlay.
   const container = document.getElementById('read-mode-shadow-container');
   if (container) {
-    container.remove();
+      // Explicitly hide the toolbar FIRST to ensure its cleanup runs
+      console.log("[readMode.ts] Hiding floating toolbar before removing container.");
+      hideFloatingToolbar(); 
+      
+      console.log("[readMode.ts] Removing shadow container.");
+      container.remove();
   }
-
   document.body.style.overflow = '';
+  isReadModeUIRendered = false; // Reset the flag
+  console.log("[readMode.ts] Disabled Read Mode UI.");
 };
 
 /**

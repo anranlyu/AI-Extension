@@ -1,3 +1,5 @@
+export type VoiceOption = "alloy" | "ash" | "coral" | "echo" | "fable" | "onyx" | "nova" | "sage" | "shimmer";
+
 export interface Message {
   auth: any;
   type: string;
@@ -9,6 +11,7 @@ export interface Message {
   targetLanguage?: string;
   tabId?: number;
   enabled?: boolean;
+  voice?: VoiceOption
 }
 
 
