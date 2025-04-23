@@ -14,12 +14,14 @@ function Home() {
               </span>
             </Link>
             <nav>
-              <Link
-                to="/download"
+              <a
+                href="https://chromewebstore.google.com/detail/lumiread/efaokfmfhikkofofjdcplbnolpgklcic"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-blue-600 hover:text-blue-800 font-medium"
               >
                 Download
-              </Link>
+              </a>
             </nav>
           </div>
         </header>
@@ -127,12 +129,14 @@ function Home() {
 
             {/* Download CTA */}
             <div className="max-w-5xl mx-auto mb-16 px-4">
-              <Link
-                to="/download"
+              <a
+                href="https://chromewebstore.google.com/detail/lumiread/efaokfmfhikkofofjdcplbnolpgklcic"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-md shadow-md transition duration-200 ease-in-out text-xl"
               >
                 Download LumiRead Now
-              </Link>
+              </a>
             </div>
           </div>
         </main>

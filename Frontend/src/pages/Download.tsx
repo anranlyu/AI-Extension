@@ -37,11 +37,12 @@ function Download() {
                 await approval from the Chrome Web Store.
               </p>
               <a
-                href="/lumiRead.zip"
-                download
+                href="https://chromewebstore.google.com/detail/lumiread/efaokfmfhikkofofjdcplbnolpgklcic"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-md shadow-md transition duration-200 ease-in-out mb-6"
               >
-                Download Extension (.zip)
+                Install from Chrome Web Store
               </a>
             </div>
 
