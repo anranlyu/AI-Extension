@@ -29,8 +29,6 @@ const LengthAdjustmentToolbar: React.FC<LengthAdjustmentToolbarProps> = ({
         setIsProcessing(false);
         // Return to standard toolbar
         setTimeout(() => onClose(), 300);
-
-        console.log(textContent);
       }
     };
 
