@@ -53,6 +53,7 @@ export interface ReadingLevelAdjustmentToolbarProps {
 export interface TranslationToolbarProps {
   onClose: () => void;
   textContent?: string;
+  onStartTranslation: () => void;
 }
 
 export interface StandardToolbarProps {

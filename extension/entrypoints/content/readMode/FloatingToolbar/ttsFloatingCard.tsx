@@ -212,7 +212,7 @@ const TTSFloatingCard: React.FC<TTSFloatingCardProps> = ({ textContent }) => {
 
       {/* Play/Pause Button */}
       <button
-        className={`size-10 bg-[#16425B] text-white p-2 rounded-full hover:bg-[#2F6690] transition flex items-center justify-center ${
+        className={`size-10 bg-[#2F6690] text-white p-2 rounded-full hover:bg-[#2F6690] transition flex items-center justify-center ${
           isLoading ? 'opacity-50 cursor-wait' : ''
         }`}
         onClick={handlePlayPause}
@@ -275,7 +275,7 @@ const TTSFloatingCard: React.FC<TTSFloatingCardProps> = ({ textContent }) => {
       {/* Voice Agent Dropdown */}
       <Menu as="div" className="relative inline-block text-left">
         <MenuButton
-          className="inline-flex items-center justify-center gap-x-1.5 rounded-md bg-[#16425B] px-3 py-2 text-sm font-semibold text-white ring-1 ring-gray-100 hover:bg-[#2F6690] transition disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-x-1.5 rounded-md bg-[#2F6690] px-3 py-2 text-sm font-semibold text-white ring-1 ring-gray-100 hover:bg-[#2F6690] transition disabled:opacity-50"
           disabled={isLoading || isPlaying}
         >
           {selectedVoice.label}
@@ -288,7 +288,7 @@ const TTSFloatingCard: React.FC<TTSFloatingCardProps> = ({ textContent }) => {
                 {({ active }) => (
                   <button
                     className={`block w-full text-left px-4 py-2 text-sm ${
-                      active ? 'bg-[#81C3D7] text-gray-900' : 'text-gray-700'
+                      active ? 'bg-[#2F6690] text-gray-900' : 'text-gray-700'
                     } ${selectedVoice.id === voice.id ? 'font-semibold' : ''}`}
                     onClick={() => handleVoiceSelect(voice)}
                   >

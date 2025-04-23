@@ -212,36 +212,48 @@ function processContent(html: string): string {
  * @param newText - The new text content to display
  */
 export const updateReadModeContent = (newText: string) => {
+  // console.log('[updateReadModeContent] Called with newText:', newText); // Remove log
+
   const container = document.getElementById('read-mode-shadow-container');
   if (!container) {
-    console.warn('Read Mode container not found.');
+    console.warn('[updateReadModeContent] Read Mode container not found.'); // Keep warn
     return;
   }
 
   const shadowRoot = container.shadowRoot;
   if (!shadowRoot) {
-    console.warn('Shadow root not found.');
+    console.warn('[updateReadModeContent] Shadow root not found.'); // Keep warn
+    return;
+  }
+
+  // Check if newText is valid before processing
+  if (typeof newText !== 'string' || newText.trim() === '') {
+    console.warn('[updateReadModeContent] Received invalid or empty text. Aborting update.'); // Keep warn
     return;
   }
 
   const processedText = processContent(
     newText.replace(/\n/g, '<br>') // Preserve single newlines
   );
+  // console.log('[updateReadModeContent] Processed text:', processedText); // Remove log
 
   // Update displayed content
   const contentElement = shadowRoot.querySelector('#mainContent');
   if (contentElement) {
+    // console.log('[updateReadModeContent] Found #mainContent element. Updating innerHTML...'); // Remove log
     contentElement.innerHTML = processedText;
+    // console.log('[updateReadModeContent] #mainContent innerHTML updated.'); // Remove log
+  } else {
+    console.warn('[updateReadModeContent] #mainContent element not found!'); // Keep warn
   }
 
   // Update UI elements
-  
   const noticePanel = shadowRoot.getElementById('notice-panel');
-
   if (noticePanel) {
-    // Only hide button/show panel for the CURRENTLY ACTIVE level
-    
+    // console.log('[updateReadModeContent] Making notice panel visible.'); // Remove log
     noticePanel.classList.remove('hidden');
+  } else {
+    console.warn('[updateReadModeContent] #notice-panel element not found.'); // Keep warn
   }
 };
 

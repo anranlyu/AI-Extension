@@ -194,7 +194,7 @@ chrome.runtime.onMessage.addListener(async (message: Message, sender, sendRespon
         'proceesed_read_mode_text',
         message.selectedLevel
       );
-      break; 
+      break;
     }
     case 'readMode_text_reading_level': {
        // Use senderTabId here
@@ -236,14 +236,14 @@ chrome.runtime.onMessage.addListener(async (message: Message, sender, sendRespon
       const targetTabIdForTTS = sender.tab?.id; 
       sendResponse({ success: true, status: 'processing' });
       (async () => {
-         try {
-          if (!message.text) throw new Error('No text for TTS in background script');
+      try {
+        if (!message.text) throw new Error('No text for TTS in background script');
           if (!targetTabIdForTTS) throw new Error('Cannot send TTS result without sender tab ID');
 
-          const ttsResult = await getAudioFromOpenAI(message.text, message.voice || 'alloy');
+        const ttsResult = await getAudioFromOpenAI(message.text, message.voice || 'alloy');
 
-          if (ttsResult.success && ttsResult.audioBlob) {
-            const reader = new FileReader();
+        if (ttsResult.success && ttsResult.audioBlob) {
+          const reader = new FileReader();
             reader.onloadend = () => {
               console.log("FileReader finished, sending audio URL to tab:", targetTabIdForTTS);
               chrome.tabs.sendMessage(targetTabIdForTTS, {
@@ -260,24 +260,24 @@ chrome.runtime.onMessage.addListener(async (message: Message, sender, sendRespon
                  error: 'FileReader error' 
                });
             };
-            reader.readAsDataURL(ttsResult.audioBlob);
-          } else {
+          reader.readAsDataURL(ttsResult.audioBlob);
+        } else {
             console.log("No audio blob received, sending error to tab:", targetTabIdForTTS);
             chrome.tabs.sendMessage(targetTabIdForTTS, { 
               type: 'tts_audio_ready', 
               success: false, 
               error: ttsResult.error || 'No audio blob' 
             });
-          }
-        } catch (err) {
-          console.error('TTS error:', err);
+        }
+      } catch (err) {
+        console.error('TTS error:', err);
           if (targetTabIdForTTS) {
             chrome.tabs.sendMessage(targetTabIdForTTS, { 
               type: 'tts_audio_ready', 
               success: false, 
               error: err instanceof Error ? err.message : 'Unknown TTS error' 
             });
-          }
+      }
         }
       })();
       return false; 
