@@ -6,8 +6,8 @@
 import {LengthAdjustmentPrompts, translatePrompt, ReadingLevelAdjustmentPrompts } from "./Prompt";
 import getTextFromDeepseek from "./getTextFromDeepseek";
 import { Message } from "../service/type";
-import generateTTS from "./tts_openai";
 import { createClient } from '@supabase/supabase-js';
+import getAudioFromOpenAI from "./getAudioFromOpenAI";
 
 // Initialize Supabase client
 const supabaseUrl = 'https://nzbrkhngkszrdmahshpp.supabase.co';
@@ -143,58 +143,69 @@ export default defineBackground(() => {
   };
 
 // Unified message handler
+// Make the main listener async again to allow await in other handlers
 chrome.runtime.onMessage.addListener(async (message: Message, sender, sendResponse) => {
+  // Get tabId from sender if available (primarily for content script messages)
+  const senderTabId = sender.tab?.id;
+
   switch (message.type) {
     case 'get_tab_id': {
-      const tabId = sender.tab?.id;
-      sendResponse({ tabId, error: !tabId ? 'No tab ID available' : undefined });
+      // Use senderTabId here
+      sendResponse({ tabId: senderTabId, error: !senderTabId ? 'No tab ID available' : undefined });
       break;
     }
     case 'toggle_read_mode_for_tab': {
-      const { tabId, enabled } = message;
-      if (tabId && enabled !== undefined) {
-        await setReadModeForTab(tabId, enabled);
+      // IMPORTANT: Use tabId from the message payload, NOT senderTabId
+      const { tabId: targetTabId, enabled } = message;
+      if (targetTabId && enabled !== undefined) {
+        // Use targetTabId here
+        await setReadModeForTab(targetTabId, enabled);
         sendResponse({ success: true });
-      } else sendResponse({ error: 'No tab ID or enabled flag' });
+      } else {
+        // Be more specific about the error
+        sendResponse({ error: 'Missing targetTabId or enabled flag in message' }); 
+      }
       break;
     }
     case 'tts_state_change': {
-      const tabId = await getTabId(sender);
-      if (tabId) chrome.tabs.sendMessage(tabId, message);
+      // Use senderTabId here
+      if (senderTabId) chrome.tabs.sendMessage(senderTabId, message);
       break;
     }
     case 'update_read_mode_state': {
-      const tabId = sender.tab?.id;
       const enabled = message.enabled === true;
-      if (tabId) {
-        await setReadModeForTab(tabId, enabled);
+      // Use senderTabId here
+      if (senderTabId) {
+        await setReadModeForTab(senderTabId, enabled);
         sendResponse({ success: true });
-      } else sendResponse({ error: 'No tab ID' });
+      } else sendResponse({ error: 'No sender tab ID' });
       break;
     }
     case 'readMode_text_length_adjustment': {
-      if (!message.selectedLevel || !message.text || !sender.tab?.id) {
-        sendResponse({ error: 'Missing params' });
+      // Use senderTabId here
+      if (!message.selectedLevel || !message.text || !senderTabId) {
+        sendResponse({ error: 'Missing params or sender tab ID' });
         break;
       }
       await processTextWithDeepseek(
         LengthAdjustmentPrompts[message.selectedLevel - 1],
         message.text,
-        sender.tab.id,
+        senderTabId,
         'proceesed_read_mode_text',
         message.selectedLevel
       );
-      break;
+      break; 
     }
     case 'readMode_text_reading_level': {
-      if (!message.selectedLevel || !message.text || !sender.tab?.id) {
-        sendResponse({ error: 'Missing params' });
+       // Use senderTabId here
+      if (!message.selectedLevel || !message.text || !senderTabId) {
+        sendResponse({ error: 'Missing params or sender tab ID' });
         break;
       }
       await processTextWithDeepseek(
         ReadingLevelAdjustmentPrompts[message.selectedLevel],
         message.text,
-        sender.tab.id,
+        senderTabId,
         'proceesed_read_mode_text',
         message.selectedLevel
       );
@@ -206,8 +217,9 @@ chrome.runtime.onMessage.addListener(async (message: Message, sender, sendRespon
           prompt: `${translatePrompt} to ${message.targetLanguage}:`,
           text: message.text
         });
-        if (sender.tab?.id) {
-          chrome.tabs.sendMessage(sender.tab.id, { type: 'proceesed_read_mode_text', text: processed, success: true });
+         // Use senderTabId here
+        if (senderTabId) {
+          chrome.tabs.sendMessage(senderTabId, { type: 'proceesed_read_mode_text', text: processed, success: true });
         }
       } catch (err) {
         console.error('Error translating:', err);
@@ -219,29 +231,62 @@ chrome.runtime.onMessage.addListener(async (message: Message, sender, sendRespon
       if (message.auth) await chrome.storage.local.set(message.auth);
       break;
     }
-
-    // TTS request unified here
     case 'toggle_tts_in_read_mode': {
-      try {
-        if (!message.text) throw new Error('No text for TTS in background script');
-        const ttsResult = await generateTTS(message.text, message.voice || 'alloy');
-        if (ttsResult.success && ttsResult.audioBlob) {
-          const reader = new FileReader();
-          reader.onloadend = () => sendResponse({ success: true, audioUrl: reader.result });
-          reader.readAsDataURL(ttsResult.audioBlob);
-        } else {
-          sendResponse({ success: false, error: 'No audio blob' });
+      // Use senderTabId here for sending the final result
+      const targetTabIdForTTS = sender.tab?.id; 
+      sendResponse({ success: true, status: 'processing' });
+      (async () => {
+         try {
+          if (!message.text) throw new Error('No text for TTS in background script');
+          if (!targetTabIdForTTS) throw new Error('Cannot send TTS result without sender tab ID');
+
+          const ttsResult = await getAudioFromOpenAI(message.text, message.voice || 'alloy');
+
+          if (ttsResult.success && ttsResult.audioBlob) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              console.log("FileReader finished, sending audio URL to tab:", targetTabIdForTTS);
+              chrome.tabs.sendMessage(targetTabIdForTTS, {
+                type: 'tts_audio_ready',
+                success: true,
+                audioUrl: reader.result
+              });
+            };
+            reader.onerror = (error) => {
+               console.error("FileReader error:", error);
+               chrome.tabs.sendMessage(targetTabIdForTTS, { 
+                 type: 'tts_audio_ready', 
+                 success: false, 
+                 error: 'FileReader error' 
+               });
+            };
+            reader.readAsDataURL(ttsResult.audioBlob);
+          } else {
+            console.log("No audio blob received, sending error to tab:", targetTabIdForTTS);
+            chrome.tabs.sendMessage(targetTabIdForTTS, { 
+              type: 'tts_audio_ready', 
+              success: false, 
+              error: ttsResult.error || 'No audio blob' 
+            });
+          }
+        } catch (err) {
+          console.error('TTS error:', err);
+          if (targetTabIdForTTS) {
+            chrome.tabs.sendMessage(targetTabIdForTTS, { 
+              type: 'tts_audio_ready', 
+              success: false, 
+              error: err instanceof Error ? err.message : 'Unknown TTS error' 
+            });
+          }
         }
-      } catch (err) {
-        console.error('TTS error:', err);
-        sendResponse({ success: false, error: err instanceof Error ? err.message : 'Unknown error' });
-      }
-      break;
+      })();
+      return false; 
     }
     default:
       break;
   }
-  return true; // keeps sendResponse channel open
+  
+  return true; 
 });
 
 // Clean up on tab removal

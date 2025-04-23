@@ -6,6 +6,7 @@ import LengthAdjustmentToolbar from './LengthAdjustmentToolbar';
 import ReadingLevelAdjustmentToolbar from './ReadingLevelAdjustmentToolbar';
 import TranslationToolbar from './TranslationToolbar';
 import { CENTER_POSITION, CURRENT_LEVEL_POSITION } from './constants';
+import TTSFloatingCard from './ttsFloatingCard';
 
 const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   referenceElement,
@@ -65,6 +66,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     setIsLengthAdjustMode(true);
     setIsReadingLevelMode(false);
     setIsTranslationMode(false);
+    setIsTTSActive(false);
   };
 
   // Handle reading level button click
@@ -72,6 +74,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     setIsReadingLevelMode(true);
     setIsLengthAdjustMode(false);
     setIsTranslationMode(false);
+    setIsTTSActive(false);
   };
 
   // Handle translate button click
@@ -79,16 +82,15 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     setIsTranslationMode(true);
     setIsLengthAdjustMode(false);
     setIsReadingLevelMode(false);
+    setIsTTSActive(false);
   };
 
   // Handle TTS button click
   const handleTTSClick = () => {
-    const newTTSState = !isTTSActive;
-    setIsTTSActive(newTTSState);
-
-    // Send message to toggle TTS in the content script
-    // TODO: Create the tts card
-
+    setIsTTSActive(true);
+    setIsTranslationMode(false);
+    setIsReadingLevelMode(false);
+    setIsLengthAdjustMode(false);
   };
 
   // Handle close button click in adjustment modes
@@ -115,6 +117,18 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           />
         </div>
       )}
+      {isTTSActive && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '138px',
+            right: 'calc(23px + 4.32rem)', // Position it right next to the slider bar
+            zIndex: 2147483646,
+          }}
+        >
+          <TTSFloatingCard textContent={textContent} />
+        </div>
+      )}
       <div
         ref={refs.setFloating}
         style={{
@@ -128,7 +142,11 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         }}
         className={`bg-[#2F6690] rounded-full shadow-lg py-2 flex flex-col items-center ${
           isMinimized ? 'w-14' : ''
-        } ${isLengthAdjustMode || isReadingLevelMode || isTranslationMode ? 'w-auto' : ''}`}
+        } ${
+          isLengthAdjustMode || isReadingLevelMode || isTranslationMode
+            ? 'w-auto'
+            : ''
+        }`}
       >
         {isLengthAdjustMode ? (
           <LengthAdjustmentToolbar
@@ -152,8 +170,6 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
             onTranslateClick={handleTranslateClick}
             onTTSClick={handleTTSClick}
             resetTooltips={resetTooltips}
-            isTTSActive={isTTSActive}
-            isTranslationMode={isTranslationMode}
           />
         )}
       </div>

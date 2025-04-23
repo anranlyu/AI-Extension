@@ -1,7 +1,7 @@
 import { VoiceOption } from "../service/type";
 
 
-const generateTTS = async (
+const getAudioFromOpenAI = async (
   ttsText: string,
   voiceOption: VoiceOption
 ) => {
@@ -54,4 +54,4 @@ const generateTTS = async (
   }
 };
 
-export default generateTTS;
+export default getAudioFromOpenAI;
