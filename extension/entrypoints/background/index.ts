@@ -28,6 +28,20 @@ export default defineBackground(() => {
   });
 
   /**
+   * Handles extension installation and updates
+   * Redirects to onboarding page on first install
+   */
+  chrome.runtime.onInstalled.addListener(({ reason }) => {
+    if (reason === 'install') {
+      // TODO: change to onboarding page
+      chrome.tabs.create({
+        url: 'https://lumiread.netlify.app/'
+      });
+    }
+    // Todo: add logic for 'update' reason here if needed
+  });
+
+  /**
    * Handles authentication callback
    * Watches for tab updates to catch the auth redirect URL
    */
