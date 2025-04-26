@@ -35,7 +35,7 @@ export default defineBackground(() => {
     if (reason === 'install') {
       // TODO: change to onboarding page
       chrome.tabs.create({
-        url: 'https://lumiread.netlify.app/'
+        url: 'https://lumiread.netlify.app/onboarding'
       });
     }
     // Todo: add logic for 'update' reason here if needed
