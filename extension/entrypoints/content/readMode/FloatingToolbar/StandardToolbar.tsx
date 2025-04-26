@@ -27,7 +27,7 @@ const StandardToolbar: React.FC<StandardToolbarProps> = ({
           {/* 1. Reading Level Button */}
           <ToolbarButton
             icon={<ReadingLevelIcon />}
-            label="Reading Level"
+            label="Reading Level Adjustment"
             onClick={onReadingLevelClick}
             resetTooltip={resetTooltips}
             className="text-white"
@@ -36,7 +36,7 @@ const StandardToolbar: React.FC<StandardToolbarProps> = ({
           {/* 2. Adjust the Length Button */}
           <ToolbarButton
             icon={<AdjustLengthIcon />}
-            label="Adjust the Length"
+            label="Length Adjustment"
             onClick={onAdjustLengthClick}
             resetTooltip={resetTooltips}
             className="text-white"
@@ -44,16 +44,16 @@ const StandardToolbar: React.FC<StandardToolbarProps> = ({
           {/* 3. TTS Button */}
           <ToolbarButton
             icon={<TTSIcon />}
-            label="Text to Speech"
-            onClick={onTTSClick}
+            label="New feature coming soon!"
+            //onClick={onTTSClick}
             resetTooltip={resetTooltips}
             className="text-white"
           />
           {/* 4. Translate Button */}
           <ToolbarButton
             icon={<TranslateIcon />}
-            label="Translate"
-            onClick={onTranslateClick}
+            label="New feature coming soon!"
+            //onClick={onTranslateClick}
             resetTooltip={resetTooltips}
             className="text-white"
           />
