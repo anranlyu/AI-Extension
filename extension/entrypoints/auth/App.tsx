@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { createClient, Session } from '@supabase/supabase-js';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
+import logoSrc from './icon.png';
+
 const supabaseUrl = 'https://nzbrkhngkszrdmahshpp.supabase.co';
 const supabaseKey =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56YnJraG5na3N6cmRtYWhzaHBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE3MzI4OTgsImV4cCI6MjA1NzMwODg5OH0.LyLKnMwTQLiB-z_1MuTwmdX0kiLbpsIUL3tqMzDK0Ow';
@@ -61,9 +63,12 @@ export function App() {
 
   if (!session) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-white">
         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-          <h1>Login</h1>
+          <div className="flex items-center justify-center w-full mb-6">
+            <img src={logoSrc} alt="LumiRead Logo" className="h-8 w-8 mr-3" />
+            <h1 className="text-2xl font-bold text-gray-800">LumiRead</h1>
+          </div>
           <Auth
             supabaseClient={supabase}
             view={type === 'recovery' ? 'update_password' : undefined}
@@ -76,8 +81,6 @@ export function App() {
       </div>
     );
   } else {
-    console.log(`Auth html`);
-    console.log(session);
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md text-center">
