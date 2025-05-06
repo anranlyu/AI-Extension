@@ -20,7 +20,7 @@ export default defineConfig({
   manifest: {
     "manifest_version": 3,
     "name": "LumiRead",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "action": {},
     "permissions": [
       "activeTab",

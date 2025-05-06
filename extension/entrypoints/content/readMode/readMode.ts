@@ -34,7 +34,7 @@ const fetchContent = async (url: string) => {
     const data = await res.json();
     
     // If backend returns valid content, use it
-    if (data && data.content?.trim()) {
+    if (data && data.content?.trim() && data.content.includes("<p>") && data.word_count > 20) {
       return data;
     }
   } catch (error) {
@@ -45,7 +45,7 @@ const fetchContent = async (url: string) => {
   try {
     console.log("Falling back to Readability");
     const article = new Readability(document.cloneNode(true) as Document).parse();
-    if (article) {
+    if (article && article.content && article.content.includes("<p>")) {
       return {
         title: article.title,
         content: article.content,
