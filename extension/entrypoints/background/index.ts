@@ -28,6 +28,18 @@ export default defineBackground(() => {
   });
 
   /**
+   * Handles extension installation and updates
+   * Redirects to onboarding page on first install
+   */
+  chrome.runtime.onInstalled.addListener(({ reason }) => {
+    if (reason === 'install') {
+      // Open the authentication page instead of the onboarding page
+      openLoginPage();
+    }
+    // Todo: add logic for 'update' reason here if needed
+  });
+
+  /**
    * Handles authentication callback
    * Watches for tab updates to catch the auth redirect URL
    */
@@ -91,19 +103,7 @@ export default defineBackground(() => {
     }
   };
 
-  /**
-   * Get tab ID from sender or active tab
-   * @param sender - The message sender
-   * @returns Promise resolving to the tab ID
-   */
-  const getTabId = async (sender: chrome.runtime.MessageSender): Promise<number | undefined> => {
-    if (sender.tab?.id) {
-      return sender.tab.id;
-    }
-    
-    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-    return tabs[0]?.id;
-  };
+
 
   /**
    * Process text with DeepSeek API
@@ -355,7 +355,7 @@ const finishUserAuth = async (url: string) => {
     if (error) throw error;
 
     await chrome.storage.local.set({ session: data.session});
-    chrome.tabs.update({ url: 'https://lumiread.netlify.app' });
+    chrome.tabs.update({ url: 'https://lumiread.netlify.app/onboarding' });
   } catch (error) {
     console.error(error);
   }

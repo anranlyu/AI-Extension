@@ -12,8 +12,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-console.log("Loaded API Key:", process.env.OPENAI_API_KEY?.slice(0, 5) || 'Not Found');
-
+console.log("Loaded OPENAI API Key:", process.env.OPENAI_API_KEY?.slice(0, 5) || 'Not Found');
+console.log("Loaded DEEPSEEK API Key:", process.env.DEEPSEEK_API_KEY?.slice(0, 5) || 'Not Found');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -43,6 +43,7 @@ app.get('/parse', async (req, res) => {
 
   try {
     const result = await Parser.parse(url);
+    console.log(result);
     res.json(result);
   } catch (error) {
     console.error('Parsing error:', error);
