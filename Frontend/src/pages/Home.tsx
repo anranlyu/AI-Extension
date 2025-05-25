@@ -37,8 +37,8 @@ function Home() {
               internet more accessible for everyone. By working closely with the
               visually impaired community, we continually refine our features to
               ensure a smoother, more intuitive reading experience. We're
-              excited to share that LumiRead will soon be available on the
-              Chrome Web Store, bringing next-level accessibility to users.
+              excited to share that LumiRead is available on the Chrome Web
+              Store, bringing next-level accessibility to users.
             </p>
 
             {/* Demo Video Section (YouTube) */}
