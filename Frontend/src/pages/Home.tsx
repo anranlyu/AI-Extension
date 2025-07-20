@@ -46,7 +46,7 @@ function Home() {
               <div className="relative w-full overflow-hidden rounded-md shadow-lg pb-[56.25%] h-0">
                 <iframe
                   className="absolute top-0 left-0 w-full h-full"
-                  src="https://www.youtube-nocookie.com/embed/wYLb1vnIcyQ"
+                  src="https://www.youtube-nocookie.com/embed/S7PxYuhy9XE"
                   title="YouTube demo video"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
