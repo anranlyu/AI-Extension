@@ -68,22 +68,3 @@ export interface StandardToolbarProps {
   isTranslationMode?: boolean;
 }
 
-export interface LengthAdjustmentToolbarProps {
-  onClose: () => void;
-  initialOption?: number;
-  textContent?: string;
-}
-
-export interface ReadingLevelAdjustmentToolbarProps {
-  onClose: () => void;
-  initialOption?: number;
-  textContent?: string;
-  readingLevel: number;
-}
-
-export interface TrackMarkerProps {
-  selectedOption: number;
-  onOptionChange: (option: number) => void;
-  onSendClick: () => void;
-  options: string[];
-}

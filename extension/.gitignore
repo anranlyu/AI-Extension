@@ -9,10 +9,20 @@ lerna-debug.log*
 
 node_modules
 .output
+dist
 stats.html
 stats-*.json
 .wxt
 web-ext.config.ts
+
+# Test artifacts (Playwright, leftover from main branch)
+playwright-report
+test-results
+
+# Local env files (commit .env.example only)
+.env
+.env.local
+.env.*.local
 
 # Editor directories and files
 .vscode/*
